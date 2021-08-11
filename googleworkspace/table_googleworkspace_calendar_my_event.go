@@ -23,10 +23,6 @@ func tableGoogleWorkspaceCalendarMyEvents(_ context.Context) *plugin.Table {
 					Require: plugin.Optional,
 				},
 				{
-					Name:    "query",
-					Require: plugin.Optional,
-				},
-				{
 					Name:    "start_time",
 					Require: plugin.Optional,
 				},
