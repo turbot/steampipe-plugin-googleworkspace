@@ -45,7 +45,7 @@ func listCalendarMyEvents(ctx context.Context, d *plugin.QueryData, h *plugin.Hy
 		return nil, err
 	}
 
-	resp := service.Events.List("primary")
+	resp := service.Events.List("primary").TimeZone("UTC")
 
 	// Additional filter functions, invokes when optional filter columns are specified
 	if d.KeyColumnQuals["query"] != nil {

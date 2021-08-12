@@ -273,7 +273,7 @@ func listCalendarEvents(ctx context.Context, d *plugin.QueryData, h *plugin.Hydr
 	}
 	calendarID := d.KeyColumnQuals["calendar_id"].GetStringValue()
 
-	resp := service.Events.List(calendarID)
+	resp := service.Events.List(calendarID).TimeZone("UTC")
 
 	// Additional filter functions, invokes when optional filter columns are specified
 	if d.KeyColumnQuals["query"] != nil {
