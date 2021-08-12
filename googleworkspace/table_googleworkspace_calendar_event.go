@@ -268,8 +268,8 @@ func listCalendarEvents(ctx context.Context, d *plugin.QueryData, h *plugin.Hydr
 	// By default, API can return maximum 2500 records in a single page
 	maxResult := int64(2500)
 	// Reduce the basic request limit down if the user has only requested a small number of rows
-	limit := d.QueryContext.Limit
 	if d.QueryContext.Limit != nil {
+		limit := d.QueryContext.Limit
 		if *limit < maxResult {
 			maxResult = *limit
 		}
