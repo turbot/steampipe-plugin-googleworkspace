@@ -245,14 +245,6 @@ func tableGoogleWorkspaceCalendarEvents(_ context.Context) *plugin.Table {
 					Name:    "query",
 					Require: plugin.Optional,
 				},
-				{
-					Name:    "start_time",
-					Require: plugin.Optional,
-				},
-				{
-					Name:    "end_time",
-					Require: plugin.Optional,
-				},
 			},
 		},
 		Get: &plugin.GetConfig{
@@ -273,22 +265,23 @@ func listCalendarEvents(ctx context.Context, d *plugin.QueryData, h *plugin.Hydr
 	}
 	calendarID := d.KeyColumnQuals["calendar_id"].GetStringValue()
 
-	resp := service.Events.List(calendarID).TimeZone("UTC")
+	// By default, API can return maximum 2500 records in a single page
+	maxResult := int64(2500)
+	// Reduce the basic request limit down if the user has only requested a small number of rows
+	limit := d.QueryContext.Limit
+	if d.QueryContext.Limit != nil {
+		if *limit < maxResult {
+			maxResult = *limit
+		}
+	}
 
-	// Additional filter functions, invokes when optional filter columns are specified
+	// Free text search terms to find events that match these terms in any field, except for extended properties
+	var query string
 	if d.KeyColumnQuals["query"] != nil {
-		query := d.KeyColumnQuals["query"].GetStringValue()
-		resp.Q(query)
-	}
-	if d.Quals["start_time"] != nil {
-		startTime := d.KeyColumnQuals["start_time"].GetTimestampValue().AsTime().Format("2006-01-02T15:04:05.000Z")
-		resp.TimeMax(startTime)
-	}
-	if d.Quals["end_time"] != nil {
-		endTime := d.KeyColumnQuals["end_time"].GetTimestampValue().AsTime().Format("2006-01-02T15:04:05.000Z")
-		resp.TimeMin(endTime)
+		query = d.KeyColumnQuals["query"].GetStringValue()
 	}
 
+	resp := service.Events.List(calendarID).SingleEvents(true).Q(query).MaxResults(maxResult)
 	if err := resp.Pages(ctx, func(page *calendar.Events) error {
 		for _, event := range page.Items {
 			d.StreamListItem(ctx, calendarEvent{*event, page.Summary})
