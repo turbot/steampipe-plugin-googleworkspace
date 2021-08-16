@@ -11,6 +11,7 @@ import (
 	"google.golang.org/api/calendar/v3"
 	"google.golang.org/api/docs/v1"
 	"google.golang.org/api/option"
+	"google.golang.org/api/sheets/v4"
 
 	"github.com/turbot/steampipe-plugin-sdk/plugin"
 	drive "google.golang.org/api/drive/v3"
@@ -81,6 +82,31 @@ func DriveService(ctx context.Context, d *plugin.QueryData) (*drive.Service, err
 
 	// Create service
 	svc, err := drive.NewService(ctx, option.WithTokenSource(ts))
+	if err != nil {
+		return nil, err
+	}
+
+	// cache the service
+	d.ConnectionManager.Cache.Set(serviceCacheKey, svc)
+
+	return svc, nil
+}
+
+func SheetsService(ctx context.Context, d *plugin.QueryData) (*sheets.Service, error) {
+	// have we already created and cached the service?
+	serviceCacheKey := "googleworkspace.sheets"
+	if cachedData, ok := d.ConnectionManager.Cache.Get(serviceCacheKey); ok {
+		return cachedData.(*sheets.Service), nil
+	}
+
+	// so it was not in cache - create service
+	ts, err := getTokenSource(ctx, d)
+	if err != nil {
+		return nil, err
+	}
+
+	// Create service
+	svc, err := sheets.NewService(ctx, option.WithTokenSource(ts))
 	if err != nil {
 		return nil, err
 	}
