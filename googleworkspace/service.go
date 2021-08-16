@@ -9,6 +9,7 @@ import (
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 	"google.golang.org/api/calendar/v3"
+	"google.golang.org/api/docs/v1"
 	"google.golang.org/api/option"
 
 	"github.com/turbot/steampipe-plugin-sdk/plugin"
@@ -30,6 +31,31 @@ func CalendarService(ctx context.Context, d *plugin.QueryData) (*calendar.Servic
 
 	// Create service
 	svc, err := calendar.NewService(ctx, option.WithTokenSource(ts))
+	if err != nil {
+		return nil, err
+	}
+
+	// cache the service
+	d.ConnectionManager.Cache.Set(serviceCacheKey, svc)
+
+	return svc, nil
+}
+
+func DocsService(ctx context.Context, d *plugin.QueryData) (*docs.Service, error) {
+	// have we already created and cached the service?
+	serviceCacheKey := "googleworkspace.docs"
+	if cachedData, ok := d.ConnectionManager.Cache.Get(serviceCacheKey); ok {
+		return cachedData.(*docs.Service), nil
+	}
+
+	// so it was not in cache - create service
+	ts, err := getTokenSource(ctx, d)
+	if err != nil {
+		return nil, err
+	}
+
+	// Create service
+	svc, err := docs.NewService(ctx, option.WithTokenSource(ts))
 	if err != nil {
 		return nil, err
 	}

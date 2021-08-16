@@ -17,7 +17,7 @@ func tableGoogleWorkspaceCalendars(_ context.Context) *plugin.Table {
 		List: &plugin.ListConfig{
 			Hydrate:           listCalendars,
 			KeyColumns:        plugin.SingleColumn("id"),
-			ShouldIgnoreError: isNotFoundError([]string{"404", "400"}),
+			ShouldIgnoreError: isNotFoundError([]string{"404", "400", "403"}),
 		},
 		Columns: []*plugin.Column{
 			{

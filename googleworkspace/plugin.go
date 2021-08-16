@@ -21,7 +21,7 @@ func Plugin(ctx context.Context) *plugin.Plugin {
 		Name:             pluginName,
 		DefaultTransform: transform.FromCamel().NullIfZero(),
 		DefaultGetConfig: &plugin.GetConfig{
-			ShouldIgnoreError: isNotFoundError([]string{"404", "400"}),
+			ShouldIgnoreError: isNotFoundError([]string{"404", "400", "403"}),
 		},
 		ConnectionConfigSchema: &plugin.ConnectionConfigSchema{
 			NewInstance: ConfigInstance,
@@ -31,6 +31,7 @@ func Plugin(ctx context.Context) *plugin.Plugin {
 			"googleworkspace_calendar":          tableGoogleWorkspaceCalendars(ctx),
 			"googleworkspace_calendar_event":    tableGoogleWorkspaceCalendarEvents(ctx),
 			"googleworkspace_calendar_my_event": tableGoogleWorkspaceCalendarMyEvents(ctx),
+			"googleworkspace_docs":              tableGoogleWorkspaceDocs(ctx),
 			// "googleworkspace_drive":             tableGoogleWorkspaceDrive(ctx),
 			// "googleworkspace_drive_my_file":     tableGoogleWorkspaceDriveMyFiles(ctx),
 		},
