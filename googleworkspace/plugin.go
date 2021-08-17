@@ -32,13 +32,12 @@ func Plugin(ctx context.Context) *plugin.Plugin {
 			"googleworkspace_calendar_event":     tableGoogleWorkspaceCalendarEvent(ctx),
 			"googleworkspace_calendar_my_event":  tableGoogleWorkspaceCalendarMyEvent(ctx),
 			"googleworkspace_docs":               tableGoogleWorkspaceDocs(ctx),
+			"googleworkspace_drive":              tableGoogleWorkspaceDrive(ctx),
+			"googleworkspace_drive_my_file":      tableGoogleWorkspaceDriveMyFiles(ctx),
 			"googleworkspace_gmail_user_draft":   tableGoogleWorkspaceGmailUserDraft(ctx),
 			"googleworkspace_gmail_user_message": tableGoogleWorkspaceGmailUserMessage(ctx),
 			"googleworkspace_gmail_user_setting": tableGoogleWorkspaceGmailUserSetting(ctx),
 			"googleworkspace_spreadsheet":        tableGoogleWorkspaceSpreadSheet(ctx),
-			// "googleworkspace_chat_space":        tableGoogleWorkspaceChatSpaces(ctx),
-			// "googleworkspace_drive":             tableGoogleWorkspaceDrive(ctx),
-			// "googleworkspace_drive_my_file":     tableGoogleWorkspaceDriveMyFiles(ctx),
 		},
 	}
 

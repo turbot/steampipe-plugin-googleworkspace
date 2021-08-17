@@ -43,33 +43,6 @@ func CalendarService(ctx context.Context, d *plugin.QueryData) (*calendar.Servic
 	return svc, nil
 }
 
-// TODO :: Getting following error when trying to list the spaces
-// `Error: googleapi: Error 404: Invalid project number., notFound`
-// func ChatService(ctx context.Context, d *plugin.QueryData) (*chat.Service, error) {
-// 	// have we already created and cached the service?
-// 	serviceCacheKey := "googleworkspace.chat"
-// 	if cachedData, ok := d.ConnectionManager.Cache.Get(serviceCacheKey); ok {
-// 		return cachedData.(*chat.Service), nil
-// 	}
-
-// 	// so it was not in cache - create service
-// 	ts, err := getTokenSource(ctx, d)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-
-// 	// Create service
-// 	svc, err := chat.NewService(ctx, option.WithTokenSource(ts))
-// 	if err != nil {
-// 		return nil, err
-// 	}
-
-// 	// cache the service
-// 	d.ConnectionManager.Cache.Set(serviceCacheKey, svc)
-
-// 	return svc, nil
-// }
-
 func DocsService(ctx context.Context, d *plugin.QueryData) (*docs.Service, error) {
 	// have we already created and cached the service?
 	serviceCacheKey := "googleworkspace.docs"
@@ -213,7 +186,6 @@ func getTokenSource(ctx context.Context, d *plugin.QueryData) (oauth2.TokenSourc
 		jsonCredentials,
 		drive.DriveReadonlyScope,
 		calendar.CalendarReadonlyScope,
-		// "https://www.googleapis.com/auth/chat.bot",
 		gmail.GmailReadonlyScope,
 	)
 	if err != nil {
