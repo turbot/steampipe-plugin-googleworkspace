@@ -10,11 +10,12 @@ import (
 	"golang.org/x/oauth2/google"
 	"google.golang.org/api/calendar/v3"
 	"google.golang.org/api/docs/v1"
+	"google.golang.org/api/drive/v3"
+	"google.golang.org/api/gmail/v1"
 	"google.golang.org/api/option"
 	"google.golang.org/api/sheets/v4"
 
 	"github.com/turbot/steampipe-plugin-sdk/plugin"
-	drive "google.golang.org/api/drive/v3"
 )
 
 func CalendarService(ctx context.Context, d *plugin.QueryData) (*calendar.Service, error) {
@@ -41,6 +42,33 @@ func CalendarService(ctx context.Context, d *plugin.QueryData) (*calendar.Servic
 
 	return svc, nil
 }
+
+// TODO :: Getting following error when trying to list the spaces
+// `Error: googleapi: Error 404: Invalid project number., notFound`
+// func ChatService(ctx context.Context, d *plugin.QueryData) (*chat.Service, error) {
+// 	// have we already created and cached the service?
+// 	serviceCacheKey := "googleworkspace.chat"
+// 	if cachedData, ok := d.ConnectionManager.Cache.Get(serviceCacheKey); ok {
+// 		return cachedData.(*chat.Service), nil
+// 	}
+
+// 	// so it was not in cache - create service
+// 	ts, err := getTokenSource(ctx, d)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+
+// 	// Create service
+// 	svc, err := chat.NewService(ctx, option.WithTokenSource(ts))
+// 	if err != nil {
+// 		return nil, err
+// 	}
+
+// 	// cache the service
+// 	d.ConnectionManager.Cache.Set(serviceCacheKey, svc)
+
+// 	return svc, nil
+// }
 
 func DocsService(ctx context.Context, d *plugin.QueryData) (*docs.Service, error) {
 	// have we already created and cached the service?
@@ -82,6 +110,31 @@ func DriveService(ctx context.Context, d *plugin.QueryData) (*drive.Service, err
 
 	// Create service
 	svc, err := drive.NewService(ctx, option.WithTokenSource(ts))
+	if err != nil {
+		return nil, err
+	}
+
+	// cache the service
+	d.ConnectionManager.Cache.Set(serviceCacheKey, svc)
+
+	return svc, nil
+}
+
+func GmailService(ctx context.Context, d *plugin.QueryData) (*gmail.Service, error) {
+	// have we already created and cached the service?
+	serviceCacheKey := "googleworkspace.gmail"
+	if cachedData, ok := d.ConnectionManager.Cache.Get(serviceCacheKey); ok {
+		return cachedData.(*gmail.Service), nil
+	}
+
+	// so it was not in cache - create service
+	ts, err := getTokenSource(ctx, d)
+	if err != nil {
+		return nil, err
+	}
+
+	// Create service
+	svc, err := gmail.NewService(ctx, option.WithTokenSource(ts))
 	if err != nil {
 		return nil, err
 	}
@@ -160,6 +213,8 @@ func getTokenSource(ctx context.Context, d *plugin.QueryData) (oauth2.TokenSourc
 		jsonCredentials,
 		drive.DriveReadonlyScope,
 		calendar.CalendarReadonlyScope,
+		// "https://www.googleapis.com/auth/chat.bot",
+		gmail.GmailReadonlyScope,
 	)
 	if err != nil {
 		return nil, err

@@ -10,7 +10,7 @@ import (
 
 //// TABLE DEFINITION
 
-func tableGoogleWorkspaceCalendarMyEvents(_ context.Context) *plugin.Table {
+func tableGoogleWorkspaceCalendarMyEvent(_ context.Context) *plugin.Table {
 	return &plugin.Table{
 		Name:        "googleworkspace_calendar_my_event",
 		Description: "Events scheduled on the specified calendar.",

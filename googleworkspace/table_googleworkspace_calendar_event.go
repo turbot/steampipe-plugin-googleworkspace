@@ -229,7 +229,7 @@ func calendarEventColumns() []*plugin.Column {
 
 //// TABLE DEFINITION
 
-func tableGoogleWorkspaceCalendarEvents(_ context.Context) *plugin.Table {
+func tableGoogleWorkspaceCalendarEvent(_ context.Context) *plugin.Table {
 	return &plugin.Table{
 		Name:        "googleworkspace_calendar_event",
 		Description: "Events scheduled on the specified calendar.",

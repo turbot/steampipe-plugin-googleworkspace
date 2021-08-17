@@ -10,7 +10,7 @@ import (
 
 //// TABLE DEFINITION
 
-func tableGoogleWorkspaceSpreadSheets(_ context.Context) *plugin.Table {
+func tableGoogleWorkspaceSpreadSheet(_ context.Context) *plugin.Table {
 	return &plugin.Table{
 		Name:        "googleworkspace_spreadsheet",
 		Description: "Retrieves latest version of the specified document.",

@@ -10,7 +10,7 @@ import (
 
 //// TABLE DEFINITION
 
-func tableGoogleWorkspaceCalendars(_ context.Context) *plugin.Table {
+func tableGoogleWorkspaceCalendar(_ context.Context) *plugin.Table {
 	return &plugin.Table{
 		Name:        "googleworkspace_calendar",
 		Description: "Metadata of the specified calendar.",
