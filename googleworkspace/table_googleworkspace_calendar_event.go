@@ -73,7 +73,7 @@ func calendarEventColumns() []*plugin.Column {
 		{
 			Name:        "color_id",
 			Description: "The color of the event.",
-			Type:        proto.ColumnType_BOOL,
+			Type:        proto.ColumnType_STRING,
 		},
 		{
 			Name:        "created_at",
@@ -172,7 +172,7 @@ func calendarEventColumns() []*plugin.Column {
 		{
 			Name:        "visibility",
 			Description: "Visibility of the event.",
-			Type:        proto.ColumnType_BOOL,
+			Type:        proto.ColumnType_STRING,
 		},
 		{
 			Name:        "attachments",
