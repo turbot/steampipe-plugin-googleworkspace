@@ -1,21 +1,21 @@
 /*
-	Script to generate a token to authenticate an user using OAuth 2.0
+  Script to generate a token to authenticate an user using OAuth 2.0
 
-	This script uses Client secret credential to protect the user's data by only granting tokens to authorized requestors
+  This script uses Client secret credential to protect the user's data by only granting tokens to authorized requestors
 
-	NOTE:
-		Authorization information is stored on the file system, so subsequent executions don't prompt for authorization.
+  NOTE:
+    Authorization information is stored on the file system, so subsequent executions don't prompt for authorization.
 
-	Steps to follow:
-	  1. Generate the client secret, refer https://developers.google.com/workspace/guides/create-credentials
-		2. Goto your terminal and run the script, i.e. `go run generateClientToken.go`
-		3. The first time you run the sample, it prompts you to authorize access:
-			  * Browse to the provided URL in your web browser.
-				* If you're not already signed in to your Google account, you're prompted to sign in.
-				  If you're signed in to multiple Google accounts, you are asked to select one account to use for authorization.
-				* Click the Accept button.
-				* Copy the code you're given, paste it into the command-line prompt, and press Enter.
-		4. After successful execution, a token file will be generated inside steampipe directory (i.e. `~/.steampipe/token.json`)
+  Steps to follow:
+    1. Generate the client secret, refer https://developers.google.com/workspace/guides/create-credentials
+    2. Goto your terminal and run the script, i.e. `go run generateClientToken.go`
+    3. The first time you run the sample, it prompts you to authorize access:
+      * Browse to the provided URL in your web browser.
+      * If you're not already signed in to your Google account, you're prompted to sign in.
+        If you're signed in to multiple Google accounts, you are asked to select one account to use for authorization.
+      * Click the Accept button.
+      * Copy the code you're given, paste it into the command-line prompt, and press Enter.
+    4. After successful execution, a token file will be generated inside steampipe directory (i.e. `~/.steampipe/token.json`)
 */
 
 package main
