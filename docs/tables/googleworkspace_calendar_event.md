@@ -25,7 +25,7 @@ order by start_time
 limit 10;
 ```
 
-### List of events scheduled in next 3 days
+### List of events scheduled in next 4 days
 
 ```sql
 select
@@ -36,9 +36,43 @@ select
 from
   googleworkspace_calendar_event
 where
-  calendar_id = 'user@domain.com'
-  and start_time >= now()::timestamp
-  and end_time < ('now'::timestamp + interval '3 days')
+  calendar_id = 'company-calendar@domain.com'
+  and start_time >= current_date
+  and end_time <= (current_date + interval '4 days')
+order by start_time;
+```
+
+### List of events scheduled in current month
+
+```sql
+select
+  summary,
+  hangout_link,
+  start_time,
+  end_time
+from
+  googleworkspace_calendar_event
+where
+  calendar_id = 'company-calendar@domain.com'
+  and start_time >= date_trunc('month', current_date)
+  and end_time <= date_trunc('month', current_date) + interval '1 month'
+order by start_time;
+```
+
+### List of events scheduled in current week
+
+```sql
+select
+  summary,
+  hangout_link,
+  start_time,
+  end_time
+from
+  googleworkspace_calendar_event
+where
+  calendar_id = 'company-calendar@domain.com'
+  and start_time >= date_trunc('week', current_date)
+  and end_time < (date_trunc('week', current_date) + interval '7 days')
 order by start_time;
 ```
 
