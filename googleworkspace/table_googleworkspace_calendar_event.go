@@ -51,6 +51,12 @@ func calendarEventColumns() []*plugin.Column {
 			Transform:   transform.FromP(formatTimestamp, "EndTime").NullIfZero(),
 		},
 		{
+			Name:        "day",
+			Description: "Specifies the day of a week.",
+			Type:        proto.ColumnType_STRING,
+			Transform:   transform.FromP(formatTimestamp, "Day").NullIfZero(),
+		},
+		{
 			Name:        "hangout_link",
 			Description: "An absolute link to the Google Hangout associated with this event.",
 			Type:        proto.ColumnType_STRING,
@@ -79,7 +85,7 @@ func calendarEventColumns() []*plugin.Column {
 			Name:        "created_at",
 			Description: "Creation time of the event.",
 			Type:        proto.ColumnType_TIMESTAMP,
-			Transform:   transform.FromField("Created"),
+			Transform:   transform.FromField("Created").NullIfZero(),
 		},
 		{
 			Name:        "description",
@@ -167,7 +173,7 @@ func calendarEventColumns() []*plugin.Column {
 			Name:        "updated_at",
 			Description: "Last modification time of the event.",
 			Type:        proto.ColumnType_TIMESTAMP,
-			Transform:   transform.FromField("Updated"),
+			Transform:   transform.FromField("Updated").NullIfZero(),
 		},
 		{
 			Name:        "visibility",
@@ -284,7 +290,7 @@ func listCalendarEvents(ctx context.Context, d *plugin.QueryData, h *plugin.Hydr
 	resp := service.Events.List(calendarID).SingleEvents(true).Q(query).MaxResults(maxResult)
 	if err := resp.Pages(ctx, func(page *calendar.Events) error {
 		for _, event := range page.Items {
-			d.StreamListItem(ctx, calendarEvent{*event, page.Summary})
+			d.StreamListItem(ctx, calendarEvent{*event, calendarID})
 		}
 		return nil
 	}); err != nil {
@@ -323,20 +329,32 @@ func getCalendarEvent(ctx context.Context, d *plugin.QueryData, h *plugin.Hydrat
 func formatTimestamp(_ context.Context, d *transform.TransformData) (interface{}, error) {
 	data := d.HydrateItem.(calendarEvent)
 	param := d.Param.(string)
+	var startTime, endTime string
 
-	startTime := data.Start.DateTime
+	// handling empty data
+	if data.Start == nil || data.End == nil {
+		return nil, nil
+	}
+
+	startTime = data.Start.DateTime
 	if startTime == "" {
 		startTime = parseTime(data.Start.Date)
 	}
 
-	endTime := data.End.DateTime
+	endTime = data.End.DateTime
 	if endTime == "" {
 		endTime = parseTime(data.End.Date)
+	}
+
+	t, err := time.Parse(time.RFC3339, startTime)
+	if err != nil {
+		return nil, err
 	}
 
 	formattedTime := map[string]string{
 		"StartTime": startTime,
 		"EndTime":   endTime,
+		"Day":       t.Weekday().String(),
 	}
 
 	return formattedTime[param], nil
