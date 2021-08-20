@@ -29,6 +29,7 @@ import (
 	"os"
 	"os/user"
 
+	"github.com/ttacon/chalk"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 	"google.golang.org/api/calendar/v3"
@@ -57,10 +58,11 @@ func generateToken(config *oauth2.Config) {
 // Request a token from the web, then returns the retrieved token.
 func getTokenFromWeb(config *oauth2.Config) *oauth2.Token {
 	authURL := config.AuthCodeURL("state-token", oauth2.ApprovalForce)
-	fmt.Printf("Go to the following link in your browser then type the "+
-		"authorization code: \n%v\n", authURL)
+	fmt.Printf("\nGo to the following link in your browser then type the "+
+		"authorization code: \n%v\n", chalk.Bold.TextStyle(authURL))
 
 	var authCode string
+	fmt.Print("\nEnter the authorization code: ")
 	if _, err := fmt.Scan(&authCode); err != nil {
 		log.Fatalf("Unable to read authorization code: %v", err)
 	}
@@ -74,7 +76,7 @@ func getTokenFromWeb(config *oauth2.Config) *oauth2.Token {
 
 // Saves a token to a file path.
 func saveToken(path string, token *oauth2.Token) {
-	fmt.Printf("Saving credential file to: %s\n", path)
+	fmt.Printf("\nSaving credential file to: %s\n", path)
 	f, err := os.OpenFile(path, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0600)
 	if err != nil {
 		log.Fatalf("Unable to cache oauth token: %v", err)
@@ -89,7 +91,7 @@ func saveToken(path string, token *oauth2.Token) {
 func main() {
 	// Get the client secret path from user
 	var clientSecretPath string
-	fmt.Println("Enter the client secret file path: ")
+	fmt.Print("Enter the client secret file path: ")
 	fmt.Scanln(&clientSecretPath) // Read the input
 
 	// Return, if no client secret provided
@@ -106,8 +108,8 @@ func main() {
 	// If modifying these scopes, delete your previously saved token.json.
 	config, err := google.ConfigFromJSON(
 		b,
-		drive.DriveReadonlyScope,
 		calendar.CalendarReadonlyScope,
+		drive.DriveReadonlyScope,
 		gmail.GmailReadonlyScope,
 	)
 	if err != nil {
