@@ -15,6 +15,7 @@ import (
 	"google.golang.org/api/drive/v3"
 	"google.golang.org/api/gmail/v1"
 	"google.golang.org/api/option"
+	"google.golang.org/api/people/v1"
 	"google.golang.org/api/sheets/v4"
 
 	"github.com/turbot/steampipe-plugin-sdk/plugin"
@@ -35,6 +36,31 @@ func CalendarService(ctx context.Context, d *plugin.QueryData) (*calendar.Servic
 
 	// Create service
 	svc, err := calendar.NewService(ctx, opts...)
+	if err != nil {
+		return nil, err
+	}
+
+	// cache the service
+	d.ConnectionManager.Cache.Set(serviceCacheKey, svc)
+
+	return svc, nil
+}
+
+func PeopleService(ctx context.Context, d *plugin.QueryData) (*people.Service, error) {
+	// have we already created and cached the service?
+	serviceCacheKey := "googleworkspace.people"
+	if cachedData, ok := d.ConnectionManager.Cache.Get(serviceCacheKey); ok {
+		return cachedData.(*people.Service), nil
+	}
+
+	// so it was not in cache - create service
+	opts, err := getSessionConfig(ctx, d)
+	if err != nil {
+		return nil, err
+	}
+
+	// Create service
+	svc, err := people.NewService(ctx, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -187,8 +213,10 @@ func getSessionConfig(ctx context.Context, d *plugin.QueryData) ([]option.Client
 	// If modifying these scopes, delete your previously saved token.json.
 	config, err := google.ConfigFromJSON(
 		b,
-		drive.DriveReadonlyScope,
 		calendar.CalendarReadonlyScope,
+		people.ContactsReadonlyScope,
+		people.ContactsOtherReadonlyScope,
+		drive.DriveReadonlyScope,
 		gmail.GmailReadonlyScope,
 	)
 	if err != nil {
@@ -205,6 +233,7 @@ func getSessionConfig(ctx context.Context, d *plugin.QueryData) ([]option.Client
 	return opts, nil
 }
 
+// Returns a JWT TokenSource using the configuration and the HTTP client from the provided context.
 func getTokenSource(ctx context.Context, d *plugin.QueryData) (oauth2.TokenSource, error) {
 	// NOTE: based on https://developers.google.com/admin-sdk/directory/v1/guides/delegation#go
 
@@ -238,8 +267,8 @@ func getTokenSource(ctx context.Context, d *plugin.QueryData) (oauth2.TokenSourc
 	// Authorize the request
 	config, err := google.JWTConfigFromJSON(
 		jsonCredentials,
-		drive.DriveReadonlyScope,
 		calendar.CalendarReadonlyScope,
+		drive.DriveReadonlyScope,
 		gmail.GmailReadonlyScope,
 	)
 	if err != nil {
@@ -255,6 +284,7 @@ func getTokenSource(ctx context.Context, d *plugin.QueryData) (oauth2.TokenSourc
 	return ts, nil
 }
 
+// Read token file, and returns token used to authorize the requests to access protected resources on the OAuth 2.0 provider's backend.
 func getHttpClientToken(d *plugin.QueryData) (*oauth2.Token, error) {
 	// have we already created and cached the token?
 	cacheKey := "googleworkspace.bearer_token"

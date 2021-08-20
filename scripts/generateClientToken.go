@@ -35,6 +35,7 @@ import (
 	"google.golang.org/api/calendar/v3"
 	"google.golang.org/api/drive/v3"
 	"google.golang.org/api/gmail/v1"
+	"google.golang.org/api/people/v1"
 )
 
 // Retrieve a token, saves the token
@@ -109,6 +110,8 @@ func main() {
 	config, err := google.ConfigFromJSON(
 		b,
 		calendar.CalendarReadonlyScope,
+		people.ContactsReadonlyScope,
+		people.ContactsOtherReadonlyScope,
 		drive.DriveReadonlyScope,
 		gmail.GmailReadonlyScope,
 	)
