@@ -15,7 +15,7 @@ func tableGoogleWorkspaceContanctDirectoryPeople(_ context.Context) *plugin.Tabl
 		Description: "Domain contacts in the authenticated user's domain directory.",
 		List: &plugin.ListConfig{
 			Hydrate:           listContactDirecoryPeople,
-			ShouldIgnoreError: isNotFoundError([]string{"404", "400", "403"}),
+			ShouldIgnoreError: isNotFoundError([]string{"404"}),
 		},
 		Columns: peopleContacts(),
 	}
@@ -62,6 +62,9 @@ func listContactDirecoryPeople(ctx context.Context, d *plugin.QueryData, _ *plug
 		}
 		return nil
 	}); err != nil {
+		if IsForbiddenError(err) {
+			return nil, nil
+		}
 		return nil, err
 	}
 

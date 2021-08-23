@@ -17,7 +17,7 @@ func tableGoogleWorkspaceSpreadSheet(_ context.Context) *plugin.Table {
 		List: &plugin.ListConfig{
 			Hydrate:           listSpreadsheets,
 			KeyColumns:        plugin.AllColumns([]string{"id", "range"}),
-			ShouldIgnoreError: isNotFoundError([]string{"404", "400", "403"}),
+			ShouldIgnoreError: isNotFoundError([]string{"404"}),
 		},
 		Columns: []*plugin.Column{
 			{
@@ -58,6 +58,9 @@ func listSpreadsheets(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydrat
 
 	resp, err := service.Spreadsheets.Values.Get(sheetID, sheetRange).Do()
 	if err != nil {
+		if IsForbiddenError(err) {
+			return nil, nil
+		}
 		return nil, err
 	}
 	d.StreamListItem(ctx, resp)

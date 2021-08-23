@@ -16,8 +16,8 @@ func tableGoogleWorkspaceCalendarMyEvent(_ context.Context) *plugin.Table {
 		Name:        "googleworkspace_calendar_my_event",
 		Description: "Events scheduled on the specified calendar.",
 		List: &plugin.ListConfig{
-			Hydrate: listCalendarMyEvents,
-			// ShouldIgnoreError: isNotFoundError([]string{"404", "400", "403"}),
+			Hydrate:           listCalendarMyEvents,
+			ShouldIgnoreError: isNotFoundError([]string{"404"}),
 			KeyColumns: []*plugin.KeyColumn{
 				{
 					Name:    "query",
@@ -91,6 +91,9 @@ func listCalendarMyEvents(ctx context.Context, d *plugin.QueryData, h *plugin.Hy
 		}
 		return nil
 	}); err != nil {
+		if IsForbiddenError(err) {
+			return nil, nil
+		}
 		return nil, err
 	}
 

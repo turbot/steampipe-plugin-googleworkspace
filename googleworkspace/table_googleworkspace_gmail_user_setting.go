@@ -16,8 +16,7 @@ func tableGoogleWorkspaceGmailUserSetting(_ context.Context) *plugin.Table {
 		Name:        "googleworkspace_gmail_user_setting",
 		Description: "Retrieves user's settings for the specified account.",
 		List: &plugin.ListConfig{
-			Hydrate:           listGmailUsers,
-			ShouldIgnoreError: isNotFoundError([]string{"403"}),
+			Hydrate: listGmailUsers,
 			KeyColumns: []*plugin.KeyColumn{
 				{
 					Name:    "user_email",
@@ -94,6 +93,9 @@ func listGmailUsers(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateD
 
 	resp, err := service.Users.GetProfile(userID).Do()
 	if err != nil {
+		if IsForbiddenError(err) {
+			return nil, nil
+		}
 		return nil, err
 	}
 	d.StreamListItem(ctx, resp)

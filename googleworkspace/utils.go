@@ -1,11 +1,9 @@
 package googleworkspace
 
-import "google.golang.org/api/googleapi"
+import "regexp"
 
 // Function which returns an IsForbiddenError
 func IsForbiddenError(err error) bool {
-	if gerr, ok := err.(*googleapi.Error); ok {
-		return gerr.Code == 403
-	}
-	return false
+	regexExp := regexp.MustCompile(`googleapi: Error 403: [^\s]+ API has not been used in project [0-9]{12} before or it is disabled\.`)
+	return regexExp.MatchString(err.Error())
 }

@@ -16,8 +16,7 @@ func tableGoogleWorkspaceGmailUserMessage(_ context.Context) *plugin.Table {
 		Name:        "googleworkspace_gmail_user_message",
 		Description: "Retrieves messages in the user's mailbox.",
 		List: &plugin.ListConfig{
-			Hydrate:           listGmailMessages,
-			ShouldIgnoreError: isNotFoundError([]string{"403"}),
+			Hydrate: listGmailMessages,
 			KeyColumns: []*plugin.KeyColumn{
 				{
 					Name:    "user_id",
@@ -145,6 +144,9 @@ func listGmailMessages(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydra
 		}
 		return nil
 	}); err != nil {
+		if IsForbiddenError(err) {
+			return nil, nil
+		}
 		return nil, err
 	}
 
@@ -180,6 +182,9 @@ func getGmailMessage(ctx context.Context, d *plugin.QueryData, h *plugin.Hydrate
 
 	resp, err := service.Users.Messages.Get(userID, messageID).Do()
 	if err != nil {
+		if IsForbiddenError(err) {
+			return nil, nil
+		}
 		return nil, err
 	}
 

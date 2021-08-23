@@ -142,7 +142,7 @@ func tableGoogleWorkspaceContactConnection(_ context.Context) *plugin.Table {
 		Description: "Contacts owned by the authenticated user.",
 		List: &plugin.ListConfig{
 			Hydrate:           listContactConnections,
-			ShouldIgnoreError: isNotFoundError([]string{"404", "400", "403"}),
+			ShouldIgnoreError: isNotFoundError([]string{"404"}),
 		},
 		Columns: peopleContacts(),
 	}
@@ -197,6 +197,9 @@ func listContactConnections(ctx context.Context, d *plugin.QueryData, _ *plugin.
 		}
 		return nil
 	}); err != nil {
+		if IsForbiddenError(err) {
+			return nil, nil
+		}
 		return nil, err
 	}
 

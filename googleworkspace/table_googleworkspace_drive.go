@@ -153,6 +153,9 @@ func listDrives(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData)
 		}
 		return nil
 	}); err != nil {
+		if IsForbiddenError(err) {
+			return nil, nil
+		}
 		return nil, err
 	}
 
@@ -179,6 +182,9 @@ func getDrive(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (
 
 	resp, err := service.Drives.Get(id).Fields("*").Do()
 	if err != nil {
+		if IsForbiddenError(err) {
+			return nil, nil
+		}
 		return nil, err
 	}
 

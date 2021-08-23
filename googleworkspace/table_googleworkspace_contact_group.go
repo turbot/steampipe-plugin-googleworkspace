@@ -23,7 +23,7 @@ func tableGoogleWorkspaceContactGroup(_ context.Context) *plugin.Table {
 					Require: plugin.Optional,
 				},
 			},
-			ShouldIgnoreError: isNotFoundError([]string{"404", "400", "403"}),
+			ShouldIgnoreError: isNotFoundError([]string{"404"}),
 		},
 		Columns: []*plugin.Column{
 			{
@@ -114,6 +114,9 @@ func listContactGroups(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydra
 		}
 		return nil
 	}); err != nil {
+		if IsForbiddenError(err) {
+			return nil, nil
+		}
 		return nil, err
 	}
 

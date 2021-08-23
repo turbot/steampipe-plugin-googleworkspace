@@ -17,7 +17,7 @@ func tableGoogleWorkspaceDocs(_ context.Context) *plugin.Table {
 		List: &plugin.ListConfig{
 			Hydrate:           listDocs,
 			KeyColumns:        plugin.SingleColumn("document_id"),
-			ShouldIgnoreError: isNotFoundError([]string{"404", "400", "403"}),
+			ShouldIgnoreError: isNotFoundError([]string{"404"}),
 		},
 		Columns: []*plugin.Column{
 			{
@@ -117,6 +117,9 @@ func listDocs(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (
 
 	resp, err := service.Documents.Get(documentID).Do()
 	if err != nil {
+		if IsForbiddenError(err) {
+			return nil, nil
+		}
 		return nil, err
 	}
 	d.StreamListItem(ctx, resp)

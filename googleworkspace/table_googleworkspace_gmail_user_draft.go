@@ -16,8 +16,7 @@ func tableGoogleWorkspaceGmailUserDraft(_ context.Context) *plugin.Table {
 		Name:        "googleworkspace_gmail_user_draft",
 		Description: "Retrieves draft messages in the user's mailbox.",
 		List: &plugin.ListConfig{
-			Hydrate:           listGmailUserDrafts,
-			ShouldIgnoreError: isNotFoundError([]string{"403"}),
+			Hydrate: listGmailUserDrafts,
 			KeyColumns: []*plugin.KeyColumn{
 				{
 					Name:    "user_id",
@@ -158,6 +157,9 @@ func listGmailUserDrafts(ctx context.Context, d *plugin.QueryData, _ *plugin.Hyd
 		}
 		return nil
 	}); err != nil {
+		if IsForbiddenError(err) {
+			return nil, nil
+		}
 		return nil, err
 	}
 
@@ -193,6 +195,9 @@ func getGmailUserDraft(ctx context.Context, d *plugin.QueryData, h *plugin.Hydra
 
 	resp, err := service.Users.Drafts.Get(userID, draftID).Do()
 	if err != nil {
+		if IsForbiddenError(err) {
+			return nil, nil
+		}
 		return nil, err
 	}
 

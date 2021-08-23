@@ -241,7 +241,7 @@ func tableGoogleWorkspaceCalendarEvent(_ context.Context) *plugin.Table {
 		Description: "Events scheduled on the specified calendar.",
 		List: &plugin.ListConfig{
 			Hydrate:           listCalendarEvents,
-			ShouldIgnoreError: isNotFoundError([]string{"404", "400", "403"}),
+			ShouldIgnoreError: isNotFoundError([]string{"404"}),
 			KeyColumns: []*plugin.KeyColumn{
 				{
 					Name:    "calendar_id",
@@ -324,6 +324,9 @@ func listCalendarEvents(ctx context.Context, d *plugin.QueryData, h *plugin.Hydr
 		}
 		return nil
 	}); err != nil {
+		if IsForbiddenError(err) {
+			return nil, nil
+		}
 		return nil, err
 	}
 
@@ -348,6 +351,9 @@ func getCalendarEvent(ctx context.Context, d *plugin.QueryData, h *plugin.Hydrat
 
 	resp, err := service.Events.Get(calendarID, eventID).Do()
 	if err != nil {
+		if IsForbiddenError(err) {
+			return nil, nil
+		}
 		return nil, err
 	}
 
