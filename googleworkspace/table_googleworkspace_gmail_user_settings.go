@@ -11,9 +11,9 @@ import (
 
 //// TABLE DEFINITION
 
-func tableGoogleWorkspaceGmailUserSetting(_ context.Context) *plugin.Table {
+func tableGoogleWorkspaceGmailUserSettings(_ context.Context) *plugin.Table {
 	return &plugin.Table{
-		Name:        "googleworkspace_gmail_user_setting",
+		Name:        "googleworkspace_gmail_user_settings",
 		Description: "Retrieves user's settings for the specified account.",
 		List: &plugin.ListConfig{
 			Hydrate: listGmailUsers,

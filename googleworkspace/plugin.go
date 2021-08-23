@@ -39,7 +39,7 @@ func Plugin(ctx context.Context) *plugin.Plugin {
 			"googleworkspace_drive_my_file":            tableGoogleWorkspaceDriveMyFiles(ctx),
 			"googleworkspace_gmail_user_draft":         tableGoogleWorkspaceGmailUserDraft(ctx),
 			"googleworkspace_gmail_user_message":       tableGoogleWorkspaceGmailUserMessage(ctx),
-			"googleworkspace_gmail_user_setting":       tableGoogleWorkspaceGmailUserSetting(ctx),
+			"googleworkspace_gmail_user_settings":      tableGoogleWorkspaceGmailUserSettings(ctx),
 			"googleworkspace_spreadsheet":              tableGoogleWorkspaceSpreadSheet(ctx),
 		},
 	}
