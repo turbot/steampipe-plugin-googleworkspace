@@ -61,3 +61,18 @@ from
 where
   label_ids ?& array['DRAFT'];
 ```
+
+### List chat messages
+
+```sql
+select
+  id,
+  thread_id,
+  internal_date,
+  size_estimate,
+  snippet
+from
+  googleworkspace_gmail_user_message
+where
+  query = 'in:chats';
+```
