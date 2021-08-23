@@ -112,6 +112,7 @@ func main() {
 		calendar.CalendarReadonlyScope,
 		people.ContactsReadonlyScope,
 		people.ContactsOtherReadonlyScope,
+		people.DirectoryReadonlyScope,
 		drive.DriveReadonlyScope,
 		gmail.GmailReadonlyScope,
 	)

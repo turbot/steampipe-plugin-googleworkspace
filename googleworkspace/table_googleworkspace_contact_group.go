@@ -11,12 +11,12 @@ import (
 
 //// TABLE DEFINITION
 
-func tableGoogleWorkspacePeopleContactGroup(_ context.Context) *plugin.Table {
+func tableGoogleWorkspaceContactGroup(_ context.Context) *plugin.Table {
 	return &plugin.Table{
-		Name:        "googleworkspace_people_contact_group",
+		Name:        "googleworkspace_contact_group",
 		Description: "Contact groups owned by the authenticated user",
 		List: &plugin.ListConfig{
-			Hydrate: listPeopleContactGroups,
+			Hydrate: listContactGroups,
 			KeyColumns: []*plugin.KeyColumn{
 				{
 					Name:    "max_members",
@@ -62,6 +62,7 @@ func tableGoogleWorkspacePeopleContactGroup(_ context.Context) *plugin.Table {
 				Name:        "member_count",
 				Description: "The total number of contacts in the group irrespective of max members in specified in the request.",
 				Type:        proto.ColumnType_INT,
+				Default:     0,
 			},
 			{
 				Name:        "updated_time",
@@ -85,7 +86,7 @@ func tableGoogleWorkspacePeopleContactGroup(_ context.Context) *plugin.Table {
 
 //// LIST FUNCTION
 
-func listPeopleContactGroups(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
+func listContactGroups(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
 	// Create service
 	service, err := PeopleService(ctx, d)
 	if err != nil {
