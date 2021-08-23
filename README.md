@@ -44,7 +44,7 @@ Prerequisites:
 Clone:
 
 ```sh
-git clone git@github.com:turbot/steampipe-plugin-googleworkspace
+git clone https://github.com/turbot/steampipe-plugin-googleworkspace.git
 cd steampipe-plugin-googleworkspace
 ```
 
