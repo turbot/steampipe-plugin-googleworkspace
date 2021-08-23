@@ -30,6 +30,7 @@ func tableGoogleWorkspaceSpreadSheet(_ context.Context) *plugin.Table {
 				Name:        "range",
 				Description: "The range the values cover, in A1 notation. The range indicates the entire requested range, even though the values will exclude trailing rows and columns.",
 				Type:        proto.ColumnType_STRING,
+				Transform:   transform.FromQual("range"),
 			},
 			{
 				Name:        "major_dimension",
