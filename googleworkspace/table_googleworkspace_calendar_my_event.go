@@ -2,6 +2,7 @@ package googleworkspace
 
 import (
 	"context"
+	"time"
 
 	"github.com/turbot/steampipe-plugin-sdk/plugin"
 
@@ -15,12 +16,22 @@ func tableGoogleWorkspaceCalendarMyEvent(_ context.Context) *plugin.Table {
 		Name:        "googleworkspace_calendar_my_event",
 		Description: "Events scheduled on the specified calendar.",
 		List: &plugin.ListConfig{
-			Hydrate:           listCalendarMyEvents,
-			ShouldIgnoreError: isNotFoundError([]string{"404", "400", "403"}),
+			Hydrate: listCalendarMyEvents,
+			// ShouldIgnoreError: isNotFoundError([]string{"404", "400", "403"}),
 			KeyColumns: []*plugin.KeyColumn{
 				{
 					Name:    "query",
 					Require: plugin.Optional,
+				},
+				{
+					Name:      "start_time",
+					Require:   plugin.Optional,
+					Operators: []string{">", ">=", "=", "<", "<="},
+				},
+				{
+					Name:      "end_time",
+					Require:   plugin.Optional,
+					Operators: []string{">", ">=", "=", "<", "<="},
 				},
 			},
 		},
@@ -54,6 +65,26 @@ func listCalendarMyEvents(ctx context.Context, d *plugin.QueryData, h *plugin.Hy
 	}
 
 	resp := service.Events.List("primary").SingleEvents(true).Q(query).MaxResults(maxResult)
+	// Additional filter queries using timestamp (if provided)
+	quals := d.Quals
+	if quals["start_time"] != nil {
+		for _, q := range quals["start_time"].Quals {
+			startTime := q.Value.GetTimestampValue().AsTime().Format(time.RFC3339)
+			switch q.Operator {
+			case ">=", ">", "=", "<", "<=":
+				resp.TimeMin(startTime)
+			}
+		}
+	}
+	if quals["end_time"] != nil {
+		for _, q := range quals["end_time"].Quals {
+			endTime := q.Value.GetTimestampValue().AsTime().Format(time.RFC3339)
+			switch q.Operator {
+			case ">=", ">", "=", "<", "<=":
+				resp.TimeMax(endTime)
+			}
+		}
+	}
 	if err := resp.Pages(ctx, func(page *calendar.Events) error {
 		for _, event := range page.Items {
 			d.StreamListItem(ctx, calendarEvent{*event, page.Summary})
