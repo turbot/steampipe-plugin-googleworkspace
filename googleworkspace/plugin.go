@@ -34,13 +34,11 @@ func Plugin(ctx context.Context) *plugin.Plugin {
 			"googleworkspace_contact_connection":       tableGoogleWorkspaceContactConnection(ctx),
 			"googleworkspace_contact_directory_people": tableGoogleWorkspaceContanctDirectoryPeople(ctx),
 			"googleworkspace_contact_group":            tableGoogleWorkspaceContactGroup(ctx),
-			"googleworkspace_docs":                     tableGoogleWorkspaceDocs(ctx),
 			"googleworkspace_drive":                    tableGoogleWorkspaceDrive(ctx),
 			"googleworkspace_drive_my_file":            tableGoogleWorkspaceDriveMyFiles(ctx),
 			"googleworkspace_gmail_user_draft":         tableGoogleWorkspaceGmailUserDraft(ctx),
 			"googleworkspace_gmail_user_message":       tableGoogleWorkspaceGmailUserMessage(ctx),
 			"googleworkspace_gmail_user_settings":      tableGoogleWorkspaceGmailUserSettings(ctx),
-			"googleworkspace_spreadsheet":              tableGoogleWorkspaceSpreadSheet(ctx),
 		},
 	}
 

@@ -11,12 +11,10 @@ import (
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 	"google.golang.org/api/calendar/v3"
-	"google.golang.org/api/docs/v1"
 	"google.golang.org/api/drive/v3"
 	"google.golang.org/api/gmail/v1"
 	"google.golang.org/api/option"
 	"google.golang.org/api/people/v1"
-	"google.golang.org/api/sheets/v4"
 
 	"github.com/turbot/steampipe-plugin-sdk/plugin"
 )
@@ -71,31 +69,6 @@ func PeopleService(ctx context.Context, d *plugin.QueryData) (*people.Service, e
 	return svc, nil
 }
 
-func DocsService(ctx context.Context, d *plugin.QueryData) (*docs.Service, error) {
-	// have we already created and cached the service?
-	serviceCacheKey := "googleworkspace.docs"
-	if cachedData, ok := d.ConnectionManager.Cache.Get(serviceCacheKey); ok {
-		return cachedData.(*docs.Service), nil
-	}
-
-	// so it was not in cache - create service
-	opts, err := getSessionConfig(ctx, d)
-	if err != nil {
-		return nil, err
-	}
-
-	// Create service
-	svc, err := docs.NewService(ctx, opts...)
-	if err != nil {
-		return nil, err
-	}
-
-	// cache the service
-	d.ConnectionManager.Cache.Set(serviceCacheKey, svc)
-
-	return svc, nil
-}
-
 func DriveService(ctx context.Context, d *plugin.QueryData) (*drive.Service, error) {
 	// have we already created and cached the service?
 	serviceCacheKey := "googleworkspace.drive"
@@ -136,31 +109,6 @@ func GmailService(ctx context.Context, d *plugin.QueryData) (*gmail.Service, err
 
 	// Create service
 	svc, err := gmail.NewService(ctx, opts...)
-	if err != nil {
-		return nil, err
-	}
-
-	// cache the service
-	d.ConnectionManager.Cache.Set(serviceCacheKey, svc)
-
-	return svc, nil
-}
-
-func SheetsService(ctx context.Context, d *plugin.QueryData) (*sheets.Service, error) {
-	// have we already created and cached the service?
-	serviceCacheKey := "googleworkspace.sheets"
-	if cachedData, ok := d.ConnectionManager.Cache.Get(serviceCacheKey); ok {
-		return cachedData.(*sheets.Service), nil
-	}
-
-	// so it was not in cache - create service
-	opts, err := getSessionConfig(ctx, d)
-	if err != nil {
-		return nil, err
-	}
-
-	// Create service
-	svc, err := sheets.NewService(ctx, opts...)
 	if err != nil {
 		return nil, err
 	}
