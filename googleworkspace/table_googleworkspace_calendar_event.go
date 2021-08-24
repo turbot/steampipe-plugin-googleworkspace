@@ -35,7 +35,7 @@ func calendarEventColumns() []*plugin.Column {
 		},
 		{
 			Name:        "calendar_id",
-			Description: "Opaque identifier of the event.",
+			Description: "Identifier of the calendar.",
 			Type:        proto.ColumnType_STRING,
 		},
 		{
@@ -273,7 +273,7 @@ func tableGoogleWorkspaceCalendarEvent(_ context.Context) *plugin.Table {
 
 //// LIST FUNCTION
 
-func listCalendarEvents(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+func listCalendarEvents(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
 	// Create service
 	service, err := CalendarService(ctx, d)
 	if err != nil {
@@ -335,7 +335,7 @@ func listCalendarEvents(ctx context.Context, d *plugin.QueryData, h *plugin.Hydr
 
 //// HYDRATE FUNCTIONS
 
-func getCalendarEvent(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+func getCalendarEvent(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
 	// Create service
 	service, err := CalendarService(ctx, d)
 	if err != nil {
@@ -372,6 +372,10 @@ func formatTimestamp(_ context.Context, d *transform.TransformData) (interface{}
 		return nil, nil
 	}
 
+	// If the event is an all-day event, response includes only
+	// `Start.DateTime` and `End.DateTime`, and the value consists
+	// only date, for example `2021-08-15`
+	// Following transformation is used to parse the date in consistent format, i.e. RFC3339
 	startTime = data.Start.DateTime
 	if startTime == "" {
 		startTime = parseTime(data.Start.Date)

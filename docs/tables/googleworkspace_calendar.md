@@ -2,6 +2,10 @@
 
 Query information about metadata of the specified calendar.
 
+**Note:**
+
+- A specific `id` of the calendar must be defined in all queries to this table.
+
 ## Examples
 
 ### Basic info
@@ -10,7 +14,9 @@ Query information about metadata of the specified calendar.
 select
   summary,
   id,
-  timezone,
+  timezone
 from
-  googleworkspace_calendar;
+  googleworkspace_calendar
+where
+  id = 'subhajit@turbot.com';
 ```

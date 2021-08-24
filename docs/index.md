@@ -102,7 +102,7 @@ You can use client secret credential to protect the user's data by only granting
 - Add the client secret JSON file path in steampipe config using `client_secret_file`.
 - To generate the `token`, run [generateClientToken.go](https://github.com/turbot/steampipe-plugin-googleworkspace/blob/main/scripts/generateClientToken.go) script in `steampipe-plugin-googleworkspace` directory:
 
-  ```
+  ```sh
   go run scripts/generateClientToken.go
   ```
 

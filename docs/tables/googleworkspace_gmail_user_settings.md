@@ -2,6 +2,10 @@
 
 Query information about user's settings for the specified account.
 
+**NOTE:**
+
+- To list the `delegates` for the specified account, use service account clients that have been delegated domain-wide authority.
+
 ## Examples
 
 ### Basic info

@@ -172,7 +172,6 @@ func getDrive(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (
 	if err != nil {
 		return nil, err
 	}
-
 	id := d.KeyColumnQuals["id"].GetStringValue()
 
 	// Return nil, if no input provided

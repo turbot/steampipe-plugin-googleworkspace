@@ -59,7 +59,7 @@ select
 from
   googleworkspace_gmail_user_message
 where
-  label_ids ?& array['DRAFT'];
+  query = 'in:draft';
 ```
 
 ### List chat messages
