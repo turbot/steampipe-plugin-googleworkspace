@@ -158,7 +158,7 @@ func listGmailUserDrafts(ctx context.Context, d *plugin.QueryData, _ *plugin.Hyd
 		}
 		return nil
 	}); err != nil {
-		if IsForbiddenError(err) {
+		if IsAPIDisabledError(err) {
 			return nil, nil
 		}
 		return nil, err
@@ -196,7 +196,7 @@ func getGmailUserDraft(ctx context.Context, d *plugin.QueryData, h *plugin.Hydra
 
 	resp, err := service.Users.Drafts.Get(userID, draftID).Do()
 	if err != nil {
-		if IsForbiddenError(err) {
+		if IsAPIDisabledError(err) {
 			return nil, nil
 		}
 		return nil, err

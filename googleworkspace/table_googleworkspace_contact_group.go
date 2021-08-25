@@ -115,7 +115,7 @@ func listContactGroups(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydra
 		}
 		return nil
 	}); err != nil {
-		if IsForbiddenError(err) {
+		if IsAPIDisabledError(err) {
 			return nil, nil
 		}
 		return nil, err

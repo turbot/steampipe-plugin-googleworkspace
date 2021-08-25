@@ -72,7 +72,7 @@ func listCalendars(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateDa
 
 	resp, err := service.Calendars.Get(calendarID).Do()
 	if err != nil {
-		if IsForbiddenError(err) {
+		if IsAPIDisabledError(err) {
 			return nil, nil
 		}
 		return nil, err

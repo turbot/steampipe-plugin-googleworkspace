@@ -145,7 +145,7 @@ func listGmailMessages(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydra
 		}
 		return nil
 	}); err != nil {
-		if IsForbiddenError(err) {
+		if IsAPIDisabledError(err) {
 			return nil, nil
 		}
 		return nil, err
@@ -183,7 +183,7 @@ func getGmailMessage(ctx context.Context, d *plugin.QueryData, h *plugin.Hydrate
 
 	resp, err := service.Users.Messages.Get(userID, messageID).Do()
 	if err != nil {
-		if IsForbiddenError(err) {
+		if IsAPIDisabledError(err) {
 			return nil, nil
 		}
 		return nil, err

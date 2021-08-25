@@ -94,7 +94,7 @@ func listGmailUsers(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateD
 
 	resp, err := service.Users.GetProfile(userID).Do()
 	if err != nil {
-		if IsForbiddenError(err) {
+		if IsAPIDisabledError(err) {
 			return nil, nil
 		}
 		return nil, err
@@ -118,7 +118,7 @@ func listGmailUserDelegateSettings(ctx context.Context, d *plugin.QueryData, h *
 
 	resp, err := service.Users.Settings.Delegates.List(userID).Do()
 	if err != nil {
-		if IsForbiddenError(err) {
+		if IsAPIDisabledError(err) {
 			return nil, nil
 		}
 		return nil, err
@@ -138,7 +138,7 @@ func getGmailUserSettingAutoForwarding(ctx context.Context, d *plugin.QueryData,
 
 	resp, err := service.Users.Settings.GetAutoForwarding(userID).Do()
 	if err != nil {
-		if IsForbiddenError(err) {
+		if IsAPIDisabledError(err) {
 			return nil, nil
 		}
 		return nil, err
@@ -168,7 +168,7 @@ func getGmailUserSettingImap(ctx context.Context, d *plugin.QueryData, h *plugin
 
 	resp, err := service.Users.Settings.GetImap(userID).Do()
 	if err != nil {
-		if IsForbiddenError(err) {
+		if IsAPIDisabledError(err) {
 			return nil, nil
 		}
 		return nil, err
@@ -199,7 +199,7 @@ func getGmailUserLanguage(ctx context.Context, d *plugin.QueryData, h *plugin.Hy
 
 	resp, err := service.Users.Settings.GetLanguage(userID).Do()
 	if err != nil {
-		if IsForbiddenError(err) {
+		if IsAPIDisabledError(err) {
 			return nil, nil
 		}
 		return nil, err
@@ -219,7 +219,7 @@ func getGmailUserPopSetting(ctx context.Context, d *plugin.QueryData, h *plugin.
 
 	resp, err := service.Users.Settings.GetPop(userID).Do()
 	if err != nil {
-		if IsForbiddenError(err) {
+		if IsAPIDisabledError(err) {
 			return nil, nil
 		}
 		return nil, err
@@ -239,7 +239,7 @@ func getGmailUserVacationSetting(ctx context.Context, d *plugin.QueryData, h *pl
 
 	resp, err := service.Users.Settings.GetVacation(userID).Do()
 	if err != nil {
-		if IsForbiddenError(err) {
+		if IsAPIDisabledError(err) {
 			return nil, nil
 		}
 		return nil, err

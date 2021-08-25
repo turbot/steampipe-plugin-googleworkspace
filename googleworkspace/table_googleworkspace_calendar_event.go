@@ -324,7 +324,7 @@ func listCalendarEvents(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydr
 		}
 		return nil
 	}); err != nil {
-		if IsForbiddenError(err) {
+		if IsAPIDisabledError(err) {
 			return nil, nil
 		}
 		return nil, err
@@ -351,7 +351,7 @@ func getCalendarEvent(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydrat
 
 	resp, err := service.Events.Get(calendarID, eventID).Do()
 	if err != nil {
-		if IsForbiddenError(err) {
+		if IsAPIDisabledError(err) {
 			return nil, nil
 		}
 		return nil, err

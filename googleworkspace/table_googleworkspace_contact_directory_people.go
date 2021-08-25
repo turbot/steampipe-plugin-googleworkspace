@@ -63,7 +63,7 @@ func listContactDirecoryPeople(ctx context.Context, d *plugin.QueryData, _ *plug
 		}
 		return nil
 	}); err != nil {
-		if IsForbiddenError(err) {
+		if IsAPIDisabledError(err) {
 			return nil, nil
 		}
 		return nil, err

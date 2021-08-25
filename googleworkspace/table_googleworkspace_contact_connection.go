@@ -198,7 +198,7 @@ func listContactConnections(ctx context.Context, d *plugin.QueryData, _ *plugin.
 		}
 		return nil
 	}); err != nil {
-		if IsForbiddenError(err) {
+		if IsAPIDisabledError(err) {
 			return nil, nil
 		}
 		return nil, err

@@ -345,7 +345,7 @@ func listDriveMyFiles(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydrat
 		}
 		return nil
 	}); err != nil {
-		if IsForbiddenError(err) {
+		if IsAPIDisabledError(err) {
 			return nil, nil
 		}
 		return nil, err
@@ -374,7 +374,7 @@ func getDriveMyFile(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateD
 	// Use "*" to return all fields
 	resp, err := service.Files.Get(fileID).Fields("*").Do()
 	if err != nil {
-		if IsForbiddenError(err) {
+		if IsAPIDisabledError(err) {
 			return nil, nil
 		}
 		return nil, err
