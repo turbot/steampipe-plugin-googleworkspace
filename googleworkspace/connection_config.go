@@ -8,7 +8,6 @@ import (
 type googleworkspaceConfig struct {
 	CredentialFile        *string `cty:"credential_file"`
 	ImpersonatedUserEmail *string `cty:"impersonated_user_email"`
-	ClientSecretFile      *string `cty:"client_secret_file"`
 }
 
 var ConfigSchema = map[string]*schema.Attribute{
@@ -16,9 +15,6 @@ var ConfigSchema = map[string]*schema.Attribute{
 		Type: schema.TypeString,
 	},
 	"impersonated_user_email": {
-		Type: schema.TypeString,
-	},
-	"client_secret_file": {
 		Type: schema.TypeString,
 	},
 }

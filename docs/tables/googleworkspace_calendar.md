@@ -18,5 +18,5 @@ select
 from
   googleworkspace_calendar
 where
-  id = 'subhajit@turbot.com';
+  id = 'user@domain.com';
 ```

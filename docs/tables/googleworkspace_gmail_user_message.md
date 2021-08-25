@@ -15,7 +15,8 @@ select
   snippet
 from
   googleworkspace_gmail_user_message
-order by internal_date;
+order by internal_date
+limit 10;
 ```
 
 ### List unread messages received in last 2 days
