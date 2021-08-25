@@ -251,16 +251,6 @@ func tableGoogleWorkspaceCalendarEvent(_ context.Context) *plugin.Table {
 					Name:    "query",
 					Require: plugin.Optional,
 				},
-				{
-					Name:      "start_time",
-					Require:   plugin.Optional,
-					Operators: []string{">", ">=", "=", "<", "<="},
-				},
-				{
-					Name:      "end_time",
-					Require:   plugin.Optional,
-					Operators: []string{">", ">=", "=", "<", "<="},
-				},
 			},
 		},
 		Get: &plugin.GetConfig{
@@ -298,26 +288,6 @@ func listCalendarEvents(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydr
 	}
 
 	resp := service.Events.List(calendarID).SingleEvents(true).Q(query).MaxResults(maxResult)
-	// Additional filter queries using timestamp (if provided)
-	quals := d.Quals
-	if quals["start_time"] != nil {
-		for _, q := range quals["start_time"].Quals {
-			startTime := q.Value.GetTimestampValue().AsTime().Format(time.RFC3339)
-			switch q.Operator {
-			case ">=", ">", "=", "<", "<=":
-				resp.TimeMin(startTime)
-			}
-		}
-	}
-	if quals["end_time"] != nil {
-		for _, q := range quals["end_time"].Quals {
-			endTime := q.Value.GetTimestampValue().AsTime().Format(time.RFC3339)
-			switch q.Operator {
-			case ">=", ">", "=", "<", "<=":
-				resp.TimeMax(endTime)
-			}
-		}
-	}
 	if err := resp.Pages(ctx, func(page *calendar.Events) error {
 		for _, event := range page.Items {
 			d.StreamListItem(ctx, calendarEvent{*event, calendarID})
