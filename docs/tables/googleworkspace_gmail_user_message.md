@@ -14,10 +14,11 @@ select
   size_estimate,
   snippet
 from
-  googleworkspace_gmail_user_message;
+  googleworkspace_gmail_user_message
+order by internal_date;
 ```
 
-### List unread messages
+### List unread messages received in last 2 days
 
 ```sql
 select
@@ -29,7 +30,8 @@ select
 from
   googleworkspace_gmail_user_message
 where
-  query = 'is:unread';
+  query = 'is:unread newer_than:2d'
+order by internal_date;
 ```
 
 ### List messages from a specific user
@@ -44,7 +46,8 @@ select
 from
   googleworkspace_gmail_user_message
 where
-  query = 'from:someuser@example.com';
+  query = 'from:someuser@example.com'
+order by internal_date;
 ```
 
 ### List draft messages
@@ -59,7 +62,8 @@ select
 from
   googleworkspace_gmail_user_message
 where
-  query = 'in:draft';
+  query = 'in:draft'
+order by internal_date;
 ```
 
 ### List chat messages
@@ -74,5 +78,6 @@ select
 from
   googleworkspace_gmail_user_message
 where
-  query = 'in:chats';
+  query = 'in:chats'
+order by internal_date;
 ```
