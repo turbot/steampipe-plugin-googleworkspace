@@ -2,7 +2,7 @@
 organization: Turbot
 category: ["saas"]
 icon_url: "/images/plugins/turbot/googleworkspace.svg"
-brand_color: "#1967D2"
+brand_color: "#ea4335"
 display_name: "Google Workspace"
 short_name: "googleworkspace"
 description: "Steampipe plugin for querying users, groups, org units and more from your Google Workspace."

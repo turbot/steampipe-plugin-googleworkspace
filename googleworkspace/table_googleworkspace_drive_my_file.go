@@ -2,6 +2,7 @@ package googleworkspace
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/turbot/steampipe-plugin-sdk/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/plugin"
@@ -12,13 +13,17 @@ import (
 
 //// TABLE DEFINITION
 
-func tableGoogleWorkspaceDriveMyFiles(_ context.Context) *plugin.Table {
+func tableGoogleWorkspaceDriveMyFile(_ context.Context) *plugin.Table {
 	return &plugin.Table{
 		Name:        "googleworkspace_drive_my_file",
 		Description: "Retrieves file's metadata or content owned by an user.",
 		List: &plugin.ListConfig{
 			Hydrate: listDriveMyFiles,
 			KeyColumns: []*plugin.KeyColumn{
+				{
+					Name:    "name",
+					Require: plugin.Optional,
+				},
 				{
 					Name:    "query",
 					Require: plugin.Optional,
@@ -335,6 +340,11 @@ func listDriveMyFiles(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydrat
 	var query string
 	if d.KeyColumnQuals["query"] != nil {
 		query = d.KeyColumnQuals["query"].GetStringValue()
+	}
+
+	if d.KeyColumnQuals["name"] != nil {
+		name := d.KeyColumnQuals["name"].GetStringValue()
+		query = query + " name = " + fmt.Sprintf("\"%s\"", name)
 	}
 
 	// Use "*" to return all fields
