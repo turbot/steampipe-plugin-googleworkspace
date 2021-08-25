@@ -1,4 +1,4 @@
-# Table: googleworkspace_contact_connection
+# Table: googleworkspace_people_directory_people
 
 Query information about user's contacts added in the current working directory.
 
@@ -17,7 +17,7 @@ select
     when ph -> 'metadata' ->> 'primary' = 'true' then ph ->> 'value'
   end as primary_contact
 from
-  googleworkspace_contact_directory_people
+  googleworkspace_people_directory_people
   left join jsonb_array_elements(organizations) as org on true
   left join jsonb_array_elements(phone_numbers) as ph on true;
 ```

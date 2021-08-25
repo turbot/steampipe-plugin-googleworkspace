@@ -12,12 +12,12 @@ import (
 
 //// TABLE DEFINITION
 
-func tableGoogleWorkspaceContactGroup(_ context.Context) *plugin.Table {
+func tableGoogleWorkspacePeopleContactGroup(_ context.Context) *plugin.Table {
 	return &plugin.Table{
-		Name:        "googleworkspace_contact_group",
+		Name:        "googleworkspace_people_contact_group",
 		Description: "Contact groups owned by the authenticated user",
 		List: &plugin.ListConfig{
-			Hydrate: listContactGroups,
+			Hydrate: listPeopleContactGroups,
 			KeyColumns: []*plugin.KeyColumn{
 				{
 					Name:    "max_members",
@@ -87,7 +87,7 @@ func tableGoogleWorkspaceContactGroup(_ context.Context) *plugin.Table {
 
 //// LIST FUNCTION
 
-func listContactGroups(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
+func listPeopleContactGroups(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
 	// Create service
 	service, err := PeopleService(ctx, d)
 	if err != nil {

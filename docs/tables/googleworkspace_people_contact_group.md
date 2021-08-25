@@ -1,4 +1,4 @@
-# Table: googleworkspace_contact_group
+# Table: googleworkspace_people_contact_group
 
 Query information about contact groups owned by the current authenticated user.
 
@@ -13,7 +13,7 @@ select
   formatted_name,
   group_type
 from
-  googleworkspace_contact_group;
+  googleworkspace_people_contact_group;
 ```
 
 ### List of deleted contact groups
@@ -25,7 +25,7 @@ select
   formatted_name,
   deleted
 from
-  googleworkspace_contact_group
+  googleworkspace_people_contact_group
 where
   deleted;
 ```
@@ -38,9 +38,9 @@ select
   conn.given_name as member_name,
   conn.primary_email_address as member_primary_email
 from
-  googleworkspace_contact_group as cg,
+  googleworkspace_people_contact_group as cg,
   jsonb_array_elements_text(member_resource_names) as m_name,
-  googleworkspace_contact_connection as conn
+  googleworkspace_people_connection as conn
 where
   conn.resource_name = m_name;
 ```
@@ -54,5 +54,5 @@ select
   formatted_name,
   member_count
 from
-  googleworkspace_contact_group;
+  googleworkspace_people_contact_group;
 ```

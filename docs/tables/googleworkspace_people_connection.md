@@ -1,4 +1,4 @@
-# Table: googleworkspace_contact_connection
+# Table: googleworkspace_people_connection
 
 Query information about contacts owned by the current authenticated user.
 
@@ -14,7 +14,7 @@ select
   primary_email_address,
   jsonb_pretty(organizations)
 from
-  googleworkspace_contact_connection;
+  googleworkspace_people_connection;
 ```
 
 ### List connections by contact group
@@ -25,8 +25,8 @@ select
   conn.given_name as member_name,
   conn.primary_email_address as member_primary_email
 from
-  googleworkspace_contact_connection as conn,
-  googleworkspace_contact_group as cg
+  googleworkspace_people_connection as conn,
+  googleworkspace_people_contact_group as cg
 where
   cg.member_resource_names ?| array[conn.resource_name];
 ```
@@ -41,7 +41,7 @@ select
   org ->> 'department' as department,
   org ->> 'title' as job_title
 from
-  googleworkspace_contact_connection,
+  googleworkspace_people_connection,
   jsonb_array_elements(organizations) as org
 where
   org -> 'metadata' ->> 'primary' = 'true'

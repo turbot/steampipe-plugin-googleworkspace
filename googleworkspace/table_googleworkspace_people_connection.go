@@ -137,12 +137,12 @@ func peopleContacts() []*plugin.Column {
 
 //// TABLE DEFINITION
 
-func tableGoogleWorkspaceContactConnection(_ context.Context) *plugin.Table {
+func tableGoogleWorkspacePeopleConnection(_ context.Context) *plugin.Table {
 	return &plugin.Table{
-		Name:        "googleworkspace_contact_connection",
+		Name:        "googleworkspace_people_connection",
 		Description: "Contacts owned by the authenticated user.",
 		List: &plugin.ListConfig{
-			Hydrate:           listContactConnections,
+			Hydrate:           listPeopleConnections,
 			ShouldIgnoreError: isNotFoundError([]string{"404"}),
 		},
 		Columns: peopleContacts(),
@@ -159,7 +159,7 @@ type connections = struct {
 
 //// LIST FUNCTION
 
-func listContactConnections(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
+func listPeopleConnections(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
 	// Create service
 	service, err := PeopleService(ctx, d)
 	if err != nil {

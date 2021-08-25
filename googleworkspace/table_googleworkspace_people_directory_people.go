@@ -10,12 +10,12 @@ import (
 
 //// TABLE DEFINITION
 
-func tableGoogleWorkspaceContanctDirectoryPeople(_ context.Context) *plugin.Table {
+func tableGoogleWorkspacePeopleDirectoryPeople(_ context.Context) *plugin.Table {
 	return &plugin.Table{
-		Name:        "googleworkspace_contact_directory_people",
+		Name:        "googleworkspace_people_directory_people",
 		Description: "Domain contacts in the authenticated user's domain directory.",
 		List: &plugin.ListConfig{
-			Hydrate:           listContactDirecoryPeople,
+			Hydrate:           listPeopleDirecoryPeople,
 			ShouldIgnoreError: isNotFoundError([]string{"404"}),
 		},
 		Columns: peopleContacts(),
@@ -24,7 +24,7 @@ func tableGoogleWorkspaceContanctDirectoryPeople(_ context.Context) *plugin.Tabl
 
 //// LIST FUNCTION
 
-func listContactDirecoryPeople(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
+func listPeopleDirecoryPeople(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
 	// Create service
 	service, err := PeopleService(ctx, d)
 	if err != nil {
