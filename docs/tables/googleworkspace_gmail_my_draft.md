@@ -2,7 +2,7 @@
 
 List draft messages in your mailbox.
 
-To query messages in any mailbox, use the `googleworkspace_gmail_draft` table.
+To query draft messages in any mailbox, use the `googleworkspace_gmail_draft` table.
 
 ## Examples
 
