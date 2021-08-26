@@ -32,7 +32,6 @@ func Plugin(ctx context.Context) *plugin.Plugin {
 			"googleworkspace_calendar_event":          tableGoogleWorkspaceCalendarEvent(ctx),
 			"googleworkspace_calendar_my_event":       tableGoogleWorkspaceCalendarMyEvent(ctx),
 			"googleworkspace_drive":                   tableGoogleWorkspaceDrive(ctx),
-			"googleworkspace_drive_file":              tableGoogleWorkspaceDriveFile(ctx),
 			"googleworkspace_drive_my_file":           tableGoogleWorkspaceDriveMyFile(ctx),
 			"googleworkspace_gmail_user_draft":        tableGoogleWorkspaceGmailUserDraft(ctx),
 			"googleworkspace_gmail_user_message":      tableGoogleWorkspaceGmailUserMessage(ctx),
