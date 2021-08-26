@@ -35,14 +35,14 @@ where
 ```sql
 select
   cg.name as contact_group_name,
-  conn.given_name as member_name,
-  conn.primary_email_address as member_primary_email
+  c.given_name as member_name,
+  c.primary_email_address as member_primary_email
 from
   googleworkspace_people_contact_group as cg,
   jsonb_array_elements_text(member_resource_names) as m_name,
-  googleworkspace_people_connection as conn
+  googleworkspace_people_contact as c
 where
-  conn.resource_name = m_name;
+  c.resource_name = m_name;
 ```
 
 ### Get member count for each contact group

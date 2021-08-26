@@ -1,4 +1,4 @@
-# Table: googleworkspace_people_connection
+# Table: googleworkspace_people_contact
 
 List contacts for the authenticated user.
 
@@ -14,24 +14,24 @@ select
   primary_email_address,
   jsonb_pretty(organizations)
 from
-  googleworkspace_people_connection;
+  googleworkspace_people_contact;
 ```
 
-### List connections by contact group
+### List contacts by contact group
 
 ```sql
 select
   cg.name as contact_group_name,
-  conn.given_name as member_name,
-  conn.primary_email_address as member_primary_email
+  c.given_name as member_name,
+  c.primary_email_address as member_primary_email
 from
-  googleworkspace_people_connection as conn,
+  googleworkspace_people_contact as c,
   googleworkspace_people_contact_group as cg
 where
-  cg.member_resource_names ?| array[conn.resource_name];
+  cg.member_resource_names ?| array[c.resource_name];
 ```
 
-### List connections belogning to the same organization
+### List contacts belogning to the same organization
 
 ```sql
 select
@@ -41,7 +41,7 @@ select
   org ->> 'department' as department,
   org ->> 'title' as job_title
 from
-  googleworkspace_people_connection,
+  googleworkspace_people_contact,
   jsonb_array_elements(organizations) as org
 where
   org -> 'metadata' ->> 'primary' = 'true'
