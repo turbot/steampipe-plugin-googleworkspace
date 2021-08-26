@@ -143,7 +143,7 @@ func tableGoogleWorkspacePeopleConnection(_ context.Context) *plugin.Table {
 		Description: "Contacts owned by the authenticated user.",
 		List: &plugin.ListConfig{
 			Hydrate:           listPeopleConnections,
-			ShouldIgnoreError: isNotFoundError([]string{"404"}),
+			ShouldIgnoreError: isNotFoundError([]string{"404", "403"}),
 		},
 		Columns: peopleContacts(),
 	}
@@ -198,9 +198,6 @@ func listPeopleConnections(ctx context.Context, d *plugin.QueryData, _ *plugin.H
 		}
 		return nil
 	}); err != nil {
-		if IsAPIDisabledError(err) {
-			return nil, nil
-		}
 		return nil, err
 	}
 

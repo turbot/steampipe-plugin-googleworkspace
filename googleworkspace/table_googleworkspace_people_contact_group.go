@@ -24,7 +24,7 @@ func tableGoogleWorkspacePeopleContactGroup(_ context.Context) *plugin.Table {
 					Require: plugin.Optional,
 				},
 			},
-			ShouldIgnoreError: isNotFoundError([]string{"404"}),
+			ShouldIgnoreError: isNotFoundError([]string{"404", "403"}),
 		},
 		Columns: []*plugin.Column{
 			{
@@ -115,9 +115,6 @@ func listPeopleContactGroups(ctx context.Context, d *plugin.QueryData, _ *plugin
 		}
 		return nil
 	}); err != nil {
-		if IsAPIDisabledError(err) {
-			return nil, nil
-		}
 		return nil, err
 	}
 

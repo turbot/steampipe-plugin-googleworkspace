@@ -28,6 +28,7 @@ func tableGoogleWorkspaceDrive(_ context.Context) *plugin.Table {
 					Require: plugin.Optional,
 				},
 			},
+			ShouldIgnoreError: isNotFoundError([]string{"403"}),
 		},
 		Get: &plugin.GetConfig{
 			KeyColumns: plugin.SingleColumn("id"),
@@ -153,9 +154,6 @@ func listDrives(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData)
 		}
 		return nil
 	}); err != nil {
-		if IsAPIDisabledError(err) {
-			return nil, nil
-		}
 		return nil, err
 	}
 
@@ -181,9 +179,6 @@ func getDrive(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (
 
 	resp, err := service.Drives.Get(id).Fields("*").Do()
 	if err != nil {
-		if IsAPIDisabledError(err) {
-			return nil, nil
-		}
 		return nil, err
 	}
 

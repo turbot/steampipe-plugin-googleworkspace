@@ -17,7 +17,7 @@ func tableGoogleWorkspaceCalendar(_ context.Context) *plugin.Table {
 		List: &plugin.ListConfig{
 			Hydrate:           listCalendars,
 			KeyColumns:        plugin.SingleColumn("id"),
-			ShouldIgnoreError: isNotFoundError([]string{"404"}),
+			ShouldIgnoreError: isNotFoundError([]string{"404", "403"}),
 		},
 		Columns: []*plugin.Column{
 			{
@@ -72,9 +72,6 @@ func listCalendars(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateDa
 
 	resp, err := service.Calendars.Get(calendarID).Do()
 	if err != nil {
-		if IsAPIDisabledError(err) {
-			return nil, nil
-		}
 		return nil, err
 	}
 	d.StreamListItem(ctx, resp)

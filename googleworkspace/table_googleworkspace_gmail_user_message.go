@@ -28,6 +28,7 @@ func tableGoogleWorkspaceGmailUserMessage(_ context.Context) *plugin.Table {
 					Require: plugin.Optional,
 				},
 			},
+			ShouldIgnoreError: isNotFoundError([]string{"403"}),
 		},
 		Get: &plugin.GetConfig{
 			KeyColumns: []*plugin.KeyColumn{
@@ -151,9 +152,6 @@ func listGmailMessages(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydra
 		}
 		return nil
 	}); err != nil {
-		if IsAPIDisabledError(err) {
-			return nil, nil
-		}
 		return nil, err
 	}
 
@@ -189,9 +187,6 @@ func getGmailMessage(ctx context.Context, d *plugin.QueryData, h *plugin.Hydrate
 
 	resp, err := service.Users.Messages.Get(userID, messageID).Do()
 	if err != nil {
-		if IsAPIDisabledError(err) {
-			return nil, nil
-		}
 		return nil, err
 	}
 
