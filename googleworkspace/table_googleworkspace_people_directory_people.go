@@ -38,7 +38,7 @@ func listPeopleDirecoryPeople(ctx context.Context, d *plugin.QueryData, _ *plugi
 	if err := resp.Pages(ctx, func(page *people.ListDirectoryPeopleResponse) error {
 		for _, people := range page.People {
 			// Since, 'names', 'birthdays', 'genders' and 'biographies' are singleton fields
-			var conn connections
+			var conn contacts
 			if people.Names != nil {
 				conn.Name = *people.Names[0]
 			}
@@ -53,7 +53,7 @@ func listPeopleDirecoryPeople(ctx context.Context, d *plugin.QueryData, _ *plugi
 			}
 			d.StreamListItem(
 				ctx,
-				connections{
+				contacts{
 					conn.Name,
 					conn.Birthday,
 					conn.Gender,

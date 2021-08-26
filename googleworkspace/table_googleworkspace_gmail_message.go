@@ -12,16 +12,16 @@ import (
 
 //// TABLE DEFINITION
 
-func tableGoogleWorkspaceGmailUserMessage(_ context.Context) *plugin.Table {
+func tableGoogleWorkspaceGmailMessage(_ context.Context) *plugin.Table {
 	return &plugin.Table{
-		Name:        "googleworkspace_gmail_user_message",
-		Description: "Retrieves messages in the user's mailbox.",
+		Name:        "googleworkspace_gmail_message",
+		Description: "Retrieves messages in the specified user's mailbox.",
 		List: &plugin.ListConfig{
 			Hydrate: listGmailMessages,
 			KeyColumns: []*plugin.KeyColumn{
 				{
 					Name:    "user_id",
-					Require: plugin.Optional,
+					Require: plugin.Required,
 				},
 				{
 					Name:    "query",
@@ -31,17 +31,8 @@ func tableGoogleWorkspaceGmailUserMessage(_ context.Context) *plugin.Table {
 			ShouldIgnoreError: isNotFoundError([]string{"403"}),
 		},
 		Get: &plugin.GetConfig{
-			KeyColumns: []*plugin.KeyColumn{
-				{
-					Name:    "id",
-					Require: plugin.Required,
-				},
-				{
-					Name:    "user_id",
-					Require: plugin.Optional,
-				},
-			},
-			Hydrate: getGmailMessage,
+			KeyColumns: plugin.AllColumns([]string{"id", "user_id"}),
+			Hydrate:    getGmailMessage,
 		},
 		HydrateConfig: []plugin.HydrateConfig{
 			{
@@ -59,6 +50,12 @@ func tableGoogleWorkspaceGmailUserMessage(_ context.Context) *plugin.Table {
 				Name:        "thread_id",
 				Description: "The ID of the thread the message belongs to.",
 				Type:        proto.ColumnType_STRING,
+			},
+			{
+				Name:        "user_id",
+				Description: "User's email address. If not specified, indicates the current authenticated user.",
+				Type:        proto.ColumnType_STRING,
+				Transform:   transform.FromQual("user_id"),
 			},
 			{
 				Name:        "history_id",
@@ -92,12 +89,6 @@ func tableGoogleWorkspaceGmailUserMessage(_ context.Context) *plugin.Table {
 				Hydrate:     getGmailMessage,
 			},
 			{
-				Name:        "user_id",
-				Description: "User's email address. If not specified, indicates the current authenticated user.",
-				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromQual("user_id"),
-			},
-			{
 				Name:        "query",
 				Description: "A string to filter messages matching the specified query.",
 				Type:        proto.ColumnType_STRING,
@@ -128,8 +119,7 @@ func listGmailMessages(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydra
 		return nil, err
 	}
 
-	// Set default value to me, to represent current logged-in user
-	userID := "me"
+	var userID string
 	if d.KeyColumnQuals["user_id"] != nil {
 		userID = d.KeyColumnQuals["user_id"].GetStringValue()
 	}
@@ -167,8 +157,7 @@ func getGmailMessage(ctx context.Context, d *plugin.QueryData, h *plugin.Hydrate
 		return nil, err
 	}
 
-	// Set default value to me, to represent current logged-in user
-	userID := "me"
+	var userID string
 	if d.KeyColumnQuals["user_id"] != nil {
 		userID = d.KeyColumnQuals["user_id"].GetStringValue()
 	}
@@ -181,7 +170,7 @@ func getGmailMessage(ctx context.Context, d *plugin.QueryData, h *plugin.Hydrate
 	}
 
 	// Return nil, if no input provided
-	if messageID == "" {
+	if messageID == "" || userID == "" {
 		return nil, nil
 	}
 

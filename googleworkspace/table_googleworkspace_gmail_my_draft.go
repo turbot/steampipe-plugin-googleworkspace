@@ -12,17 +12,13 @@ import (
 
 //// TABLE DEFINITION
 
-func tableGoogleWorkspaceGmailUserDraft(_ context.Context) *plugin.Table {
+func tableGoogleWorkspaceGmailMyDraft(_ context.Context) *plugin.Table {
 	return &plugin.Table{
-		Name:        "googleworkspace_gmail_user_draft",
-		Description: "Retrieves draft messages in the user's mailbox.",
+		Name:        "googleworkspace_gmail_my_draft",
+		Description: "Retrieves draft messages in the current authenticated user's mailbox.",
 		List: &plugin.ListConfig{
-			Hydrate: listGmailUserDrafts,
+			Hydrate: listGmailMyDrafts,
 			KeyColumns: []*plugin.KeyColumn{
-				{
-					Name:    "user_id",
-					Require: plugin.Optional,
-				},
 				{
 					Name:    "query",
 					Require: plugin.Optional,
@@ -31,17 +27,8 @@ func tableGoogleWorkspaceGmailUserDraft(_ context.Context) *plugin.Table {
 			ShouldIgnoreError: isNotFoundError([]string{"403"}),
 		},
 		Get: &plugin.GetConfig{
-			KeyColumns: []*plugin.KeyColumn{
-				{
-					Name:    "draft_id",
-					Require: plugin.Required,
-				},
-				{
-					Name:    "user_id",
-					Require: plugin.Optional,
-				},
-			},
-			Hydrate: getGmailUserDraft,
+			KeyColumns: plugin.SingleColumn("draft_id"),
+			Hydrate:    getGmailMyDraft,
 		},
 		Columns: []*plugin.Column{
 			{
@@ -66,42 +53,36 @@ func tableGoogleWorkspaceGmailUserDraft(_ context.Context) *plugin.Table {
 				Name:        "message_history_id",
 				Description: "The ID of the last history record that modified this message.",
 				Type:        proto.ColumnType_STRING,
-				Hydrate:     getGmailUserDraft,
+				Hydrate:     getGmailMyDraft,
 				Transform:   transform.FromField("Message.HistoryId"),
 			},
 			{
 				Name:        "message_internal_date",
 				Description: "The internal message creation timestamp which determines ordering in the inbox.",
 				Type:        proto.ColumnType_TIMESTAMP,
-				Hydrate:     getGmailUserDraft,
+				Hydrate:     getGmailMyDraft,
 				Transform:   transform.FromField("Message.InternalDate").Transform(transform.UnixMsToTimestamp),
 			},
 			{
 				Name:        "message_raw",
 				Description: "The entire email message in an RFC 2822 formatted and base64url encoded string.",
 				Type:        proto.ColumnType_STRING,
-				Hydrate:     getGmailUserDraft,
+				Hydrate:     getGmailMyDraft,
 				Transform:   transform.FromField("Message.Raw").NullIfZero(),
 			},
 			{
 				Name:        "message_size_estimate",
 				Description: "Estimated size in bytes of the message.",
 				Type:        proto.ColumnType_INT,
-				Hydrate:     getGmailUserDraft,
+				Hydrate:     getGmailMyDraft,
 				Transform:   transform.FromField("Message.SizeEstimate"),
 			},
 			{
 				Name:        "message_snippet",
 				Description: "A short part of the message text.",
 				Type:        proto.ColumnType_STRING,
-				Hydrate:     getGmailUserDraft,
+				Hydrate:     getGmailMyDraft,
 				Transform:   transform.FromField("Message.Snippet").NullIfZero(),
-			},
-			{
-				Name:        "user_id",
-				Description: "User's email address. If not specified, indicates the current authenticated user.",
-				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromQual("user_id"),
 			},
 			{
 				Name:        "query",
@@ -113,14 +94,14 @@ func tableGoogleWorkspaceGmailUserDraft(_ context.Context) *plugin.Table {
 				Name:        "message_label_ids",
 				Description: "A list of IDs of labels applied to this message.",
 				Type:        proto.ColumnType_JSON,
-				Hydrate:     getGmailUserDraft,
+				Hydrate:     getGmailMyDraft,
 				Transform:   transform.FromField("Message.LabelIds"),
 			},
 			{
 				Name:        "message_payload",
 				Description: "The parsed email structure in the message parts.",
 				Type:        proto.ColumnType_JSON,
-				Hydrate:     getGmailUserDraft,
+				Hydrate:     getGmailMyDraft,
 				Transform:   transform.FromField("Message.Payload"),
 			},
 		},
@@ -129,17 +110,11 @@ func tableGoogleWorkspaceGmailUserDraft(_ context.Context) *plugin.Table {
 
 //// LIST FUNCTION
 
-func listGmailUserDrafts(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
+func listGmailMyDrafts(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
 	// Create service
 	service, err := GmailService(ctx, d)
 	if err != nil {
 		return nil, err
-	}
-
-	// Set default value to me, to represent current logged-in user
-	userID := "me"
-	if d.KeyColumnQuals["user_id"] != nil {
-		userID = d.KeyColumnQuals["user_id"].GetStringValue()
 	}
 
 	// Only return messages matching the specified query. Supports the same query format as the Gmail search box.
@@ -152,7 +127,7 @@ func listGmailUserDrafts(ctx context.Context, d *plugin.QueryData, _ *plugin.Hyd
 	// Setting the maximum number of messages, API can return in a single page
 	maxResults := int64(500)
 
-	resp := service.Users.Drafts.List(userID).Q(query).MaxResults(maxResults)
+	resp := service.Users.Drafts.List("me").Q(query).MaxResults(maxResults)
 	if err := resp.Pages(ctx, func(page *gmail.ListDraftsResponse) error {
 		for _, draft := range page.Drafts {
 			d.StreamListItem(ctx, draft)
@@ -167,17 +142,11 @@ func listGmailUserDrafts(ctx context.Context, d *plugin.QueryData, _ *plugin.Hyd
 
 //// HYDRATE FUNCTIONS
 
-func getGmailUserDraft(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+func getGmailMyDraft(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	// Create service
 	service, err := GmailService(ctx, d)
 	if err != nil {
 		return nil, err
-	}
-
-	// Set default value to me, to represent current logged-in user
-	userID := "me"
-	if d.KeyColumnQuals["user_id"] != nil {
-		userID = d.KeyColumnQuals["user_id"].GetStringValue()
 	}
 
 	var draftID string
@@ -192,7 +161,7 @@ func getGmailUserDraft(ctx context.Context, d *plugin.QueryData, h *plugin.Hydra
 		return nil, nil
 	}
 
-	resp, err := service.Users.Drafts.Get(userID, draftID).Do()
+	resp, err := service.Users.Drafts.Get("me", draftID).Do()
 	if err != nil {
 		return nil, err
 	}

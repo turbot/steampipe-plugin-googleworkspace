@@ -137,19 +137,19 @@ func peopleContacts() []*plugin.Column {
 
 //// TABLE DEFINITION
 
-func tableGoogleWorkspacePeopleConnection(_ context.Context) *plugin.Table {
+func tableGoogleWorkspacePeopleContact(_ context.Context) *plugin.Table {
 	return &plugin.Table{
-		Name:        "googleworkspace_people_connection",
+		Name:        "googleworkspace_people_contact",
 		Description: "Contacts owned by the authenticated user.",
 		List: &plugin.ListConfig{
-			Hydrate:           listPeopleConnections,
+			Hydrate:           listPeopleContacts,
 			ShouldIgnoreError: isNotFoundError([]string{"404", "403"}),
 		},
 		Columns: peopleContacts(),
 	}
 }
 
-type connections = struct {
+type contacts = struct {
 	Name      people.Name
 	Birthday  people.Birthday
 	Gender    people.Gender
@@ -159,7 +159,7 @@ type connections = struct {
 
 //// LIST FUNCTION
 
-func listPeopleConnections(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
+func listPeopleContacts(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
 	// Create service
 	service, err := PeopleService(ctx, d)
 	if err != nil {
@@ -173,7 +173,7 @@ func listPeopleConnections(ctx context.Context, d *plugin.QueryData, _ *plugin.H
 	if err := resp.Pages(ctx, func(page *people.ListConnectionsResponse) error {
 		for _, connection := range page.Connections {
 			// Since, 'names', 'birthdays', 'genders' and 'biographies' are singleton fields
-			var conn connections
+			var conn contacts
 			if connection.Names != nil {
 				conn.Name = *connection.Names[0]
 			}
@@ -188,7 +188,7 @@ func listPeopleConnections(ctx context.Context, d *plugin.QueryData, _ *plugin.H
 			}
 			d.StreamListItem(
 				ctx,
-				connections{
+				contacts{
 					conn.Name,
 					conn.Birthday,
 					conn.Gender,
@@ -207,7 +207,7 @@ func listPeopleConnections(ctx context.Context, d *plugin.QueryData, _ *plugin.H
 //// TRANSFORM FUNCTIONS
 
 func extractPrimaryEmailAddress(_ context.Context, d *transform.TransformData) (interface{}, error) {
-	data := d.HydrateItem.(connections)
+	data := d.HydrateItem.(contacts)
 
 	emailAddresses := data.EmailAddresses
 
