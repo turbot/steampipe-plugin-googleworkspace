@@ -1,6 +1,6 @@
 # Table: googleworkspace_people_connection
 
-Query information about contacts owned by the current authenticated user.
+List contacts for the authenticated user.
 
 ## Examples
 
@@ -31,7 +31,7 @@ where
   cg.member_resource_names ?| array[conn.resource_name];
 ```
 
-### List connections within same organization
+### List connections belogning to the same organization
 
 ```sql
 select

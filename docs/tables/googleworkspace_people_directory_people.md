@@ -1,6 +1,6 @@
 # Table: googleworkspace_people_directory_people
 
-Query information about user's contacts added in the current working directory.
+List domain contacts in the authenticated user's domain directory.
 
 ## Examples
 

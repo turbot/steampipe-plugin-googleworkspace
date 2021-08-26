@@ -1,6 +1,8 @@
 # Table: googleworkspace_calendar_my_event
 
-Query information about previous and upcoming events scheduled in a google calendar of current logged in user.
+List previous and upcoming events scheduled in your calendar.
+
+To query events in any calendar, use the `googleworkspace_calendar_event` table.
 
 ## Examples
 
@@ -18,7 +20,7 @@ order by start_time
 limit 10;
 ```
 
-### List of events scheduled for tomorrow
+### List events scheduled for tomorrow
 
 ```sql
 select
@@ -34,7 +36,7 @@ where
 order by start_time;
 ```
 
-### List of events scheduled in next 4 days
+### List events scheduled in next 4 days
 
 ```sql
 select
@@ -50,7 +52,7 @@ where
 order by start_time;
 ```
 
-### List of events scheduled in current month
+### List events scheduled in current month
 
 ```sql
 select
@@ -66,7 +68,7 @@ where
 order by start_time;
 ```
 
-### List of events scheduled in current week
+### List events scheduled in current week
 
 ```sql
 select
@@ -82,7 +84,7 @@ where
 order by start_time;
 ```
 
-### List of upcoming events scheduled on every tuesday and thursday
+### List upcoming events scheduled on every Tuesday and Thursday
 
 ```sql
 select

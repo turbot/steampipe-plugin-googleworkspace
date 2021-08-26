@@ -1,10 +1,8 @@
 # Table: googleworkspace_gmail_user_settings
 
-Query information about user's settings for the specified account.
+Get information about a user's email settings for IMAP, auto-forwarding, delegates, and more.
 
-**NOTE:**
-
-- To list the `delegates` for the specified account, use service account clients that have been delegated domain-wide authority.
+**Note:** To list the `delegates` for an account, the service account used for authentication requires domain-wide authority.
 
 ## Examples
 
@@ -19,7 +17,7 @@ from
   googleworkspace_gmail_user_settings;
 ```
 
-### List users can delegate access to their mailbox to other users in domain
+### List users with delegated access to their mailbox
 
 ```sql
 select
@@ -58,7 +56,7 @@ where
   pop ->> 'accessWindow' = 'enabled';
 ```
 
-### List users with automatic forwarding option enabled
+### List users with automatic forwarding enabled
 
 ```sql
 select

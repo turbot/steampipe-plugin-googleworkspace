@@ -1,6 +1,6 @@
 # Table: googleworkspace_drive_my_file
 
-Query information about metadata or content of a file owned by an user.
+Get metadata for files created by, opened by, or shared directly with the user.
 
 ## Examples
 
@@ -16,7 +16,7 @@ from
   googleworkspace_drive_my_file;
 ```
 
-### List of files shared by other user
+### List files shared by other users
 
 ```sql
 select

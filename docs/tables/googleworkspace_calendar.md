@@ -1,10 +1,8 @@
 # Table: googleworkspace_calendar
 
-Query information about metadata of the specified calendar.
+Get metadata information for a specific calendar.
 
-**Note:**
-
-- A specific `id` of the calendar must be defined in all queries to this table.
+You must specify the calendar ID in the where or join clause (`where id=`, `join googleworkspace_calendar on id=`).
 
 ## Examples
 

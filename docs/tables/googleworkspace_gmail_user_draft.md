@@ -1,6 +1,6 @@
 # Table: googleworkspace_gmail_user_draft
 
-Query information about draft messages in an user's mailbox.
+List draft messages in a user's mailbox.
 
 ## Examples
 
@@ -50,7 +50,7 @@ where
   message_internal_date <= (current_date - interval '30' day);
 ```
 
-### List draft messages without body
+### List draft messages without a body
 
 ```sql
 select

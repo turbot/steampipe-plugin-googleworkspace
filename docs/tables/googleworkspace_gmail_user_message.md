@@ -1,6 +1,6 @@
 # Table: googleworkspace_gmail_user_message
 
-Query information about messages in an user's mailbox.
+List messages in a user's mailbox.
 
 ## Examples
 

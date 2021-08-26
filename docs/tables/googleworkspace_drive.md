@@ -1,6 +1,6 @@
 # Table: googleworkspace_drive
 
-Query information about metadata of an user's share drive.
+List the user's shared drives.
 
 ## Examples
 
@@ -16,7 +16,7 @@ from
   googleworkspace_drive;
 ```
 
-### List of hidden drives
+### List hidden drives
 
 ```sql
 select
@@ -30,7 +30,7 @@ where
   hidden;
 ```
 
-### List drives that allows access to user outside the domain
+### List drives that allows access to users outside the domain
 
 ```sql
 select

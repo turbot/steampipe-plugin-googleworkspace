@@ -1,6 +1,6 @@
 # Table: googleworkspace_people_contact_group
 
-Query information about contact groups owned by the current authenticated user.
+List contact groups owned by the authenticated user.
 
 ## Examples
 
@@ -16,7 +16,7 @@ from
   googleworkspace_people_contact_group;
 ```
 
-### List of deleted contact groups
+### List deleted contact groups
 
 ```sql
 select
@@ -30,7 +30,7 @@ where
   deleted;
 ```
 
-### List members in contact groups
+### List members in each contact group
 
 ```sql
 select
@@ -45,7 +45,7 @@ where
   conn.resource_name = m_name;
 ```
 
-### List contact groups with member count
+### Get member count for each contact group
 
 ```sql
 select

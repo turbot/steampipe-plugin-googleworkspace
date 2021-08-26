@@ -1,10 +1,10 @@
 # Table: googleworkspace_calendar_event
 
-Query information about previous and upcoming events scheduled in a specified google calendar.
+List previous and upcoming events scheduled in a specific calendar.
 
-**Note:**
+The `googleworkspace_calendar_event` table can be used to query events from any calendar, and **you must specify which calendar** in the where or join clause (`where calendar_id=`, `join googleworkspace_calendar_event on calendar_id=`).
 
-- A specific `calendar_id` must be defined in all queries to this table.
+To list all of **your** events use the `googleworkspace_calendar_my_event` table instead.
 
 ## Examples
 
@@ -25,7 +25,7 @@ order by start_time
 limit 10;
 ```
 
-### List of events scheduled in next 4 days
+### List events scheduled in next 4 days
 
 ```sql
 select
@@ -42,7 +42,7 @@ where
 order by start_time;
 ```
 
-### List of events scheduled in current month
+### List events scheduled in current month
 
 ```sql
 select
@@ -59,7 +59,7 @@ where
 order by start_time;
 ```
 
-### List of events scheduled in current week
+### List events scheduled in current week
 
 ```sql
 select
@@ -76,7 +76,7 @@ where
 order by start_time;
 ```
 
-### List all out-of-office(OOO) events in next 30 days
+### List out of office (OOO) events in next 30 days
 
 ```sql
 select
@@ -92,7 +92,7 @@ where
 order by start_time;
 ```
 
-### List upcoming indian holidays in next 30 days
+### List upcoming Indian holidays in next 30 days
 
 ```sql
 select
