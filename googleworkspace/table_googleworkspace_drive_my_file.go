@@ -321,6 +321,7 @@ func tableGoogleWorkspaceDriveMyFile(_ context.Context) *plugin.Table {
 					Require: plugin.Optional,
 				},
 			},
+			ShouldIgnoreError: isNotFoundError([]string{"403"}),
 		},
 		Get: &plugin.GetConfig{
 			KeyColumns: plugin.SingleColumn("id"),
@@ -358,9 +359,6 @@ func listDriveMyFiles(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydrat
 		}
 		return nil
 	}); err != nil {
-		if IsAPIDisabledError(err) {
-			return nil, nil
-		}
 		return nil, err
 	}
 
@@ -387,9 +385,6 @@ func getDriveMyFile(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateD
 	// Use "*" to return all fields
 	resp, err := service.Files.Get(fileID).Fields("*").Do()
 	if err != nil {
-		if IsAPIDisabledError(err) {
-			return nil, nil
-		}
 		return nil, err
 	}
 

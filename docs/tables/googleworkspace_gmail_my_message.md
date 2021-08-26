@@ -1,6 +1,8 @@
-# Table: googleworkspace_gmail_user_message
+# Table: googleworkspace_gmail_my_message
 
-List messages in a user's mailbox.
+List messages in your mailbox.
+
+To query messages in any mailbox, use the `googleworkspace_gmail_message` table.
 
 ## Examples
 
@@ -14,7 +16,7 @@ select
   size_estimate,
   snippet
 from
-  googleworkspace_gmail_user_message
+  googleworkspace_gmail_my_message
 order by internal_date
 limit 10;
 ```
@@ -29,7 +31,7 @@ select
   size_estimate,
   snippet
 from
-  googleworkspace_gmail_user_message
+  googleworkspace_gmail_my_message
 where
   query = 'is:unread newer_than:2d'
 order by internal_date;
@@ -45,7 +47,7 @@ select
   size_estimate,
   snippet
 from
-  googleworkspace_gmail_user_message
+  googleworkspace_gmail_my_message
 where
   query = 'from:someuser@example.com'
 order by internal_date;
@@ -61,7 +63,7 @@ select
   size_estimate,
   snippet
 from
-  googleworkspace_gmail_user_message
+  googleworkspace_gmail_my_message
 where
   query = 'in:draft'
 order by internal_date;
@@ -77,7 +79,7 @@ select
   size_estimate,
   snippet
 from
-  googleworkspace_gmail_user_message
+  googleworkspace_gmail_my_message
 where
   query = 'in:chats'
 order by internal_date;

@@ -16,7 +16,7 @@ func tableGoogleWorkspacePeopleDirectoryPeople(_ context.Context) *plugin.Table 
 		Description: "Domain contacts in the authenticated user's domain directory.",
 		List: &plugin.ListConfig{
 			Hydrate:           listPeopleDirecoryPeople,
-			ShouldIgnoreError: isNotFoundError([]string{"404"}),
+			ShouldIgnoreError: isNotFoundError([]string{"404", "403"}),
 		},
 		Columns: peopleContacts(),
 	}
@@ -38,7 +38,7 @@ func listPeopleDirecoryPeople(ctx context.Context, d *plugin.QueryData, _ *plugi
 	if err := resp.Pages(ctx, func(page *people.ListDirectoryPeopleResponse) error {
 		for _, people := range page.People {
 			// Since, 'names', 'birthdays', 'genders' and 'biographies' are singleton fields
-			var conn connections
+			var conn contacts
 			if people.Names != nil {
 				conn.Name = *people.Names[0]
 			}
@@ -53,7 +53,7 @@ func listPeopleDirecoryPeople(ctx context.Context, d *plugin.QueryData, _ *plugi
 			}
 			d.StreamListItem(
 				ctx,
-				connections{
+				contacts{
 					conn.Name,
 					conn.Birthday,
 					conn.Gender,
@@ -63,9 +63,6 @@ func listPeopleDirecoryPeople(ctx context.Context, d *plugin.QueryData, _ *plugi
 		}
 		return nil
 	}); err != nil {
-		if IsAPIDisabledError(err) {
-			return nil, nil
-		}
 		return nil, err
 	}
 

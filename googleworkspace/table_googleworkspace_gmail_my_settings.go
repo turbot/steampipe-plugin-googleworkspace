@@ -6,24 +6,17 @@ import (
 	"github.com/turbot/steampipe-plugin-sdk/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/plugin"
 	"github.com/turbot/steampipe-plugin-sdk/plugin/transform"
-
-	"google.golang.org/api/gmail/v1"
 )
 
 //// TABLE DEFINITION
 
-func tableGoogleWorkspaceGmailUserSettings(_ context.Context) *plugin.Table {
+func tableGoogleWorkspaceGmailMySettings(_ context.Context) *plugin.Table {
 	return &plugin.Table{
-		Name:        "googleworkspace_gmail_user_settings",
-		Description: "Retrieves user's settings for the specified account.",
+		Name:        "googleworkspace_gmail_my_settings",
+		Description: "Retrieves settings for the current authenticated user account.",
 		List: &plugin.ListConfig{
-			Hydrate: listGmailUsers,
-			KeyColumns: []*plugin.KeyColumn{
-				{
-					Name:    "user_email",
-					Require: plugin.Optional,
-				},
-			},
+			Hydrate:           listGmailMyUser,
+			ShouldIgnoreError: isNotFoundError([]string{"403"}),
 		},
 		Columns: []*plugin.Column{
 			{
@@ -36,41 +29,41 @@ func tableGoogleWorkspaceGmailUserSettings(_ context.Context) *plugin.Table {
 				Name:        "display_language",
 				Description: "Specifies the language settings for the specified account.",
 				Type:        proto.ColumnType_STRING,
-				Hydrate:     getGmailUserLanguage,
+				Hydrate:     getGmailMyLanguage,
 			},
 			{
 				Name:        "auto_forwarding",
 				Description: "Describes the auto-forwarding setting for the specified account.",
 				Type:        proto.ColumnType_JSON,
-				Hydrate:     getGmailUserSettingAutoForwarding,
+				Hydrate:     getGmailMyAutoForwardingSetting,
 				Transform:   transform.FromValue(),
 			},
 			{
 				Name:        "delegates",
 				Description: "A list of delegates for the specified account.",
 				Type:        proto.ColumnType_JSON,
-				Hydrate:     listGmailUserDelegateSettings,
+				Hydrate:     listGmailMyDelegateSettings,
 				Transform:   transform.FromValue(),
 			},
 			{
 				Name:        "imap",
 				Description: "Describes the IMAP setting for the specified account.",
 				Type:        proto.ColumnType_JSON,
-				Hydrate:     getGmailUserSettingImap,
+				Hydrate:     getGmailMyImapSetting,
 				Transform:   transform.FromValue(),
 			},
 			{
 				Name:        "pop",
 				Description: "Describes the POP settings for the specified account.",
 				Type:        proto.ColumnType_JSON,
-				Hydrate:     getGmailUserPopSetting,
+				Hydrate:     getGmailMyPopSetting,
 				Transform:   transform.FromValue(),
 			},
 			{
 				Name:        "vacation",
 				Description: "Describes the vacation responder settings for the specified account.",
 				Type:        proto.ColumnType_JSON,
-				Hydrate:     getGmailUserVacationSetting,
+				Hydrate:     getGmailMyVacationSetting,
 				Transform:   transform.FromValue(),
 			},
 		},
@@ -79,24 +72,15 @@ func tableGoogleWorkspaceGmailUserSettings(_ context.Context) *plugin.Table {
 
 //// LIST FUNCTION
 
-func listGmailUsers(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
+func listGmailMyUser(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
 	// Create service
 	service, err := GmailService(ctx, d)
 	if err != nil {
 		return nil, err
 	}
 
-	// Set default value to "me", to represent current logged-in user
-	userID := "me"
-	if d.KeyColumnQuals["user_email"] != nil {
-		userID = d.KeyColumnQuals["user_email"].GetStringValue()
-	}
-
-	resp, err := service.Users.GetProfile(userID).Do()
+	resp, err := service.Users.GetProfile("me").Do()
 	if err != nil {
-		if IsAPIDisabledError(err) {
-			return nil, nil
-		}
 		return nil, err
 	}
 	d.StreamListItem(ctx, resp)
@@ -106,41 +90,33 @@ func listGmailUsers(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateD
 
 //// HYDRATE FUNCTIONS
 
-// Lists the delegates for the specified account.
+// Lists the delegates for the current authenticated user's account.
 // NOTE: This method is only available to service account clients that have been delegated domain-wide authority.
-func listGmailUserDelegateSettings(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+func listGmailMyDelegateSettings(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
 	// Create service
 	service, err := GmailService(ctx, d)
 	if err != nil {
 		return nil, err
 	}
-	userID := h.Item.(*gmail.Profile).EmailAddress
 
-	resp, err := service.Users.Settings.Delegates.List(userID).Do()
+	resp, err := service.Users.Settings.Delegates.List("me").Do()
 	if err != nil {
-		if IsAPIDisabledError(err) {
-			return nil, nil
-		}
 		return nil, err
 	}
 
 	return resp.Delegates, nil
 }
 
-// Gets the auto-forwarding setting for the specified account.
-func getGmailUserSettingAutoForwarding(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+// Gets the auto-forwarding setting for the current authenticated user's account.
+func getGmailMyAutoForwardingSetting(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
 	// Create service
 	service, err := GmailService(ctx, d)
 	if err != nil {
 		return nil, err
 	}
-	userID := h.Item.(*gmail.Profile).EmailAddress
 
-	resp, err := service.Users.Settings.GetAutoForwarding(userID).Do()
+	resp, err := service.Users.Settings.GetAutoForwarding("me").Do()
 	if err != nil {
-		if IsAPIDisabledError(err) {
-			return nil, nil
-		}
 		return nil, err
 	}
 
@@ -158,19 +134,15 @@ func getGmailUserSettingAutoForwarding(ctx context.Context, d *plugin.QueryData,
 }
 
 // Gets IMAP settings.
-func getGmailUserSettingImap(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+func getGmailMyImapSetting(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
 	// Create service
 	service, err := GmailService(ctx, d)
 	if err != nil {
 		return nil, err
 	}
-	userID := h.Item.(*gmail.Profile).EmailAddress
 
-	resp, err := service.Users.Settings.GetImap(userID).Do()
+	resp, err := service.Users.Settings.GetImap("me").Do()
 	if err != nil {
-		if IsAPIDisabledError(err) {
-			return nil, nil
-		}
 		return nil, err
 	}
 
@@ -189,19 +161,15 @@ func getGmailUserSettingImap(ctx context.Context, d *plugin.QueryData, h *plugin
 }
 
 // Gets language settings.
-func getGmailUserLanguage(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+func getGmailMyLanguage(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
 	// Create service
 	service, err := GmailService(ctx, d)
 	if err != nil {
 		return nil, err
 	}
-	userID := h.Item.(*gmail.Profile).EmailAddress
 
-	resp, err := service.Users.Settings.GetLanguage(userID).Do()
+	resp, err := service.Users.Settings.GetLanguage("me").Do()
 	if err != nil {
-		if IsAPIDisabledError(err) {
-			return nil, nil
-		}
 		return nil, err
 	}
 
@@ -209,19 +177,15 @@ func getGmailUserLanguage(ctx context.Context, d *plugin.QueryData, h *plugin.Hy
 }
 
 // Gets POP settings.
-func getGmailUserPopSetting(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+func getGmailMyPopSetting(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
 	// Create service
 	service, err := GmailService(ctx, d)
 	if err != nil {
 		return nil, err
 	}
-	userID := h.Item.(*gmail.Profile).EmailAddress
 
-	resp, err := service.Users.Settings.GetPop(userID).Do()
+	resp, err := service.Users.Settings.GetPop("me").Do()
 	if err != nil {
-		if IsAPIDisabledError(err) {
-			return nil, nil
-		}
 		return nil, err
 	}
 
@@ -229,19 +193,15 @@ func getGmailUserPopSetting(ctx context.Context, d *plugin.QueryData, h *plugin.
 }
 
 // Gets vacation responder settings.
-func getGmailUserVacationSetting(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+func getGmailMyVacationSetting(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
 	// Create service
 	service, err := GmailService(ctx, d)
 	if err != nil {
 		return nil, err
 	}
-	userID := h.Item.(*gmail.Profile).EmailAddress
 
-	resp, err := service.Users.Settings.GetVacation(userID).Do()
+	resp, err := service.Users.Settings.GetVacation("me").Do()
 	if err != nil {
-		if IsAPIDisabledError(err) {
-			return nil, nil
-		}
 		return nil, err
 	}
 

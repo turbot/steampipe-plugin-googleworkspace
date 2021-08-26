@@ -1,6 +1,8 @@
-# Table: googleworkspace_gmail_user_draft
+# Table: googleworkspace_gmail_my_draft
 
-List draft messages in a user's mailbox.
+List draft messages in your mailbox.
+
+To query draft messages in any mailbox, use the `googleworkspace_gmail_draft` table.
 
 ## Examples
 
@@ -15,7 +17,7 @@ select
   message_size_estimate,
   message_snippet
 from
-  googleworkspace_gmail_user_draft;
+  googleworkspace_gmail_my_draft;
 ```
 
 ### List unread draft messages
@@ -29,7 +31,7 @@ select
   message_size_estimate,
   message_snippet
 from
-  googleworkspace_gmail_user_draft
+  googleworkspace_gmail_my_draft
 where
   query = 'is:unread';
 ```
@@ -45,7 +47,7 @@ select
   message_size_estimate,
   message_snippet
 from
-  googleworkspace_gmail_user_draft
+  googleworkspace_gmail_my_draft
 where
   message_internal_date <= (current_date - interval '30' day);
 ```
@@ -61,7 +63,7 @@ select
   message_size_estimate,
   message_snippet
 from
-  googleworkspace_gmail_user_draft
+  googleworkspace_gmail_my_draft
 where
   message_snippet is null;
 ```
