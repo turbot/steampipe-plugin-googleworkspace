@@ -2,6 +2,9 @@ package googleworkspace
 
 import (
 	"context"
+	"fmt"
+	"strings"
+	"time"
 
 	"github.com/turbot/steampipe-plugin-sdk/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/plugin"
@@ -19,6 +22,15 @@ func tableGoogleWorkspaceDrive(_ context.Context) *plugin.Table {
 		List: &plugin.ListConfig{
 			Hydrate: listDrives,
 			KeyColumns: []*plugin.KeyColumn{
+				{
+					Name:    "name",
+					Require: plugin.Optional,
+				},
+				{
+					Name:      "created_time",
+					Require:   plugin.Optional,
+					Operators: []string{">", ">=", "=", "<", "<="},
+				},
 				{
 					Name:    "use_domain_admin_access",
 					Require: plugin.Optional,
@@ -129,27 +141,70 @@ func listDrives(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData)
 		return nil, err
 	}
 
+	equalQuals := d.KeyColumnQuals
+
+	var queryFilter, query string
+	var filter []string
+
+	if equalQuals["name"] != nil {
+		filter = append(filter, fmt.Sprintf("%s = \"%s\"", "name", equalQuals["name"].GetStringValue()))
+	}
+
+	if d.Quals["created_time"] != nil {
+		for _, q := range d.Quals["created_time"].Quals {
+			givenTime := q.Value.GetTimestampValue().AsTime()
+			beforeTime := givenTime.Add(time.Duration(-1) * time.Second).Format("2006-01-02T15:04:05.000Z")
+			afterTime := givenTime.Add(time.Second * 1).Format("2006-01-02T15:04:05.000Z")
+
+			// Since, the query filter matches the actual time
+			switch q.Operator {
+			case ">", "<":
+				filter = append(filter, fmt.Sprintf("%s %s \"%s\"", "createdTime", q.Operator, givenTime.Format("2006-01-02T15:04:05.000Z")))
+			case "=":
+				filter = append(filter, fmt.Sprintf("createdTime > \"%s\" and createdTime < \"%s\"", beforeTime, afterTime))
+			case ">=":
+				filter = append(filter, fmt.Sprintf("%s > \"%s\"", "createdTime", beforeTime))
+			case "<=":
+				filter = append(filter, fmt.Sprintf("%s < \"%s\"", "createdTime", afterTime))
+			}
+		}
+	}
+
 	// Query string for searching shared drives. Refer https://developers.google.com/drive/api/v3/ref-search-terms#drive_properties
 	// For example, "hidden=true"
-	var query string
-	if d.KeyColumnQuals["query"] != nil {
-		query = d.KeyColumnQuals["query"].GetStringValue()
+	if equalQuals["query"] != nil {
+		queryFilter = equalQuals["query"].GetStringValue()
+	}
+
+	if queryFilter != "" {
+		query = queryFilter
+	} else if len(filter) > 0 {
+		query = strings.Join(filter, " and ")
 	}
 
 	// Set default as false
 	// Need to set true for some of the query terms, i.e. when filtering using createdTime, memberCount, name, or organizerCount
 	// Refer https://developers.google.com/drive/api/v3/ref-search-terms#drive_properties
-	useDomainAdminAccess := false
-	if d.KeyColumnQuals["use_domain_admin_access"] != nil {
-		useDomainAdminAccess = d.KeyColumnQuals["use_domain_admin_access"].GetBoolValue()
+	var useDomainAdminAccess bool
+	if equalQuals["use_domain_admin_access"] != nil {
+		useDomainAdminAccess = equalQuals["use_domain_admin_access"].GetBoolValue()
 	}
 
-	// Setting the maximum number of shared drives, API can return in a single page
+	// By default, API can return maximum 100 records in a single page
 	pageSize := int64(100)
+
+	limit := d.QueryContext.Limit
+	if d.QueryContext.Limit != nil {
+		if *limit < pageSize {
+			pageSize = *limit
+		}
+	}
 
 	resp := service.Drives.List().Fields("*").Q(query).UseDomainAdminAccess(useDomainAdminAccess).PageSize(pageSize)
 	if err := resp.Pages(ctx, func(page *drive.DriveList) error {
 		for _, data := range page.Drives {
+			parsedTime, _ := time.Parse(time.RFC3339, data.CreatedTime)
+			data.CreatedTime = parsedTime.Format(time.RFC3339)
 			d.StreamListItem(ctx, data)
 		}
 		return nil
