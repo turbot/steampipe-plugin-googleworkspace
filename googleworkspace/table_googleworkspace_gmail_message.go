@@ -185,6 +185,13 @@ func listGmailMessages(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydra
 	// Setting the maximum number of messages, API can return in a single page
 	maxResults := int64(500)
 
+	limit := d.QueryContext.Limit
+	if d.QueryContext.Limit != nil {
+		if *limit < maxResults {
+			maxResults = *limit
+		}
+	}
+
 	resp := service.Users.Messages.List(userID).Q(query).MaxResults(maxResults)
 	if err := resp.Pages(ctx, func(page *gmail.ListMessagesResponse) error {
 		for _, message := range page.Messages {
