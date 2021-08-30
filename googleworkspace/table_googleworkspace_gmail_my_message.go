@@ -2,6 +2,9 @@ package googleworkspace
 
 import (
 	"context"
+	"fmt"
+	"strconv"
+	"strings"
 
 	"github.com/turbot/steampipe-plugin-sdk/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/plugin"
@@ -19,6 +22,15 @@ func tableGoogleWorkspaceGmailMyMessage(_ context.Context) *plugin.Table {
 		List: &plugin.ListConfig{
 			Hydrate: listGmailMyMessages,
 			KeyColumns: []*plugin.KeyColumn{
+				{
+					Name:    "sender_email",
+					Require: plugin.Optional,
+				},
+				{
+					Name:      "internal_date",
+					Require:   plugin.Optional,
+					Operators: []string{">", ">=", "=", "<", "<="},
+				},
 				{
 					Name:    "query",
 					Require: plugin.Optional,
@@ -52,6 +64,13 @@ func tableGoogleWorkspaceGmailMyMessage(_ context.Context) *plugin.Table {
 				Description: "The ID of the last history record that modified this message.",
 				Type:        proto.ColumnType_STRING,
 				Hydrate:     getGmailMyMessage,
+			},
+			{
+				Name:        "sender_email",
+				Description: "Specifies the email address of the sender.",
+				Type:        proto.ColumnType_STRING,
+				Hydrate:     getGmailMyMessage,
+				Transform:   transform.From(extractMessageSender),
 			},
 			{
 				Name:        "internal_date",
@@ -109,12 +128,42 @@ func listGmailMyMessages(ctx context.Context, d *plugin.QueryData, _ *plugin.Hyd
 		return nil, err
 	}
 
+	var queryFilter, query string
+	var filter []string
+
+	if d.KeyColumnQuals["sender_email"] != nil {
+		filter = append(filter, fmt.Sprintf("%s = \"%s\"", "from", d.KeyColumnQuals["sender_email"].GetStringValue()))
+	}
+
+	if d.Quals["internal_date"] != nil {
+		for _, q := range d.Quals["internal_date"].Quals {
+			tsSecs := q.Value.GetTimestampValue().GetSeconds()
+			switch q.Operator {
+			case "=":
+				filter = append(filter, fmt.Sprintf("after:%s before:%s", strconv.Itoa(int(tsSecs)), strconv.Itoa(int(tsSecs+1))))
+			case ">=":
+				filter = append(filter, fmt.Sprintf("after:%s", strconv.Itoa(int(tsSecs))))
+			case ">":
+				filter = append(filter, fmt.Sprintf("after:%s", strconv.Itoa(int(tsSecs))))
+			case "<=":
+				filter = append(filter, fmt.Sprintf("before:%s", strconv.Itoa(int(tsSecs)+1)))
+			case "<":
+				filter = append(filter, fmt.Sprintf("before:%s", strconv.Itoa(int(tsSecs))))
+			}
+		}
+	}
+
 	// Only return messages matching the specified query. Supports the same query format as the Gmail search box.
 	// For example, "from:someuser@example.com is:unread"
 	// Note: Parameter cannot be used when accessing the api using the gmail.metadata scope.
-	var query string
 	if d.KeyColumnQuals["query"] != nil {
-		query = d.KeyColumnQuals["query"].GetStringValue()
+		queryFilter = d.KeyColumnQuals["query"].GetStringValue()
+	}
+
+	if queryFilter != "" {
+		query = queryFilter
+	} else if len(filter) > 0 {
+		query = strings.Join(filter, " and ")
 	}
 
 	// Setting the maximum number of messages, API can return in a single page
