@@ -2,7 +2,9 @@ package googleworkspace
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"os"
 
@@ -121,33 +123,53 @@ func getSessionConfig(ctx context.Context, d *plugin.QueryData) ([]option.Client
 	opts := []option.ClientOption{}
 
 	// Get credential file path, and user to impersonate from config (if mentioned)
-	var credentialPath, impersonateUser string
+	var credentialPath, tokenPath string
 	googledirectoryConfig := GetConfig(d.Connection)
 	if googledirectoryConfig.CredentialFile != nil {
 		credentialPath = *googledirectoryConfig.CredentialFile
 	}
-	if googledirectoryConfig.ImpersonatedUserEmail != nil {
-		impersonateUser = *googledirectoryConfig.ImpersonatedUserEmail
+	if googledirectoryConfig.TokenPath != nil {
+		tokenPath = *googledirectoryConfig.TokenPath
 	}
 
-	// If credential path not mentioned in steampipe config, search for env variable
-	if credentialPath == "" {
-		credentialPath = os.Getenv("GOOGLE_APPLICATION_CREDENTIALS")
+	// Check for environment variables
+	envCreds := os.Getenv("GOOGLE_APPLICATION_CREDENTIALS")
+	if credentialPath == "" && tokenPath == "" && envCreds != "" {
+		b, err := ioutil.ReadFile(envCreds)
+		if err != nil {
+			fmt.Println("unable to read credentials")
+		}
+		var data map[string]string
+		err = json.Unmarshal(b, &data)
+		if err != nil {
+			return nil, errors.New("unable to parse credentials")
+		}
+
+		if data["type"] == "service_account" {
+			credentialPath = envCreds
+		} else {
+			tokenPath = envCreds
+		}
 	}
 
-	// Credentials not set
-	if credentialPath == "" {
-		return nil, errors.New("credential_file must be configured")
-	}
-	if impersonateUser == "" {
-		return nil, errors.New("impersonated_user_email must be configured")
+	// No credentials
+	if credentialPath == "" && tokenPath == "" {
+		return nil, errors.New("either credential_file, or token_path must be configured")
 	}
 
-	ts, err := getTokenSource(ctx, d)
-	if err != nil {
-		return nil, err
+	// If credential path provided, use domain-wide delegation
+	if credentialPath != "" {
+		ts, err := getTokenSource(ctx, d)
+		if err != nil {
+			return nil, err
+		}
+		opts = append(opts, option.WithTokenSource(ts))
+		return opts, nil
 	}
-	opts = append(opts, option.WithTokenSource(ts))
+
+	// If token path provided, authenticate using OAuth 2.0
+	opts = append(opts, option.WithCredentialsFile(tokenPath))
+
 	return opts, nil
 }
 

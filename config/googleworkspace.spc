@@ -1,12 +1,22 @@
 connection "googleworkspace" {
   plugin = "googleworkspace"
 
-  # `impersonated_user_email` (required) - The email (string) of the user which should be impersonated.
-  # `impersonated_user_email` must be set, since the service account needs to impersonate a user with Admin API permissions to access the workspace resources.
+  # You may connect to google workspace using more than one option
+  # 1. To authenticate using domain-wide delegation, specify service account credential file, and the user email for impersonation
+  # `credential_file` (optional) - The path to a JSON credential file that contains service account credentials.
+  # If not specified in a connection, credentials will be loaded from the path specified in
+  # the `GOOGLE_APPLICATION_CREDENTIALS` environment variable.
+  # credential_file         = "/path/to/my/creds.json"
+
+  # `impersonated_user_email` (required) - The email (string) of the user which should be impersonated. Needs permissions to access the Admin APIs.
+  # `impersonated_user_email` must be set, since the service account needs to impersonate a user with Admin API permissions to access the workspace services.
   # impersonated_user_email = "username@domain.com"
 
-  # `credential_file` (optional) - The path to a JSON credential file that contains service account credentials.
-  # If `credential_file` is not specified in a connection, credentials will be loaded from the path specified in
-  # the `GOOGLE_APPLICATION_CREDENTIALS` environment variable.
-  # credential_file = "/path/to/my/creds.json"
+  # 2. To authenticate OAuth 2.0 client, specify client secret file
+  # `token_path` (optional) - The path to a JSON credential file that contains 
+  # Google application credentials.  If `token_path` is not specified in a connection,
+  # credentials will be loaded from:
+  #   - The path specified in the `GOOGLE_APPLICATION_CREDENTIALS` environment variable, if set; otherwise
+  #   - The standard location (`~/.config/gcloud/application_default_credentials.json`)
+  # token_path = "~/.config/gcloud/application_default_credentials.json"
 }
