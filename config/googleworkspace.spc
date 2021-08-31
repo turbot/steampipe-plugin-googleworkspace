@@ -4,8 +4,6 @@ connection "googleworkspace" {
   # You may connect to google workspace using more than one option
   # 1. To authenticate using domain-wide delegation, specify service account credential file, and the user email for impersonation
   # `credential_file` (optional) - The path to a JSON credential file that contains service account credentials.
-  # If not specified in a connection, credentials will be loaded from the path specified in
-  # the `GOOGLE_APPLICATION_CREDENTIALS` environment variable.
   # credential_file         = "/path/to/my/creds.json"
 
   # `impersonated_user_email` (required) - The email (string) of the user which should be impersonated. Needs permissions to access the Admin APIs.

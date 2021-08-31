@@ -2,11 +2,8 @@ package googleworkspace
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
-	"fmt"
 	"io/ioutil"
-	"os"
 
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
@@ -132,31 +129,6 @@ func getSessionConfig(ctx context.Context, d *plugin.QueryData) ([]option.Client
 		tokenPath = *googledirectoryConfig.TokenPath
 	}
 
-	// Check for environment variables
-	envCreds := os.Getenv("GOOGLE_APPLICATION_CREDENTIALS")
-	if credentialPath == "" && tokenPath == "" && envCreds != "" {
-		b, err := ioutil.ReadFile(envCreds)
-		if err != nil {
-			fmt.Println("unable to read credentials")
-		}
-		var data map[string]string
-		err = json.Unmarshal(b, &data)
-		if err != nil {
-			return nil, errors.New("unable to parse credentials")
-		}
-
-		if data["type"] == "service_account" {
-			credentialPath = envCreds
-		} else {
-			tokenPath = envCreds
-		}
-	}
-
-	// No credentials
-	if credentialPath == "" && tokenPath == "" {
-		return nil, errors.New("either credential_file, or token_path must be configured")
-	}
-
 	// If credential path provided, use domain-wide delegation
 	if credentialPath != "" {
 		ts, err := getTokenSource(ctx, d)
@@ -168,9 +140,12 @@ func getSessionConfig(ctx context.Context, d *plugin.QueryData) ([]option.Client
 	}
 
 	// If token path provided, authenticate using OAuth 2.0
-	opts = append(opts, option.WithCredentialsFile(tokenPath))
+	if tokenPath != "" {
+		opts = append(opts, option.WithCredentialsFile(tokenPath))
+		return opts, nil
+	}
 
-	return opts, nil
+	return nil, nil
 }
 
 // Returns a JWT TokenSource using the configuration and the HTTP client from the provided context.
