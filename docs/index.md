@@ -108,11 +108,11 @@ correct client secret JSON file parameters:
     --no-launch-browser \
     --scopes="\
   https://www.googleapis.com/auth/calendar.readonly,\
-  https://www.googleapis.com/auth/drive.readonly,\
-  https://www.googleapis.com/auth/gmail.readonly,\
   https://www.googleapis.com/auth/contacts.other.readonly,\
   https://www.googleapis.com/auth/contacts.readonly,\
-  https://www.googleapis.com/auth/directory.readonly"
+  https://www.googleapis.com/auth/directory.readonly,\
+  https://www.googleapis.com/auth/drive.readonly,\
+  https://www.googleapis.com/auth/gmail.readonly"
   ```
 
 - Copy the login link into your browser and authenticate as the user you would like to make

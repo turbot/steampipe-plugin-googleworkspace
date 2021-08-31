@@ -251,6 +251,11 @@ func tableGoogleWorkspaceCalendarEvent(_ context.Context) *plugin.Table {
 					Name:    "query",
 					Require: plugin.Optional,
 				},
+				{
+					Name:      "start_time",
+					Require:   plugin.Optional,
+					Operators: []string{">", ">=", "=", "<", "<="},
+				},
 			},
 		},
 		Get: &plugin.GetConfig{
@@ -288,7 +293,27 @@ func listCalendarEvents(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydr
 	}
 
 	var count int64
-	resp := service.Events.List(calendarID).SingleEvents(true).Q(query).MaxResults(maxResult)
+	resp := service.Events.List(calendarID).ShowDeleted(false).SingleEvents(true).Q(query).MaxResults(maxResult)
+	if d.Quals["start_time"] != nil {
+		for _, q := range d.Quals["start_time"].Quals {
+			givenTime := q.Value.GetTimestampValue().AsTime()
+			beforeTime := givenTime.Add(time.Duration(-1) * time.Second).Format("2006-01-02T15:04:05.000Z")
+			afterTime := givenTime.Add(time.Second * 1).Format("2006-01-02T15:04:05.000Z")
+
+			switch q.Operator {
+			case ">":
+				resp.TimeMin(afterTime)
+			case ">=":
+				resp.TimeMin(givenTime.Format("2006-01-02T15:04:05.000Z"))
+			case "=":
+				resp.TimeMin(givenTime.Format("2006-01-02T15:04:05.000Z")).TimeMax(givenTime.Format("2006-01-02T15:04:05.000Z"))
+			case "<=":
+				resp.TimeMax(givenTime.Format("2006-01-02T15:04:05.000Z"))
+			case "<":
+				resp.TimeMax(beforeTime)
+			}
+		}
+	}
 	if err := resp.Pages(ctx, func(page *calendar.Events) error {
 		for _, event := range page.Items {
 			d.StreamListItem(ctx, calendarEvent{*event, calendarID})
