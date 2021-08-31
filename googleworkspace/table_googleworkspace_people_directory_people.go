@@ -45,7 +45,7 @@ func listPeopleDirecoryPeople(ctx context.Context, d *plugin.QueryData, _ *plugi
 	}
 
 	var count int64
-	resp := service.People.ListDirectoryPeople().ReadMask(personFields).Sources("DIRECTORY_SOURCE_TYPE_DOMAIN_PROFILE")
+	resp := service.People.ListDirectoryPeople().ReadMask(personFields).Sources("DIRECTORY_SOURCE_TYPE_DOMAIN_PROFILE").PageSize(maxResult)
 	if err := resp.Pages(ctx, func(page *people.ListDirectoryPeopleResponse) error {
 		for _, people := range page.People {
 			// Since, 'names', 'birthdays', 'genders' and 'biographies' are singleton fields
