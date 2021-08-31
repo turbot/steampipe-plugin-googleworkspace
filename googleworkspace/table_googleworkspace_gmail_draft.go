@@ -171,10 +171,31 @@ func listGmailDrafts(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydrate
 	// Setting the maximum number of messages, API can return in a single page
 	maxResults := int64(500)
 
+	limit := d.QueryContext.Limit
+	if d.QueryContext.Limit != nil {
+		if *limit < maxResults {
+			maxResults = *limit
+		}
+	}
+
+	var count int64
 	resp := service.Users.Drafts.List(userID).Q(query).MaxResults(maxResults)
 	if err := resp.Pages(ctx, func(page *gmail.ListDraftsResponse) error {
 		for _, draft := range page.Drafts {
 			d.StreamListItem(ctx, draft)
+			count++
+
+			// Break for loop if requested no of results achieved
+			if limit != nil {
+				if count >= *limit {
+					break
+				}
+			}
+
+			// Check if the context is cancelled for query
+			if plugin.IsCancelled(ctx) {
+				break
+			}
 		}
 		return nil
 	}); err != nil {

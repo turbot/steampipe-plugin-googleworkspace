@@ -176,10 +176,24 @@ func listGmailMyMessages(ctx context.Context, d *plugin.QueryData, _ *plugin.Hyd
 		}
 	}
 
+	var count int64
 	resp := service.Users.Messages.List("me").Q(query).MaxResults(maxResults)
 	if err := resp.Pages(ctx, func(page *gmail.ListMessagesResponse) error {
 		for _, message := range page.Messages {
 			d.StreamListItem(ctx, message)
+			count++
+
+			// Break for loop if requested no of results achieved
+			if limit != nil {
+				if count >= *limit {
+					break
+				}
+			}
+
+			// Check if the context is cancelled for query
+			if plugin.IsCancelled(ctx) {
+				break
+			}
 		}
 		return nil
 	}); err != nil {

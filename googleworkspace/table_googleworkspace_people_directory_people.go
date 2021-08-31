@@ -34,6 +34,17 @@ func listPeopleDirecoryPeople(ctx context.Context, d *plugin.QueryData, _ *plugi
 	// Define fields the API should return
 	personFields := "addresses,biographies,birthdays,calendarUrls,clientData,coverPhotos,emailAddresses,events,externalIds,genders,interests,locations,memberships,metadata,miscKeywords,names,nicknames,occupations,organizations,phoneNumbers,photos,relations,sipAddresses,skills,urls,userDefined"
 
+	// By default, API can return maximum 1000 records in a single page
+	maxResult := int64(1000)
+
+	limit := d.QueryContext.Limit
+	if d.QueryContext.Limit != nil {
+		if *limit < maxResult {
+			maxResult = *limit
+		}
+	}
+
+	var count int64
 	resp := service.People.ListDirectoryPeople().ReadMask(personFields).Sources("DIRECTORY_SOURCE_TYPE_DOMAIN_PROFILE")
 	if err := resp.Pages(ctx, func(page *people.ListDirectoryPeopleResponse) error {
 		for _, people := range page.People {
@@ -60,6 +71,19 @@ func listPeopleDirecoryPeople(ctx context.Context, d *plugin.QueryData, _ *plugi
 					conn.Biography,
 					*people,
 				})
+			count++
+
+			// Break for loop if requested no of results achieved
+			if limit != nil {
+				if count >= *limit {
+					break
+				}
+			}
+
+			// Check if the context is cancelled for query
+			if plugin.IsCancelled(ctx) {
+				break
+			}
 		}
 		return nil
 	}); err != nil {

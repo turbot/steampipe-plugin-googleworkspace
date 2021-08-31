@@ -102,13 +102,36 @@ func listPeopleContactGroups(ctx context.Context, d *plugin.QueryData, _ *plugin
 
 	// `contactGroups.batchGet` can accept maximum of 200 resource names at a time, so make sure
 	// `contactGroups.list` returns the same and append to this in chunks not more then 200.
+	pageLimit := int64(200)
+
+	limit := d.QueryContext.Limit
+	if d.QueryContext.Limit != nil {
+		if *limit < pageLimit {
+			pageLimit = *limit
+		}
+	}
+
+	var count int64
 	var contactGroupNames [][]string
-	resp := service.ContactGroups.List().PageSize(int64(200))
+	resp := service.ContactGroups.List().PageSize(pageLimit)
 	if err := resp.Pages(ctx, func(page *people.ListContactGroupsResponse) error {
 		var resourceNames []string
 		// create a chunk of resourceNames of size 200
 		for _, contactGroup := range page.ContactGroups {
 			resourceNames = append(resourceNames, contactGroup.ResourceName)
+			count++
+
+			// Break for loop if requested no of results achieved
+			if limit != nil {
+				if count >= *limit {
+					break
+				}
+			}
+
+			// Check if the context is cancelled for query
+			if plugin.IsCancelled(ctx) {
+				break
+			}
 		}
 		if len(resourceNames) > 0 {
 			contactGroupNames = append(contactGroupNames, resourceNames)

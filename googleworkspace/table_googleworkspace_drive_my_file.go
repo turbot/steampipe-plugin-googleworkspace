@@ -418,12 +418,26 @@ func listDriveMyFiles(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydrat
 	}
 
 	// Use "*" to return all fields
+	var count int64
 	resp := service.Files.List().Fields("nextPageToken, files(*)").Q(query).PageSize(maxResult)
 	if err := resp.Pages(ctx, func(page *drive.FileList) error {
 		for _, file := range page.Files {
 			parsedTime, _ := time.Parse(time.RFC3339, file.CreatedTime)
 			file.CreatedTime = parsedTime.Format(time.RFC3339)
 			d.StreamListItem(ctx, file)
+			count++
+
+			// Break for loop if requested no of results achieved
+			if limit != nil {
+				if count >= *limit {
+					break
+				}
+			}
+
+			// Check if the context is cancelled for query
+			if plugin.IsCancelled(ctx) {
+				break
+			}
 		}
 		return nil
 	}); err != nil {

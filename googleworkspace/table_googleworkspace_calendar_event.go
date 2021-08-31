@@ -274,8 +274,8 @@ func listCalendarEvents(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydr
 	// By default, API can return maximum 2500 records in a single page
 	maxResult := int64(2500)
 	// Reduce the basic request limit down if the user has only requested a small number of rows
+	limit := d.QueryContext.Limit
 	if d.QueryContext.Limit != nil {
-		limit := d.QueryContext.Limit
 		if *limit < maxResult {
 			maxResult = *limit
 		}
@@ -287,10 +287,24 @@ func listCalendarEvents(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydr
 		query = d.KeyColumnQuals["query"].GetStringValue()
 	}
 
+	var count int64
 	resp := service.Events.List(calendarID).SingleEvents(true).Q(query).MaxResults(maxResult)
 	if err := resp.Pages(ctx, func(page *calendar.Events) error {
 		for _, event := range page.Items {
 			d.StreamListItem(ctx, calendarEvent{*event, calendarID})
+			count++
+
+			// Break for loop if requested no of results achieved
+			if limit != nil {
+				if count >= *limit {
+					break
+				}
+			}
+
+			// Check if the context is cancelled for query
+			if plugin.IsCancelled(ctx) {
+				break
+			}
 		}
 		return nil
 	}); err != nil {
