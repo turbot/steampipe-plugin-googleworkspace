@@ -86,15 +86,10 @@ func listCalendarMyEvents(ctx context.Context, d *plugin.QueryData, _ *plugin.Hy
 			d.StreamListItem(ctx, calendarEvent{*event, page.Summary})
 			count++
 
-			// Break for loop if requested no of results achieved
-			if limit != nil {
-				if count >= *limit {
-					break
-				}
-			}
-
 			// Check if the context is cancelled for query
-			if plugin.IsCancelled(ctx) {
+			// Break for loop if requested no of results achieved
+			if plugin.IsCancelled(ctx) || (limit != nil && count >= *limit) {
+				page.NextPageToken = ""
 				break
 			}
 		}
