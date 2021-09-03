@@ -192,16 +192,13 @@ func listGmailMessages(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydra
 		}
 	}
 
-	var count int64
 	resp := service.Users.Messages.List(userID).Q(query).MaxResults(maxResults)
 	if err := resp.Pages(ctx, func(page *gmail.ListMessagesResponse) error {
 		for _, message := range page.Messages {
 			d.StreamListItem(ctx, message)
-			count++
 
-			// Check if the context is cancelled for query
-			// Break for loop if requested no of results achieved
-			if plugin.IsCancelled(ctx) || (limit != nil && count >= *limit) {
+			// Context can be cancelled due to manual cancellation or the limit has been hit
+			if plugin.IsCancelled(ctx) {
 				page.NextPageToken = ""
 				break
 			}

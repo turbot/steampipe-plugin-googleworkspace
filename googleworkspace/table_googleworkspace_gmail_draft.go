@@ -178,16 +178,13 @@ func listGmailDrafts(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydrate
 		}
 	}
 
-	var count int64
 	resp := service.Users.Drafts.List(userID).Q(query).MaxResults(maxResults)
 	if err := resp.Pages(ctx, func(page *gmail.ListDraftsResponse) error {
 		for _, draft := range page.Drafts {
 			d.StreamListItem(ctx, draft)
-			count++
 
-			// Check if the context is cancelled for query
-			// Break for loop if requested no of results achieved
-			if plugin.IsCancelled(ctx) || (limit != nil && count >= *limit) {
+			// Context can be cancelled due to manual cancellation or the limit has been hit
+			if plugin.IsCancelled(ctx) {
 				page.NextPageToken = ""
 				break
 			}

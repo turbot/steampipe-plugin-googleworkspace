@@ -111,7 +111,6 @@ func listPeopleContactGroups(ctx context.Context, d *plugin.QueryData, _ *plugin
 		}
 	}
 
-	var count int64
 	var contactGroupNames [][]string
 	resp := service.ContactGroups.List().PageSize(pageLimit)
 	if err := resp.Pages(ctx, func(page *people.ListContactGroupsResponse) error {
@@ -119,11 +118,9 @@ func listPeopleContactGroups(ctx context.Context, d *plugin.QueryData, _ *plugin
 		// create a chunk of resourceNames of size 200
 		for _, contactGroup := range page.ContactGroups {
 			resourceNames = append(resourceNames, contactGroup.ResourceName)
-			count++
 
-			// Check if the context is cancelled for query
-			// Break for loop if requested no of results achieved
-			if plugin.IsCancelled(ctx) || (limit != nil && count >= *limit) {
+			// Context can be cancelled due to manual cancellation or the limit has been hit
+			if plugin.IsCancelled(ctx) {
 				page.NextPageToken = ""
 				break
 			}

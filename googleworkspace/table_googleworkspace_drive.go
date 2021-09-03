@@ -200,18 +200,15 @@ func listDrives(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData)
 		}
 	}
 
-	var count int64
 	resp := service.Drives.List().Fields("*").Q(query).UseDomainAdminAccess(useDomainAdminAccess).PageSize(pageSize)
 	if err := resp.Pages(ctx, func(page *drive.DriveList) error {
 		for _, data := range page.Drives {
 			parsedTime, _ := time.Parse(time.RFC3339, data.CreatedTime)
 			data.CreatedTime = parsedTime.Format(time.RFC3339)
 			d.StreamListItem(ctx, data)
-			count++
 
-			// Check if the context is cancelled for query
-			// Break for loop if requested no of results achieved
-			if plugin.IsCancelled(ctx) || (limit != nil && count >= *limit) {
+			// Context can be cancelled due to manual cancellation or the limit has been hit
+			if plugin.IsCancelled(ctx) {
 				page.NextPageToken = ""
 				break
 			}

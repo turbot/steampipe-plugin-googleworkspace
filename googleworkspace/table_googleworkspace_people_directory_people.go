@@ -44,7 +44,6 @@ func listPeopleDirecoryPeople(ctx context.Context, d *plugin.QueryData, _ *plugi
 		}
 	}
 
-	var count int64
 	resp := service.People.ListDirectoryPeople().ReadMask(personFields).Sources("DIRECTORY_SOURCE_TYPE_DOMAIN_PROFILE").PageSize(maxResult)
 	if err := resp.Pages(ctx, func(page *people.ListDirectoryPeopleResponse) error {
 		for _, people := range page.People {
@@ -71,11 +70,10 @@ func listPeopleDirecoryPeople(ctx context.Context, d *plugin.QueryData, _ *plugi
 					conn.Biography,
 					*people,
 				})
-			count++
 
 			// Check if the context is cancelled for query
 			// Break for loop if requested no of results achieved
-			if plugin.IsCancelled(ctx) || (limit != nil && count >= *limit) {
+			if plugin.IsCancelled(ctx) {
 				page.NextPageToken = ""
 				break
 			}

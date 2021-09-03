@@ -179,7 +179,6 @@ func listPeopleContacts(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydr
 		}
 	}
 
-	var count int64
 	resp := service.People.Connections.List("people/me").PersonFields(personFields).PageSize(maxResult)
 	if err := resp.Pages(ctx, func(page *people.ListConnectionsResponse) error {
 		for _, connection := range page.Connections {
@@ -206,11 +205,9 @@ func listPeopleContacts(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydr
 					conn.Biography,
 					*connection,
 				})
-			count++
 
-			// Check if the context is cancelled for query
-			// Break for loop if requested no of results achieved
-			if plugin.IsCancelled(ctx) || (limit != nil && count >= *limit) {
+			// Context can be cancelled due to manual cancellation or the limit has been hit
+			if plugin.IsCancelled(ctx) {
 				page.NextPageToken = ""
 				break
 			}

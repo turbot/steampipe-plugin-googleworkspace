@@ -292,7 +292,6 @@ func listCalendarEvents(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydr
 		query = d.KeyColumnQuals["query"].GetStringValue()
 	}
 
-	var count int64
 	resp := service.Events.List(calendarID).ShowDeleted(false).SingleEvents(true).Q(query).MaxResults(maxResult)
 	if d.Quals["start_time"] != nil {
 		for _, q := range d.Quals["start_time"].Quals {
@@ -317,11 +316,9 @@ func listCalendarEvents(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydr
 	if err := resp.Pages(ctx, func(page *calendar.Events) error {
 		for _, event := range page.Items {
 			d.StreamListItem(ctx, calendarEvent{*event, calendarID})
-			count++
 
-			// Check if the context is cancelled for query
-			// Break for loop if requested no of results achieved
-			if plugin.IsCancelled(ctx) || (limit != nil && count >= *limit) {
+			// Context can be cancelled due to manual cancellation or the limit has been hit
+			if plugin.IsCancelled(ctx) {
 				page.NextPageToken = ""
 				break
 			}
