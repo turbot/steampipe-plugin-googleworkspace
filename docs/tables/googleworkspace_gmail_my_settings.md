@@ -4,6 +4,10 @@ Get information about your email settings for IMAP, auto-forwarding, delegates, 
 
 To query email settings information about any mailbox, use the `googleworkspace_gmail_settings` table.
 
+**NOTE:**
+
+- To list account's delegates, you must authenticate using service account clients that have been delegated domain-wide authority.
+
 ## Examples
 
 ### Basic info
