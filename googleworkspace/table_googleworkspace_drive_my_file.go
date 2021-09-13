@@ -6,11 +6,13 @@ import (
 	"strings"
 	"time"
 
+	"github.com/iancoleman/strcase"
 	"github.com/turbot/steampipe-plugin-sdk/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/plugin"
 	"github.com/turbot/steampipe-plugin-sdk/plugin/transform"
 
 	"google.golang.org/api/drive/v3"
+	"google.golang.org/api/googleapi"
 )
 
 //// TABLE DEFINITION
@@ -407,6 +409,10 @@ func listDriveMyFiles(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydrat
 		query = strings.Join(filter, " and ")
 	}
 
+	// Check for query context and requests only for queried columns
+	givenColumns := d.QueryContext.Columns
+	requiredFields := buildDriveFileRequestFields(ctx, givenColumns)
+
 	// By default, API can return maximum 1000 records in a single page
 	maxResult := int64(1000)
 
@@ -418,7 +424,7 @@ func listDriveMyFiles(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydrat
 	}
 
 	// Use "*" to return all fields
-	resp := service.Files.List().Fields("nextPageToken, files(*)").Q(query).PageSize(maxResult)
+	resp := service.Files.List().Fields(requiredFields...).Q(query).PageSize(maxResult)
 	if err := resp.Pages(ctx, func(page *drive.FileList) error {
 		for _, file := range page.Files {
 			parsedTime, _ := time.Parse(time.RFC3339, file.CreatedTime)
@@ -456,11 +462,40 @@ func getDriveMyFile(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateD
 		return nil, nil
 	}
 
+	// Check for query context and requests only for queried columns
+	givenColumns := d.QueryContext.Columns
+	requiredFields := buildDriveFileRequestFields(ctx, givenColumns)
+
 	// Use "*" to return all fields
-	resp, err := service.Files.Get(fileID).Fields("*").Do()
+	resp, err := service.Files.Get(fileID).Fields(requiredFields...).Do()
 	if err != nil {
 		return nil, err
 	}
 
 	return resp, nil
+}
+
+// buildDriveFileRequestFields :: Return columns passed in query context
+func buildDriveFileRequestFields(ctx context.Context, queryColumns []string) []googleapi.Field {
+	var fields []string
+	var requestedFields []googleapi.Field
+
+	for _, columnName := range queryColumns {
+		// Optional columns
+		if columnName == "query" {
+			continue
+		}
+
+		switch columnName {
+		case "original_file_name":
+			fields = append(fields, "originalFilename")
+		default:
+			fields = append(fields, strcase.ToLowerCamel(columnName))
+		}
+	}
+
+	givenFields := strings.Join(fields, ", ")
+	requestedFields = append(requestedFields, googleapi.Field(fmt.Sprintf("nextPageToken, files(%s)", givenFields)))
+
+	return requestedFields
 }

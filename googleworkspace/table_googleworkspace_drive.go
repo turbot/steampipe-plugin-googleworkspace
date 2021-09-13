@@ -6,11 +6,13 @@ import (
 	"strings"
 	"time"
 
+	"github.com/iancoleman/strcase"
 	"github.com/turbot/steampipe-plugin-sdk/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/plugin"
 	"github.com/turbot/steampipe-plugin-sdk/plugin/transform"
 
 	"google.golang.org/api/drive/v3"
+	"google.golang.org/api/googleapi"
 )
 
 //// TABLE DEFINITION
@@ -140,7 +142,6 @@ func listDrives(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData)
 	if err != nil {
 		return nil, err
 	}
-
 	equalQuals := d.KeyColumnQuals
 
 	var queryFilter, query string
@@ -182,6 +183,10 @@ func listDrives(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData)
 		query = strings.Join(filter, " and ")
 	}
 
+	// Check for query context and requests only for queried columns
+	givenColumns := d.QueryContext.Columns
+	requiredFields := buildDriveRequestFields(ctx, givenColumns)
+
 	// Set default as false
 	// Need to set true for some of the query terms, i.e. when filtering using createdTime, memberCount, name, or organizerCount
 	// Refer https://developers.google.com/drive/api/v3/ref-search-terms#drive_properties
@@ -200,7 +205,7 @@ func listDrives(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData)
 		}
 	}
 
-	resp := service.Drives.List().Fields("*").Q(query).UseDomainAdminAccess(useDomainAdminAccess).PageSize(pageSize)
+	resp := service.Drives.List().Fields(requiredFields...).Q(query).UseDomainAdminAccess(useDomainAdminAccess).PageSize(pageSize)
 	if err := resp.Pages(ctx, func(page *drive.DriveList) error {
 		for _, data := range page.Drives {
 			parsedTime, _ := time.Parse(time.RFC3339, data.CreatedTime)
@@ -238,10 +243,40 @@ func getDrive(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (
 		return nil, nil
 	}
 
-	resp, err := service.Drives.Get(id).Fields("*").Do()
+	// Check for query context and requests only for queried columns
+	givenColumns := d.QueryContext.Columns
+	requiredFields := buildDriveRequestFields(ctx, givenColumns)
+
+	resp, err := service.Drives.Get(id).Fields(requiredFields...).Do()
 	if err != nil {
 		return nil, err
 	}
 
 	return resp, nil
+}
+
+// buildDriveRequestFields :: Return columns passed in query context
+func buildDriveRequestFields(ctx context.Context, queryColumns []string) []googleapi.Field {
+	var fields []string
+	var requestedFields []googleapi.Field
+
+	for _, columnName := range queryColumns {
+		// Optional columns
+		if columnName == "query" || columnName == "use_domain_admin_access" {
+			continue
+		}
+
+		formattedColumnName := strcase.ToLowerCamel(columnName)
+		switch columnName {
+		case "admin_managed_restrictions", "copy_requires_writer_permission", "domain_users_only", "drive_members_only":
+			fields = append(fields, "restrictions/"+formattedColumnName)
+		default:
+			fields = append(fields, formattedColumnName)
+		}
+	}
+
+	givenFields := strings.Join(fields, ", ")
+	requestedFields = append(requestedFields, googleapi.Field(fmt.Sprintf("nextPageToken, drives(%s)", givenFields)))
+
+	return requestedFields
 }
