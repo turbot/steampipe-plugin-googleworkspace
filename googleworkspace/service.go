@@ -150,7 +150,7 @@ func getSessionConfig(ctx context.Context, d *plugin.QueryData) ([]option.Client
 
 // Returns a JWT TokenSource using the configuration and the HTTP client from the provided context.
 func getTokenSource(ctx context.Context, d *plugin.QueryData) (oauth2.TokenSource, error) {
-	// NOTE: based on https://developers.google.com/admin-sdk/directory/v1/guides/delegation#go
+	// Note: based on https://developers.google.com/admin-sdk/directory/v1/guides/delegation#go
 
 	// have we already created and cached the token?
 	cacheKey := "googleworkspace.token_source"
