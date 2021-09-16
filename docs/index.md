@@ -69,23 +69,21 @@ Installing the latest googleworkspace plugin will create a config file (`~/.stea
 connection "googleworkspace" {
   plugin = "googleworkspace"
 
-  # You may connect to google workspace using more than one option
-  # 1. To authenticate using domain-wide delegation, specify service account credential file, and the user email for impersonation
+  # You may connect to Google Workspace using more than one option:
+  # 1. To authenticate using domain-wide delegation, specify  a service account credential file and the user email for impersonation
   # `credential_file` (optional) - The path to a JSON credential file that contains service account credentials.
-  # credential_file         = "/path/to/my/creds.json"
+  #credential_file         = "/path/to/my/creds.json"
 
   # `impersonated_user_email` (required) - The email (string) of the user which should be impersonated. Needs permissions to access the Admin APIs.
   # `impersonated_user_email` must be set, since the service account needs to impersonate a user with Admin API permissions to access the workspace services.
-  # impersonated_user_email = "username@domain.com"
+  #impersonated_user_email = "username@domain.com"
 
-
-  # 2. To authenticate OAuth 2.0 client, specify client secret file
-  # `token_path` (optional) - The path to a JSON credential file that contains 
-  # Google application credentials.  If `token_path` is not specified in a connection,
-  # credentials will be loaded from:
+  # 2. To authenticate using OAuth 2.0, specify a client secret file
+  # `token_path` (optional) - The path to a JSON credential file that contains Google application credentials.
+  # If `token_path` is not specified in a connection, credentials will be loaded from:
   #   - The path specified in the `GOOGLE_APPLICATION_CREDENTIALS` environment variable, if set; otherwise
   #   - The standard location (`~/.config/gcloud/application_default_credentials.json`)
-  # token_path = "~/.config/gcloud/application_default_credentials.json"
+  #token_path = "~/.config/gcloud/application_default_credentials.json"
 }
 ```
 
@@ -98,13 +96,12 @@ connection "googleworkspace" {
 
 ### Authenticate using OAuth client
 
-You can use client secret credential to protect the user's data by only granting tokens to authorized requestors. Use following steps to configure credentials:
+You can use client secret credentials to protect the user's data by only granting tokens to authorized requestors. Use following steps to configure credentials:
 
-- [Configure the OAuth consent screen](https://developers.google.com/workspace/guides/create-credentials#configure_the_oauth_consent_screen)
-- [Create a OAuth client ID credential](https://developers.google.com/workspace/guides/create-credentials#create_a_oauth_client_id_credential), and download the client secret JSON file.
-- Wherever you have the [Google Cloud SDK](https://cloud.google.com/sdk/docs/install) installed, run the following command with the
-correct client secret JSON file parameters:
-  
+- [Configure the OAuth consent screen](https://developers.google.com/workspace/guides/create-credentials#configure_the_oauth_consent_screen).
+- [Create an OAuth client ID credential](https://developers.google.com/workspace/guides/create-credentials#create_a_oauth_client_id_credential) with the application type `Desktop app`, and download the client secret JSON file.
+- Wherever you have the [Google Cloud SDK](https://cloud.google.com/sdk/docs/install) installed, run the following command with the correct client secret JSON file parameters:
+
   ```sh
   gcloud auth application-default login \
     --client-id-file=client_secret.json \
@@ -118,16 +115,13 @@ correct client secret JSON file parameters:
   https://www.googleapis.com/auth/gmail.readonly"
   ```
 
-- Copy the login link into your browser and authenticate as the user you would like to make
-the API calls through.
-
-- Review the output for the location of the **Application Default Credentials** file, which usually appears following the text `Credentials saved to file`.
-
-- Add the **Application Default Credentials** file path in steampipe config using `token_path`, or pass the path of this file to applications using the environment variable.
+- Copy the login link into your browser and authenticate as the user you would like to make the API calls through.
+- Review the output for the location of the **Application Default Credentials** file, which usually appears following the text `Credentials saved to file:`.
+- Set the **Application Default Credentials** filepath in steampipe config `token_path`, or pass the path of this file to applications using the environment variable.
 
 ### Credentials from Environment Variables
 
-By default, the Google Workspace plugin uses your [Application Default Credentials](https://cloud.google.com/sdk/gcloud/reference/auth/application-default) to connect. If you have not set up ADC, refer [Authenticate using OAuth client](#authenticate-using-oauth-client).
+The Google Workspace plugin will use the standard Google environment variables to obtain OAuth client credentials **only if other arguments (`credential_file`, `token_path`) are not specified** in the connection:
 
 ```sh
 export GOOGLE_APPLICATION_CREDENTIALS=/path/to/my/creds.json
