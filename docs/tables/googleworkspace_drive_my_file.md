@@ -46,7 +46,7 @@ select
 from
   googleworkspace_drive_my_file
 where
-  query = 'modifiedTime > ''2021-08-15T00:00:00'' and (mimeType contains ''image/'' or mimeType contains ''video/'')';
+  query = 'modifiedTime > "2021-08-15T00:00:00" and (mimeType contains "image/" or mimeType contains "video/")';
 ```
 
 ### List files using the [query filter](https://developers.google.com/drive/api/v3/search-files)
@@ -61,5 +61,5 @@ select
 from
   googleworkspace_drive_my_file
 where
-  query = 'name contains ''steampipe''';
+  query = 'name contains "steampipe"';
 ```

@@ -3,12 +3,16 @@ package googleworkspace
 import (
 	"context"
 	"fmt"
+	"strings"
+	"time"
 
+	"github.com/iancoleman/strcase"
 	"github.com/turbot/steampipe-plugin-sdk/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/plugin"
 	"github.com/turbot/steampipe-plugin-sdk/plugin/transform"
 
 	"google.golang.org/api/drive/v3"
+	"google.golang.org/api/googleapi"
 )
 
 //// TABLE DEFINITION
@@ -317,6 +321,16 @@ func tableGoogleWorkspaceDriveMyFile(_ context.Context) *plugin.Table {
 					Require: plugin.Optional,
 				},
 				{
+					Name:      "created_time",
+					Require:   plugin.Optional,
+					Operators: []string{">", ">=", "=", "<", "<="},
+				},
+				{
+					Name:      "mime_type",
+					Require:   plugin.Optional,
+					Operators: []string{"=", "<>", "!="},
+				},
+				{
 					Name:    "query",
 					Require: plugin.Optional,
 				},
@@ -340,22 +354,88 @@ func listDriveMyFiles(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydrat
 		return nil, err
 	}
 
+	equalQuals := d.KeyColumnQuals
+	quals := d.Quals
+
+	var queryFilter, query string
+	var filter []string
+
+	if equalQuals["name"] != nil {
+		filter = append(filter, fmt.Sprintf("%s = \"%s\"", "name", equalQuals["name"].GetStringValue()))
+	}
+
+	if quals["created_time"] != nil {
+		for _, q := range quals["created_time"].Quals {
+			givenTime := q.Value.GetTimestampValue().AsTime()
+			beforeTime := givenTime.Add(time.Duration(-1) * time.Second).Format("2006-01-02T15:04:05.000Z")
+			afterTime := givenTime.Add(time.Second * 1).Format("2006-01-02T15:04:05.000Z")
+
+			// Since, the query filter matches the actual time
+			switch q.Operator {
+			case ">", "<":
+				filter = append(filter, fmt.Sprintf("%s %s \"%s\"", "createdTime", q.Operator, givenTime.Format("2006-01-02T15:04:05.000Z")))
+			case "=":
+				filter = append(filter, fmt.Sprintf("createdTime > \"%s\" and createdTime < \"%s\"", beforeTime, afterTime))
+			case ">=":
+				filter = append(filter, fmt.Sprintf("%s > \"%s\"", "createdTime", beforeTime))
+			case "<=":
+				filter = append(filter, fmt.Sprintf("%s < \"%s\"", "createdTime", afterTime))
+			}
+		}
+	}
+
+	if quals["mime_type"] != nil {
+		for _, q := range quals["mime_type"].Quals {
+			mimeType := q.Value.GetStringValue()
+
+			switch q.Operator {
+			case "=":
+				filter = append(filter, fmt.Sprintf("%s = \"%s\"", "mimeType", mimeType))
+			case "!=", "<>":
+				filter = append(filter, fmt.Sprintf("%s != \"%s\"", "mimeType", mimeType))
+			}
+		}
+	}
+
 	// Query string for searching files. Refer https://developers.google.com/drive/api/v3/search-files
 	// For example, "name contains 'steampipe'", returns all the files containing the word 'steampipe'
-	var query string
-	if d.KeyColumnQuals["name"] != nil {
-		name := d.KeyColumnQuals["name"].GetStringValue()
-		query = "name = " + fmt.Sprintf("\"%s\" ", name)
+	if equalQuals["query"] != nil {
+		queryFilter = equalQuals["query"].GetStringValue()
 	}
-	if d.KeyColumnQuals["query"] != nil {
-		query = d.KeyColumnQuals["query"].GetStringValue()
+
+	if queryFilter != "" {
+		query = queryFilter
+	} else if len(filter) > 0 {
+		query = strings.Join(filter, " and ")
+	}
+
+	// Check for query context and requests only for queried columns
+	givenColumns := d.QueryContext.Columns
+	requiredFields := buildDriveFileRequestFields(ctx, givenColumns)
+
+	// By default, API can return maximum 1000 records in a single page
+	maxResult := int64(1000)
+
+	limit := d.QueryContext.Limit
+	if d.QueryContext.Limit != nil {
+		if *limit < maxResult {
+			maxResult = *limit
+		}
 	}
 
 	// Use "*" to return all fields
-	resp := service.Files.List().Fields("nextPageToken, files(*)").Q(query)
+	resp := service.Files.List().Fields(requiredFields...).Q(query).PageSize(maxResult)
 	if err := resp.Pages(ctx, func(page *drive.FileList) error {
 		for _, file := range page.Files {
+			parsedTime, _ := time.Parse(time.RFC3339, file.CreatedTime)
+			file.CreatedTime = parsedTime.Format(time.RFC3339)
 			d.StreamListItem(ctx, file)
+
+			// Context can be cancelled due to manual cancellation or the limit has been hit
+			if plugin.IsCancelled(ctx) {
+				page.NextPageToken = ""
+				break
+			}
 		}
 		return nil
 	}); err != nil {
@@ -382,11 +462,40 @@ func getDriveMyFile(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateD
 		return nil, nil
 	}
 
+	// Check for query context and requests only for queried columns
+	givenColumns := d.QueryContext.Columns
+	requiredFields := buildDriveFileRequestFields(ctx, givenColumns)
+
 	// Use "*" to return all fields
-	resp, err := service.Files.Get(fileID).Fields("*").Do()
+	resp, err := service.Files.Get(fileID).Fields(requiredFields...).Do()
 	if err != nil {
 		return nil, err
 	}
 
 	return resp, nil
+}
+
+// buildDriveFileRequestFields :: Return columns passed in query context
+func buildDriveFileRequestFields(ctx context.Context, queryColumns []string) []googleapi.Field {
+	var fields []string
+	var requestedFields []googleapi.Field
+
+	for _, columnName := range queryColumns {
+		// Optional columns
+		if columnName == "query" {
+			continue
+		}
+
+		switch columnName {
+		case "original_file_name":
+			fields = append(fields, "originalFilename")
+		default:
+			fields = append(fields, strcase.ToLowerCamel(columnName))
+		}
+	}
+
+	givenFields := strings.Join(fields, ", ")
+	requestedFields = append(requestedFields, googleapi.Field(fmt.Sprintf("nextPageToken, files(%s)", givenFields)))
+
+	return requestedFields
 }

@@ -38,7 +38,7 @@ from
 where
   calendar_id = 'company-calendar@domain.com'
   and start_time >= current_date
-  and end_time <= (current_date + interval '4 days')
+  and start_time <= (current_date + interval '4 days')
 order by start_time;
 ```
 
@@ -55,7 +55,7 @@ from
 where
   calendar_id = 'company-calendar@domain.com'
   and start_time >= date_trunc('month', current_date)
-  and end_time <= date_trunc('month', current_date) + interval '1 month'
+  and start_time <= date_trunc('month', current_date) + interval '1 month'
 order by start_time;
 ```
 
@@ -72,7 +72,7 @@ from
 where
   calendar_id = 'company-calendar@domain.com'
   and start_time >= date_trunc('week', current_date)
-  and end_time < (date_trunc('week', current_date) + interval '7 days')
+  and start_time < (date_trunc('week', current_date) + interval '7 days')
 order by start_time;
 ```
 
@@ -88,7 +88,7 @@ where
   calendar_id = 'company-calendar@domain.com'
   and event_type = 'outOfOffice'
   and start_time >= current_date
-  and end_time < current_date + interval '30 days'
+  and start_time < current_date + interval '30 days'
 order by start_time;
 ```
 
@@ -104,6 +104,6 @@ from
 where
   calendar_id = 'en.indian#holiday@group.v.calendar.google.com'
   and start_time >= current_date
-  and end_time < current_date + interval '30 days'
+  and start_time < current_date + interval '30 days'
 order by start_time;
 ```

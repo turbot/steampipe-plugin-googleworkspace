@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"io/ioutil"
-	"os"
 
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
@@ -121,39 +120,37 @@ func getSessionConfig(ctx context.Context, d *plugin.QueryData) ([]option.Client
 	opts := []option.ClientOption{}
 
 	// Get credential file path, and user to impersonate from config (if mentioned)
-	var credentialPath, impersonateUser string
+	var credentialPath, tokenPath string
 	googledirectoryConfig := GetConfig(d.Connection)
 	if googledirectoryConfig.CredentialFile != nil {
 		credentialPath = *googledirectoryConfig.CredentialFile
 	}
-	if googledirectoryConfig.ImpersonatedUserEmail != nil {
-		impersonateUser = *googledirectoryConfig.ImpersonatedUserEmail
+	if googledirectoryConfig.TokenPath != nil {
+		tokenPath = *googledirectoryConfig.TokenPath
 	}
 
-	// If credential path not mentioned in steampipe config, search for env variable
-	if credentialPath == "" {
-		credentialPath = os.Getenv("GOOGLE_APPLICATION_CREDENTIALS")
+	// If credential path provided, use domain-wide delegation
+	if credentialPath != "" {
+		ts, err := getTokenSource(ctx, d)
+		if err != nil {
+			return nil, err
+		}
+		opts = append(opts, option.WithTokenSource(ts))
+		return opts, nil
 	}
 
-	// Credentials not set
-	if credentialPath == "" {
-		return nil, errors.New("credential_file must be configured")
-	}
-	if impersonateUser == "" {
-		return nil, errors.New("impersonated_user_email must be configured")
+	// If token path provided, authenticate using OAuth 2.0
+	if tokenPath != "" {
+		opts = append(opts, option.WithCredentialsFile(tokenPath))
+		return opts, nil
 	}
 
-	ts, err := getTokenSource(ctx, d)
-	if err != nil {
-		return nil, err
-	}
-	opts = append(opts, option.WithTokenSource(ts))
-	return opts, nil
+	return nil, nil
 }
 
 // Returns a JWT TokenSource using the configuration and the HTTP client from the provided context.
 func getTokenSource(ctx context.Context, d *plugin.QueryData) (oauth2.TokenSource, error) {
-	// NOTE: based on https://developers.google.com/admin-sdk/directory/v1/guides/delegation#go
+	// Note: based on https://developers.google.com/admin-sdk/directory/v1/guides/delegation#go
 
 	// have we already created and cached the token?
 	cacheKey := "googleworkspace.token_source"

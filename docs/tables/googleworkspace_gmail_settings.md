@@ -6,6 +6,8 @@ The `googleworkspace_gmail_settings` table can be used to query user's email set
 
 To list all of **your** email settings use the `googleworkspace_gmail_my_settings` table instead.
 
+**Note:** To list delegated accounts, you must authenticate using a service account client that has been delegated domain-wide authority.
+
 ## Examples
 
 ### Basic info

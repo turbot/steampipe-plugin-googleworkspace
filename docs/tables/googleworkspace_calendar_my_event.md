@@ -32,7 +32,7 @@ from
   googleworkspace_calendar_my_event
 where
   start_time >= (current_date + interval '1 day')
-  and end_time < (current_date + interval '2 days')
+  and start_time < (current_date + interval '2 days')
 order by start_time;
 ```
 
@@ -48,7 +48,7 @@ from
   googleworkspace_calendar_my_event
 where
   start_time >= current_date
-  and end_time <= (current_date + interval '4 days')
+  and start_time <= (current_date + interval '4 days')
 order by start_time;
 ```
 
@@ -64,7 +64,7 @@ from
   googleworkspace_calendar_my_event
 where
   start_time >= date_trunc('month', current_date)
-  and end_time <= date_trunc('month', current_date) + interval '1 month'
+  and start_time <= date_trunc('month', current_date) + interval '1 month'
 order by start_time;
 ```
 
@@ -80,7 +80,7 @@ from
   googleworkspace_calendar_my_event
 where
   start_time >= date_trunc('week', current_date)
-  and end_time < (date_trunc('week', current_date) + interval '7 days')
+  and start_time < (date_trunc('week', current_date) + interval '7 days')
 order by start_time;
 ```
 

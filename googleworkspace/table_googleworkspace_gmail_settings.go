@@ -8,6 +8,7 @@ import (
 	"github.com/turbot/steampipe-plugin-sdk/plugin/transform"
 
 	"google.golang.org/api/gmail/v1"
+	"google.golang.org/api/googleapi"
 )
 
 //// TABLE DEFINITION
@@ -99,7 +100,7 @@ func listGmailUsers(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateD
 //// HYDRATE FUNCTIONS
 
 // Lists the delegates for the specified account.
-// NOTE: This method is only available to service account clients that have been delegated domain-wide authority.
+// Note: This method is only available to service account clients that have been delegated domain-wide authority.
 func listGmailDelegateSettings(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	// Create service
 	service, err := GmailService(ctx, d)
@@ -110,6 +111,13 @@ func listGmailDelegateSettings(ctx context.Context, d *plugin.QueryData, h *plug
 
 	resp, err := service.Users.Settings.Delegates.List(userID).Do()
 	if err != nil {
+		if gerr, ok := err.(*googleapi.Error); ok {
+			// Since this method is only available to service account clients that have been delegated domain-wide authority,
+			// return nil if using the OAuth 2.0 client auth
+			if gerr.Code == 403 && gerr.Message == "Access restricted to service accounts that have been delegated domain-wide authority" {
+				return nil, nil
+			}
+		}
 		return nil, err
 	}
 

@@ -2,6 +2,9 @@ package googleworkspace
 
 import (
 	"context"
+	"fmt"
+	"strconv"
+	"strings"
 
 	"github.com/turbot/steampipe-plugin-sdk/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/plugin"
@@ -19,6 +22,11 @@ func tableGoogleWorkspaceGmailMyDraft(_ context.Context) *plugin.Table {
 		List: &plugin.ListConfig{
 			Hydrate: listGmailMyDrafts,
 			KeyColumns: []*plugin.KeyColumn{
+				{
+					Name:      "message_internal_date",
+					Require:   plugin.Optional,
+					Operators: []string{">", ">=", "=", "<", "<="},
+				},
 				{
 					Name:    "query",
 					Require: plugin.Optional,
@@ -117,20 +125,59 @@ func listGmailMyDrafts(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydra
 		return nil, err
 	}
 
+	var queryFilter, query string
+	var filter []string
+
+	if d.Quals["message_internal_date"] != nil {
+		for _, q := range d.Quals["message_internal_date"].Quals {
+			tsSecs := q.Value.GetTimestampValue().GetSeconds()
+			switch q.Operator {
+			case "=":
+				filter = append(filter, fmt.Sprintf("after:%s before:%s", strconv.Itoa(int(tsSecs)), strconv.Itoa(int(tsSecs+1))))
+			case ">=":
+				filter = append(filter, fmt.Sprintf("after:%s", strconv.Itoa(int(tsSecs))))
+			case ">":
+				filter = append(filter, fmt.Sprintf("after:%s", strconv.Itoa(int(tsSecs))))
+			case "<=":
+				filter = append(filter, fmt.Sprintf("before:%s", strconv.Itoa(int(tsSecs)+1)))
+			case "<":
+				filter = append(filter, fmt.Sprintf("before:%s", strconv.Itoa(int(tsSecs))))
+			}
+		}
+	}
+
 	// Only return messages matching the specified query. Supports the same query format as the Gmail search box.
 	// For example, "from:someuser@example.com is:unread"
-	var query string
 	if d.KeyColumnQuals["query"] != nil {
-		query = d.KeyColumnQuals["query"].GetStringValue()
+		queryFilter = d.KeyColumnQuals["query"].GetStringValue()
+	}
+
+	if queryFilter != "" {
+		query = queryFilter
+	} else if len(filter) > 0 {
+		query = strings.Join(filter, " and ")
 	}
 
 	// Setting the maximum number of messages, API can return in a single page
 	maxResults := int64(500)
 
+	limit := d.QueryContext.Limit
+	if d.QueryContext.Limit != nil {
+		if *limit < maxResults {
+			maxResults = *limit
+		}
+	}
+
 	resp := service.Users.Drafts.List("me").Q(query).MaxResults(maxResults)
 	if err := resp.Pages(ctx, func(page *gmail.ListDraftsResponse) error {
 		for _, draft := range page.Drafts {
 			d.StreamListItem(ctx, draft)
+
+			// Context can be cancelled due to manual cancellation or the limit has been hit
+			if plugin.IsCancelled(ctx) {
+				page.NextPageToken = ""
+				break
+			}
 		}
 		return nil
 	}); err != nil {

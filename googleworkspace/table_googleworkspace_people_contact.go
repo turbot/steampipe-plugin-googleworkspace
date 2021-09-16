@@ -169,7 +169,17 @@ func listPeopleContacts(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydr
 	// Define fields the API should return
 	personFields := "addresses,biographies,birthdays,calendarUrls,clientData,coverPhotos,emailAddresses,events,externalIds,genders,interests,locations,memberships,metadata,miscKeywords,names,nicknames,occupations,organizations,phoneNumbers,photos,relations,sipAddresses,skills,urls,userDefined"
 
-	resp := service.People.Connections.List("people/me").PersonFields(personFields)
+	// By default, API can return maximum 1000 records in a single page
+	maxResult := int64(1000)
+
+	limit := d.QueryContext.Limit
+	if d.QueryContext.Limit != nil {
+		if *limit < maxResult {
+			maxResult = *limit
+		}
+	}
+
+	resp := service.People.Connections.List("people/me").PersonFields(personFields).PageSize(maxResult)
 	if err := resp.Pages(ctx, func(page *people.ListConnectionsResponse) error {
 		for _, connection := range page.Connections {
 			// Since, 'names', 'birthdays', 'genders' and 'biographies' are singleton fields
@@ -195,6 +205,12 @@ func listPeopleContacts(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydr
 					conn.Biography,
 					*connection,
 				})
+
+			// Context can be cancelled due to manual cancellation or the limit has been hit
+			if plugin.IsCancelled(ctx) {
+				page.NextPageToken = ""
+				break
+			}
 		}
 		return nil
 	}); err != nil {
