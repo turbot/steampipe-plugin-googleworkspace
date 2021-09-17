@@ -1,4 +1,4 @@
-## v0.0.2 [2021-09-16]
+## v0.0.2 [2021-09-17]
 
 _What's new?_
 
@@ -21,7 +21,7 @@ _Enhancements_
 
 _Bug fixes_
 
-- Fixed: Querying the `delegates` column in the `googleworkspace_gmail_my_settings` and `googleworkspace_gmail_settings` tables when using OAuth authentication now returns null instead of an error ([#11](https://github.com/turbot/steampipe-plugin-googleworkspace/pull/11))
+- Fixed: Querying the `delegates` column in the `googleworkspace_gmail_my_settings` and `googleworkspace_gmail_settings` tables when using OAuth authentication now returns `null` instead of an error ([#11](https://github.com/turbot/steampipe-plugin-googleworkspace/pull/11))
 
 ## v0.0.1 [2021-08-26]
 
