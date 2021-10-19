@@ -16,7 +16,7 @@ func tableGoogleWorkspacePeopleDirectoryPeople(_ context.Context) *plugin.Table 
 		Description: "Domain contacts in the authenticated user's domain directory.",
 		List: &plugin.ListConfig{
 			Hydrate:           listPeopleDirecoryPeople,
-			ShouldIgnoreError: isNotFoundError([]string{"404", "403"}),
+			ShouldIgnoreError: isNotFoundError([]string{"404"}),
 		},
 		Columns: peopleContacts(),
 	}

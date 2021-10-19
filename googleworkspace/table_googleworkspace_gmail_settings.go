@@ -18,9 +18,8 @@ func tableGoogleWorkspaceGmailSettings(_ context.Context) *plugin.Table {
 		Name:        "googleworkspace_gmail_settings",
 		Description: "Retrieves settings for the specified account.",
 		List: &plugin.ListConfig{
-			Hydrate:           listGmailUsers,
-			KeyColumns:        plugin.SingleColumn("user_email"),
-			ShouldIgnoreError: isNotFoundError([]string{"403"}),
+			Hydrate:    listGmailUsers,
+			KeyColumns: plugin.SingleColumn("user_email"),
 		},
 		Columns: []*plugin.Column{
 			{
