@@ -241,7 +241,7 @@ func tableGoogleWorkspaceCalendarEvent(_ context.Context) *plugin.Table {
 		Description: "Events scheduled on the specified calendar.",
 		List: &plugin.ListConfig{
 			Hydrate:           listCalendarEvents,
-			ShouldIgnoreError: isNotFoundError([]string{"404", "403"}),
+			ShouldIgnoreError: isNotFoundError([]string{"404"}),
 			KeyColumns: []*plugin.KeyColumn{
 				{
 					Name:    "calendar_id",
