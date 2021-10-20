@@ -1,3 +1,9 @@
+## v0.0.3 [2021-10-20]
+
+_Bug fixes_
+
+- Fixed: All tables now return the service API disabled error directly instead of returning empty rows
+
 ## v0.0.2 [2021-09-17]
 
 _What's new?_
