@@ -13,6 +13,7 @@ import (
 	"google.golang.org/api/option"
 	"google.golang.org/api/people/v1"
 
+	"github.com/mitchellh/go-homedir"
 	"github.com/turbot/steampipe-plugin-sdk/plugin"
 )
 
@@ -141,7 +142,15 @@ func getSessionConfig(ctx context.Context, d *plugin.QueryData) ([]option.Client
 
 	// If token path provided, authenticate using OAuth 2.0
 	if tokenPath != "" {
-		opts = append(opts, option.WithCredentialsFile(tokenPath))
+		var path string
+		if tokenPath[0] == '~' {
+			var err error
+			path, err = homedir.Expand(path)
+			if err != nil {
+				return nil, err
+			}
+		}
+		opts = append(opts, option.WithCredentialsFile(path))
 		return opts, nil
 	}
 
