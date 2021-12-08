@@ -1,3 +1,10 @@
+## v0.1.0 [2021-12-08]
+
+_Enhancements_
+
+- Recompiled plugin with Go version 1.17 ([#22](https://github.com/turbot/steampipe-plugin-googleworkspace/pull/22))
+- Recompiled plugin with [steampipe-plugin-sdk v1.8.2](https://github.com/turbot/steampipe-plugin-sdk/blob/main/CHANGELOG.md#v182--2021-11-22) ([#19](https://github.com/turbot/steampipe-plugin-googleworkspace/pull/19))
+
 ## v0.0.3 [2021-10-20]
 
 _Bug fixes_
