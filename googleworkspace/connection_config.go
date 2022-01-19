@@ -7,12 +7,16 @@ import (
 
 type googleworkspaceConfig struct {
 	CredentialFile        *string `cty:"credential_file"`
+	Credentials           *string `cty:"credentials"`
 	ImpersonatedUserEmail *string `cty:"impersonated_user_email"`
 	TokenPath             *string `cty:"token_path"`
 }
 
 var ConfigSchema = map[string]*schema.Attribute{
 	"credential_file": {
+		Type: schema.TypeString,
+	},
+	"credentials": {
 		Type: schema.TypeString,
 	},
 	"impersonated_user_email": {

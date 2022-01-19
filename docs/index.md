@@ -59,7 +59,7 @@ steampipe plugin install googleworkspace
 | :---------- | :-----------|
 | Credentials | 1. To use **domain-wide delegation**, generate your [service account and credentials](https://developers.google.com/admin-sdk/directory/v1/guides/delegation#create_the_service_account_and_credentials) and [delegate domain-wide authority to your service account](https://developers.google.com/admin-sdk/directory/v1/guides/delegation#delegate_domain-wide_authority_to_your_service_account). Enter the following OAuth 2.0 scopes for the services that the service account can access:<br />`https://www.googleapis.com/auth/calendar.readonly`,<br />`https://www.googleapis.com/auth/contacts.readonly`,<br />`https://www.googleapis.com/auth/contacts.other.readonly`,<br />`https://www.googleapis.com/auth/directory.readonly`,<br />`https://www.googleapis.com/auth/drive.readonly`,<br />`https://www.googleapis.com/auth/gmail.readonly`<br />2. To use **OAuth client**, configure your [credentials](#authenticate-using-oauth-client). |
 | Radius      | Each connection represents a single Google Workspace account. |
-| Resolution  | 1. Credentials from the JSON file specified by the `credential_file` parameter in your Steampipe config.<br />2. Credentials from the JSON file specified by the `token_path` parameter in your Steampipe config.<br />3. Credentials from the default json file location (~/.config/gcloud/application_default_credentials.json). |
+| Resolution  | 1. Credentials from the JSON file specified by the `token_path` parameter in your Steampipe config.<br />2. Credentials from the default json file location (`~/.config/gcloud/application_default_credentials.json`).<br />3. Credentials from the JSON file specified by the `credentials` parameter in your Steampipe config. |
 
 ### Configuration
 
@@ -70,27 +70,27 @@ connection "googleworkspace" {
   plugin = "googleworkspace"
 
   # You may connect to Google Workspace using more than one option:
-  # 1. To authenticate using domain-wide delegation, specify  a service account credential file and the user email for impersonation
-  # `credential_file` (optional) - The path to a JSON credential file that contains service account credentials.
-  #credential_file         = "/path/to/my/creds.json"
+  # 1. To authenticate using domain-wide delegation, specify a service account credential file and the user email for impersonation
+  # `credentials` - The path to a JSON credential file that contains service account credentials.
+  # credentials = "/path/to/my/creds.json"
 
-  # `impersonated_user_email` (required) - The email (string) of the user which should be impersonated. Needs permissions to access the Admin APIs.
+  # `impersonated_user_email` - The email (string) of the user which should be impersonated. Needs permissions to access the Admin APIs.
   # `impersonated_user_email` must be set, since the service account needs to impersonate a user with Admin API permissions to access the workspace services.
-  #impersonated_user_email = "username@domain.com"
+  # impersonated_user_email = "username@domain.com"
 
   # 2. To authenticate using OAuth 2.0, specify a client secret file
-  # `token_path` (optional) - The path to a JSON credential file that contains Google application credentials.
+  # `token_path` - The path to a JSON credential file that contains Google application credentials.
   # If `token_path` is not specified in a connection, credentials will be loaded from:
   #   - The path specified in the `GOOGLE_APPLICATION_CREDENTIALS` environment variable, if set; otherwise
   #   - The standard location (`~/.config/gcloud/application_default_credentials.json`)
-  #token_path = "~/.config/gcloud/application_default_credentials.json"
+  # token_path = "~/.config/gcloud/application_default_credentials.json"
 }
 ```
 
 ## Get involved
 
 - Open source: https://github.com/turbot/steampipe-plugin-googleworkspace
-- Community: [Slack Channel](https://join.slack.com/t/steampipe/shared_invite/zt-oij778tv-lYyRTWOTMQYBVAbtPSWs3g)
+- Community: [Slack Channel](https://steampipe.io/community/join)
 
 ## Advanced configuration options
 
@@ -117,11 +117,3 @@ You can use client secret credentials to protect the user's data by only grantin
 - In the browser window that just opened, authenticate as the user you would like to make the API calls through.
 - Review the output for the location of the **Application Default Credentials** file, which usually appears following the text `Credentials saved to file:`.
 - Set the **Application Default Credentials** filepath in the Steampipe config `token_path` or in the `GOOGLE_APPLICATION_CREDENTIALS` environment variable.
-
-### Credentials from Environment Variables
-
-The Google Workspace plugin will use the standard Google environment variables to obtain OAuth client credentials **only if other arguments (`credential_file`, `token_path`) are not specified** in the connection:
-
-```sh
-export GOOGLE_APPLICATION_CREDENTIALS=/path/to/my/creds.json
-```
