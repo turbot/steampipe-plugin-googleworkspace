@@ -3,7 +3,6 @@ package googleworkspace
 import (
 	"context"
 	"errors"
-	"io/ioutil"
 
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
@@ -120,17 +119,23 @@ func getSessionConfig(ctx context.Context, d *plugin.QueryData) ([]option.Client
 	opts := []option.ClientOption{}
 
 	// Get credential file path, and user to impersonate from config (if mentioned)
-	var credentialPath, tokenPath string
-	googledirectoryConfig := GetConfig(d.Connection)
-	if googledirectoryConfig.CredentialFile != nil {
-		credentialPath = *googledirectoryConfig.CredentialFile
+	var credentialContent, tokenPath string
+	googleworkspaceConfig := GetConfig(d.Connection)
+
+	// 'credential_file' in connection config is DEPRECATED, and will be removed in future release
+	// use `credentials` instead
+	if googleworkspaceConfig.Credentials != nil {
+		credentialContent = *googleworkspaceConfig.Credentials
+	} else if googleworkspaceConfig.CredentialFile != nil {
+		credentialContent = *googleworkspaceConfig.CredentialFile
 	}
-	if googledirectoryConfig.TokenPath != nil {
-		tokenPath = *googledirectoryConfig.TokenPath
+
+	if googleworkspaceConfig.TokenPath != nil {
+		tokenPath = *googleworkspaceConfig.TokenPath
 	}
 
 	// If credential path provided, use domain-wide delegation
-	if credentialPath != "" {
+	if credentialContent != "" {
 		ts, err := getTokenSource(ctx, d)
 		if err != nil {
 			return nil, err
@@ -141,7 +146,11 @@ func getSessionConfig(ctx context.Context, d *plugin.QueryData) ([]option.Client
 
 	// If token path provided, authenticate using OAuth 2.0
 	if tokenPath != "" {
-		opts = append(opts, option.WithCredentialsFile(tokenPath))
+		path, err := expandPath(tokenPath)
+		if err != nil {
+			return nil, err
+		}
+		opts = append(opts, option.WithCredentialsFile(path))
 		return opts, nil
 	}
 
@@ -159,11 +168,25 @@ func getTokenSource(ctx context.Context, d *plugin.QueryData) (oauth2.TokenSourc
 	}
 
 	// Get credential file path, and user to impersonate from config (if mentioned)
-	var credentialPath, impersonateUser string
+	var impersonateUser string
 	googleworkspaceConfig := GetConfig(d.Connection)
-	if googleworkspaceConfig.CredentialFile != nil {
-		credentialPath = *googleworkspaceConfig.CredentialFile
+
+	// Read credential from JSON string, or from the given path
+	// NOTE: 'credential_file' in connection config is DEPRECATED, and will be removed in future release
+	// use `credentials` instead
+	var creds string
+	if googleworkspaceConfig.Credentials != nil {
+		creds = *googleworkspaceConfig.Credentials
+	} else if googleworkspaceConfig.CredentialFile != nil {
+		creds = *googleworkspaceConfig.CredentialFile
 	}
+
+	// Read credential from JSON string, or from the given path
+	credentialContent, err := pathOrContents(creds)
+	if err != nil {
+		return nil, err
+	}
+
 	if googleworkspaceConfig.ImpersonatedUserEmail != nil {
 		impersonateUser = *googleworkspaceConfig.ImpersonatedUserEmail
 	}
@@ -173,15 +196,9 @@ func getTokenSource(ctx context.Context, d *plugin.QueryData) (oauth2.TokenSourc
 		return nil, errors.New("impersonated_user_email must be configured")
 	}
 
-	// Read credential file
-	jsonCredentials, err := ioutil.ReadFile(credentialPath)
-	if err != nil {
-		return nil, err
-	}
-
 	// Authorize the request
 	config, err := google.JWTConfigFromJSON(
-		jsonCredentials,
+		[]byte(credentialContent),
 		calendar.CalendarReadonlyScope,
 		drive.DriveReadonlyScope,
 		gmail.GmailReadonlyScope,
