@@ -1,3 +1,13 @@
+## v0.2.0 [2022-01-31]
+
+_What's new?_
+
+- Added: The `credentials` argument can now be specified in the configuration file to pass in either the path to or the contents of a service account key file in JSON format ([#25](https://github.com/turbot/steampipe-plugin-googleworkspace/pull/25))
+
+_Deprecated_
+
+- The `credential_file` argument in the configuration file is now deprecated and will be removed in the next major version. We recommend using the `credentials` argument instead, which can take the same file path as the `credential_file` argument. ([#25](https://github.com/turbot/steampipe-plugin-googleworkspace/pull/25))
+
 ## v0.1.0 [2021-12-08]
 
 _Enhancements_
