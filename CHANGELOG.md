@@ -1,3 +1,9 @@
+## v0.2.1 [2022-04-14]
+
+_Bug fixes_
+
+- Fixed links in documentation for configuring OAuth client authentication.
+
 ## v0.2.0 [2022-01-31]
 
 _What's new?_
