@@ -1,6 +1,6 @@
 module github.com/turbot/steampipe-plugin-googleworkspace
 
-go 1.17
+go 1.18
 
 require (
 	github.com/iancoleman/strcase v0.1.2
