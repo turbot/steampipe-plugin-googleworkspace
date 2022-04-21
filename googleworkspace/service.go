@@ -2,7 +2,10 @@ package googleworkspace
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
+	"fmt"
+	"os"
 
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
@@ -150,11 +153,45 @@ func getSessionConfig(ctx context.Context, d *plugin.QueryData) ([]option.Client
 		if err != nil {
 			return nil, err
 		}
-		opts = append(opts, option.WithCredentialsFile(path))
-		return opts, nil
+		tokenPath = path
 	}
 
-	return nil, nil
+	// Use default path, i.e. '~/.config/gcloud/application_default_credentials.json'
+	if tokenPath == "" {
+		homeDir, err := os.UserHomeDir()
+		if err != nil {
+			return nil, fmt.Errorf("Failed to extract home directory.")
+		}
+		tokenPath = fmt.Sprintf("%s/.config/gcloud/application_default_credentials.json", homeDir)
+	}
+
+	token, err := tokenFromFile(tokenPath)
+	if err != nil {
+		return nil, fmt.Errorf("Failed to read token from %s", tokenPath)
+	}
+
+	credsConfig, _ := getConfigFromCreds(tokenPath)
+	if credsConfig == nil {
+		return nil, nil
+	}
+
+	// Create OAuth config
+	conf := &oauth2.Config{
+		ClientID:     credsConfig.ClientID,
+		ClientSecret: credsConfig.ClientSecret,
+		Endpoint: oauth2.Endpoint{
+			AuthURL:  "https://accounts.google.com/o/oauth2/auth",
+			TokenURL: "https://oauth2.googleapis.com/token",
+		},
+	}
+
+	// Generate tokensource
+	ts := conf.TokenSource(ctx, token)
+
+	// ReuseTokenSource returns a TokenSource which repeatedly returns the same token as long as it's valid, starting with t
+	ts = oauth2.ReuseTokenSource(token, ts)
+	opts = append(opts, option.WithTokenSource(ts))
+	return opts, nil
 }
 
 // Returns a JWT TokenSource using the configuration and the HTTP client from the provided context.
@@ -217,4 +254,15 @@ func getTokenSource(ctx context.Context, d *plugin.QueryData) (oauth2.TokenSourc
 	d.ConnectionManager.Cache.Set(cacheKey, ts)
 
 	return ts, nil
+}
+
+func tokenFromFile(file string) (*oauth2.Token, error) {
+	f, err := os.Open(file)
+	if err != nil {
+		return nil, err
+	}
+	t := &oauth2.Token{}
+	err = json.NewDecoder(f).Decode(t)
+	defer f.Close()
+	return t, err
 }

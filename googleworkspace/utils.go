@@ -1,6 +1,7 @@
 package googleworkspace
 
 import (
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -49,4 +50,20 @@ func expandPath(filePath string) (string, error) {
 		}
 	}
 	return path, nil
+}
+
+type CredsConfig struct {
+	ClientID     string `json:"client_id"`
+	ClientSecret string `json:"client_secret"`
+}
+
+func getConfigFromCreds(path string) (*CredsConfig, error) {
+	contents, err := ioutil.ReadFile(path)
+	if err != nil {
+		return nil, err
+	}
+
+	var config *CredsConfig
+	err = json.Unmarshal(contents, &config)
+	return config, nil
 }
