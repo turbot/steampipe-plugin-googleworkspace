@@ -1,3 +1,10 @@
+## v0.3.0 [2022-04-27]
+
+_Enhancements_
+
+- Added support for native Linux ARM and Mac M1 builds. ([#31](https://github.com/turbot/steampipe-plugin-googleworkspace/pull/31))
+- Recompiled plugin with [steampipe-plugin-sdk v3.1.0](https://github.com/turbot/steampipe-plugin-sdk/blob/main/CHANGELOG.md#v310--2022-03-30) and Go version `1.18`. ([#30](https://github.com/turbot/steampipe-plugin-googleworkspace/pull/30))
+
 ## v0.2.1 [2022-04-14]
 
 _Bug fixes_
