@@ -6,6 +6,8 @@ The `googleworkspace_gmail_message` table can be used to query user's messages f
 
 To list all of **your** messages use the `googleworkspace_gmail_my_message` table instead.
 
+You will almost always want to include `query=` along with a string to search for, and/or [search operators](https://support.google.com/mail/answer/7190).
+
 ## Examples
 
 ### Basic info
@@ -21,7 +23,8 @@ from
   googleworkspace_gmail_message
 where
   user_id = 'user@domain.com'
-order by internal_date
+  and query = 'newer_than:7d'
+order by internal_date;
 limit 10;
 ```
 
@@ -91,4 +94,21 @@ where
   user_id = 'user@domain.com'
   and query = 'in:chats'
 order by internal_date;
+```
+
+### List labels by frequency
+
+```
+select
+  jsonb_array_elements(label_ids) as label,
+  count(*)
+from
+  googleworkspace_gmail_message
+where
+  user_id = 'user@domain.com'
+  and query = 'newer_than:1m'
+group by
+  label
+order by
+  count desc
 ```
