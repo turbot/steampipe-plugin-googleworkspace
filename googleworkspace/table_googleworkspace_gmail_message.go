@@ -43,14 +43,9 @@ func tableGoogleWorkspaceGmailMessage(_ context.Context) *plugin.Table {
 			},
 		},
 		Get: &plugin.GetConfig{
-			KeyColumns: plugin.AllColumns([]string{"id", "user_id"}),
-			Hydrate:    getGmailMessage,
-		},
-		HydrateConfig: []plugin.HydrateConfig{
-			{
-				Func:           getGmailMessage,
-				MaxConcurrency: 50,
-			},
+			KeyColumns: 	plugin.AllColumns([]string{"id", "user_id"}),
+			Hydrate:    	getGmailMessage,
+			MaxConcurrency: 50,
 		},
 		Columns: []*plugin.Column{
 			{

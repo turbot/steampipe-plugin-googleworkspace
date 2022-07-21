@@ -6,7 +6,7 @@ require (
 	github.com/iancoleman/strcase v0.2.0
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/turbot/go-kit v0.4.0
-	github.com/turbot/steampipe-plugin-sdk/v3 v3.3.1
+	github.com/turbot/steampipe-plugin-sdk/v3 v3.3.2
 	golang.org/x/oauth2 v0.0.0-20211104180415-d3ed0bb246c8
 	google.golang.org/api v0.54.0
 )
