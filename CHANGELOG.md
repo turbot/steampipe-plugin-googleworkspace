@@ -2,7 +2,7 @@
 
 _Bug fixes_
 
-- Fixed the `googleworkspace_gmail_message` and the `googleworkspace_gmail_my_message` tables to resolve the plugin validation errors. ([#34](https://github.com/turbot/steampipe-plugin-googleworkspace/pull/34))
+- Fixed the `GetConfig` max concurrency configuration in the `googleworkspace_gmail_message` and the `googleworkspace_gmail_my_message` tables to resolve the plugin validation errors. ([#34](https://github.com/turbot/steampipe-plugin-googleworkspace/pull/34))
 
 _Dependencies_
 
