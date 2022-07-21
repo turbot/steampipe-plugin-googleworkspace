@@ -1,3 +1,13 @@
+## v0.4.0 [2022-07-21]
+
+_Bug fixes_
+
+- Fixed the `googleworkspace_gmail_message` and the `googleworkspace_gmail_my_message` tables to resolve the plugin validation errors. ([#34](https://github.com/turbot/steampipe-plugin-googleworkspace/pull/34))
+
+_Dependencies_
+
+- Recompiled plugin with [steampipe-plugin-sdk v3.3.2](https://github.com/turbot/steampipe-plugin-sdk/blob/main/CHANGELOG.md#v332--2022-07-11) which includes several caching fixes. ([#34](https://github.com/turbot/steampipe-plugin-googleworkspace/pull/34))
+
 ## v0.3.0 [2022-04-27]
 
 _Enhancements_
