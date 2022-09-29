@@ -7,9 +7,10 @@ import (
 	"time"
 
 	"github.com/iancoleman/strcase"
-	"github.com/turbot/steampipe-plugin-sdk/v3/grpc/proto"
-	"github.com/turbot/steampipe-plugin-sdk/v3/plugin"
-	"github.com/turbot/steampipe-plugin-sdk/v3/plugin/transform"
+	"github.com/turbot/go-kit/helpers"
+	"github.com/turbot/steampipe-plugin-sdk/v4/grpc/proto"
+	"github.com/turbot/steampipe-plugin-sdk/v4/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v4/plugin/transform"
 
 	"google.golang.org/api/drive/v3"
 	"google.golang.org/api/googleapi"
@@ -479,9 +480,14 @@ func buildDriveFileRequestFields(ctx context.Context, queryColumns []string) []g
 	var fields []string
 	var requestedFields []googleapi.Field
 
+	// Since ID is unique, always add in the requested field
+	if !helpers.StringSliceContains(queryColumns, "id") {
+		queryColumns = append(queryColumns, "id")
+	}
+
 	for _, columnName := range queryColumns {
 		// Optional columns
-		if columnName == "query" {
+		if columnName == "query" || columnName == "_ctx" {
 			continue
 		}
 
