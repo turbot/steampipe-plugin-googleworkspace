@@ -3,9 +3,9 @@ package googleworkspace
 import (
 	"context"
 
-	"github.com/turbot/steampipe-plugin-sdk/v4/grpc/proto"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin/transform"
+	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
 
 	"google.golang.org/api/gmail/v1"
 	"google.golang.org/api/googleapi"
@@ -83,8 +83,8 @@ func listGmailUsers(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateD
 	}
 
 	var userID string
-	if d.KeyColumnQuals["user_email"] != nil {
-		userID = d.KeyColumnQuals["user_email"].GetStringValue()
+	if d.EqualsQuals["user_email"] != nil {
+		userID = d.EqualsQuals["user_email"].GetStringValue()
 	}
 
 	resp, err := service.Users.GetProfile(userID).Do()

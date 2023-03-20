@@ -6,9 +6,9 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/turbot/steampipe-plugin-sdk/v4/grpc/proto"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin/transform"
+	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
 
 	"google.golang.org/api/gmail/v1"
 )
@@ -130,8 +130,8 @@ func listGmailDrafts(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydrate
 	}
 
 	var userID string
-	if d.KeyColumnQuals["user_id"] != nil {
-		userID = d.KeyColumnQuals["user_id"].GetStringValue()
+	if d.EqualsQuals["user_id"] != nil {
+		userID = d.EqualsQuals["user_id"].GetStringValue()
 	}
 
 	var queryFilter, query string
@@ -157,8 +157,8 @@ func listGmailDrafts(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydrate
 
 	// Only return messages matching the specified query. Supports the same query format as the Gmail search box.
 	// For example, "from:someuser@example.com is:unread"
-	if d.KeyColumnQuals["query"] != nil {
-		queryFilter = d.KeyColumnQuals["query"].GetStringValue()
+	if d.EqualsQuals["query"] != nil {
+		queryFilter = d.EqualsQuals["query"].GetStringValue()
 	}
 
 	if queryFilter != "" {
@@ -206,15 +206,15 @@ func getGmailDraft(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateDa
 	}
 
 	var userID string
-	if d.KeyColumnQuals["user_id"] != nil {
-		userID = d.KeyColumnQuals["user_id"].GetStringValue()
+	if d.EqualsQuals["user_id"] != nil {
+		userID = d.EqualsQuals["user_id"].GetStringValue()
 	}
 
 	var draftID string
 	if h.Item != nil {
 		draftID = h.Item.(*gmail.Draft).Id
 	} else {
-		draftID = d.KeyColumnQuals["draft_id"].GetStringValue()
+		draftID = d.EqualsQuals["draft_id"].GetStringValue()
 	}
 
 	// Return nil, if no input provided
