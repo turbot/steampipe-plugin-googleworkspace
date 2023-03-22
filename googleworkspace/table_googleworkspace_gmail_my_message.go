@@ -6,9 +6,9 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/turbot/steampipe-plugin-sdk/v4/grpc/proto"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin/transform"
+	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
 
 	"google.golang.org/api/gmail/v1"
 )
@@ -125,8 +125,8 @@ func listGmailMyMessages(ctx context.Context, d *plugin.QueryData, _ *plugin.Hyd
 	var queryFilter, query string
 	var filter []string
 
-	if d.KeyColumnQuals["sender_email"] != nil {
-		filter = append(filter, fmt.Sprintf("%s = \"%s\"", "from", d.KeyColumnQuals["sender_email"].GetStringValue()))
+	if d.EqualsQuals["sender_email"] != nil {
+		filter = append(filter, fmt.Sprintf("%s = \"%s\"", "from", d.EqualsQuals["sender_email"].GetStringValue()))
 	}
 
 	if d.Quals["internal_date"] != nil {
@@ -150,8 +150,8 @@ func listGmailMyMessages(ctx context.Context, d *plugin.QueryData, _ *plugin.Hyd
 	// Only return messages matching the specified query. Supports the same query format as the Gmail search box.
 	// For example, "from:someuser@example.com is:unread"
 	// Note: Parameter cannot be used when accessing the api using the gmail.metadata scope.
-	if d.KeyColumnQuals["query"] != nil {
-		queryFilter = d.KeyColumnQuals["query"].GetStringValue()
+	if d.EqualsQuals["query"] != nil {
+		queryFilter = d.EqualsQuals["query"].GetStringValue()
 	}
 
 	if queryFilter != "" {
@@ -202,7 +202,7 @@ func getGmailMyMessage(ctx context.Context, d *plugin.QueryData, h *plugin.Hydra
 	if h.Item != nil {
 		messageID = h.Item.(*gmail.Message).Id
 	} else {
-		messageID = d.KeyColumnQuals["id"].GetStringValue()
+		messageID = d.EqualsQuals["id"].GetStringValue()
 	}
 
 	// Return nil, if no input provided

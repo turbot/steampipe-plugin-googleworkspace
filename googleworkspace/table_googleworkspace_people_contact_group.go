@@ -3,9 +3,9 @@ package googleworkspace
 import (
 	"context"
 
-	"github.com/turbot/steampipe-plugin-sdk/v4/grpc/proto"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin/transform"
+	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
 
 	"google.golang.org/api/people/v1"
 )
@@ -96,8 +96,8 @@ func listPeopleContactGroups(ctx context.Context, d *plugin.QueryData, _ *plugin
 
 	// Set default to 2500
 	maxMembers := int64(2500)
-	if d.KeyColumnQuals["max_members"] != nil {
-		maxMembers = d.KeyColumnQuals["max_members"].GetInt64Value()
+	if d.EqualsQuals["max_members"] != nil {
+		maxMembers = d.EqualsQuals["max_members"].GetInt64Value()
 	}
 
 	// `contactGroups.batchGet` can accept maximum of 200 resource names at a time, so make sure

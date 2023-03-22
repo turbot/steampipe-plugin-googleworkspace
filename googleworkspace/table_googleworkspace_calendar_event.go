@@ -4,9 +4,9 @@ import (
 	"context"
 	"time"
 
-	"github.com/turbot/steampipe-plugin-sdk/v4/grpc/proto"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin/transform"
+	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
 
 	"google.golang.org/api/calendar/v3"
 )
@@ -274,7 +274,7 @@ func listCalendarEvents(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydr
 	if err != nil {
 		return nil, err
 	}
-	calendarID := d.KeyColumnQuals["calendar_id"].GetStringValue()
+	calendarID := d.EqualsQuals["calendar_id"].GetStringValue()
 
 	// By default, API can return maximum 2500 records in a single page
 	maxResult := int64(2500)
@@ -288,8 +288,8 @@ func listCalendarEvents(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydr
 
 	// Free text search terms to find events that match these terms in any field, except for extended properties
 	var query string
-	if d.KeyColumnQuals["query"] != nil {
-		query = d.KeyColumnQuals["query"].GetStringValue()
+	if d.EqualsQuals["query"] != nil {
+		query = d.EqualsQuals["query"].GetStringValue()
 	}
 
 	resp := service.Events.List(calendarID).ShowDeleted(false).SingleEvents(true).Q(query).MaxResults(maxResult)
@@ -339,8 +339,8 @@ func getCalendarEvent(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydrat
 	if err != nil {
 		return nil, err
 	}
-	calendarID := d.KeyColumnQuals["calendar_id"].GetStringValue()
-	eventID := d.KeyColumnQuals["id"].GetStringValue()
+	calendarID := d.EqualsQuals["calendar_id"].GetStringValue()
+	eventID := d.EqualsQuals["id"].GetStringValue()
 
 	// Return nil, if no input provided
 	if calendarID == "" || eventID == "" {

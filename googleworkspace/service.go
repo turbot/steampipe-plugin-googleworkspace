@@ -12,7 +12,7 @@ import (
 	"google.golang.org/api/option"
 	"google.golang.org/api/people/v1"
 
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
 )
 
 func CalendarService(ctx context.Context, d *plugin.QueryData) (*calendar.Service, error) {

@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
 
 	"google.golang.org/api/calendar/v3"
 )
@@ -55,8 +55,8 @@ func listCalendarMyEvents(ctx context.Context, d *plugin.QueryData, _ *plugin.Hy
 
 	// Free text search terms to find events that match these terms in any field, except for extended properties
 	var query string
-	if d.KeyColumnQuals["query"] != nil {
-		query = d.KeyColumnQuals["query"].GetStringValue()
+	if d.EqualsQuals["query"] != nil {
+		query = d.EqualsQuals["query"].GetStringValue()
 	}
 
 	resp := service.Events.List("primary").ShowDeleted(false).SingleEvents(true).Q(query).MaxResults(maxResult)

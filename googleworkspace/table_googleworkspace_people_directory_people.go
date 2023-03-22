@@ -3,7 +3,7 @@ package googleworkspace
 import (
 	"context"
 
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
 
 	"google.golang.org/api/people/v1"
 )
