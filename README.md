@@ -6,7 +6,7 @@ Use SQL to query users, groups, org units and more from your Google Workspace.
 
 - **[Get started →](https://hub.steampipe.io/plugins/turbot/googleworkspace)**
 - Documentation: [Table definitions & examples](https://hub.steampipe.io/plugins/turbot/googleworkspace/tables)
-- Community: [Slack Channel](https://steampipe.io/community/join)
+- Community: [Join #steampipe on Slack →](https://turbot.com/community/join)
 - Get involved: [Issues](https://github.com/turbot/steampipe-plugin-googleworkspace/issues)
 
 ## Quick start
