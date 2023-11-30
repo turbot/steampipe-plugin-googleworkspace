@@ -1,14 +1,20 @@
-# Table: googleworkspace_calendar_event
+---
+title: "Steampipe Table: googleworkspace_calendar_event - Query Google Workspace Calendar Events using SQL"
+description: "Allows users to query Google Workspace Calendar Events, specifically the event details, providing insights into event schedules, attendees, and more."
+---
 
-List previous and upcoming events scheduled in a specific calendar.
+# Table: googleworkspace_calendar_event - Query Google Workspace Calendar Events using SQL
 
-The `googleworkspace_calendar_event` table can be used to query events from any calendar, and **you must specify which calendar** in the where or join clause (`where calendar_id=`, `join googleworkspace_calendar_event on calendar_id=`).
+Google Workspace Calendar Events is a feature within Google Workspace that allows you to schedule, manage, and track events. It provides a centralized way to manage events for various Google Workspace users, including details about the event, attendees, and more. Google Workspace Calendar Events helps you stay informed about the event schedules and take appropriate actions when needed.
 
-To list all of **your** events use the `googleworkspace_calendar_my_event` table instead.
+## Table Usage Guide
+
+The `googleworkspace_calendar_event` table provides insights into Calendar Events within Google Workspace. As an IT administrator, explore event-specific details through this table, including event schedules, attendees, and associated metadata. Utilize it to uncover information about events, such as those with multiple attendees, the status of the attendees, and the verification of event details.
 
 ## Examples
 
 ### Basic info
+Gain insights into upcoming events on a specific Google Workspace calendar. This query helps in planning and scheduling by providing details like the event summary, hangout link, start time, and end time of the ten soonest events.
 
 ```sql
 select
@@ -26,6 +32,7 @@ limit 10;
 ```
 
 ### List events scheduled in next 4 days
+Identify upcoming events in your company's calendar for the next four days. This allows you to stay updated with the scheduled activities, their timings, and corresponding links, thereby aiding in effective time management and planning.
 
 ```sql
 select
@@ -43,6 +50,7 @@ order by start_time;
 ```
 
 ### List events scheduled in current month
+Explore the scheduled events for the current month to stay updated on important dates and activities. This is beneficial in managing your time and ensuring no important event is overlooked.
 
 ```sql
 select
@@ -60,6 +68,7 @@ order by start_time;
 ```
 
 ### List events scheduled in current week
+Explore which company events are scheduled for the upcoming week. This query is useful for keeping track of upcoming events and meetings in your organization.
 
 ```sql
 select
@@ -77,6 +86,7 @@ order by start_time;
 ```
 
 ### List out of office (OOO) events in next 30 days
+Discover the upcoming out of office events in the next month. This is useful for planning and coordinating team schedules and resources.
 
 ```sql
 select
@@ -93,6 +103,7 @@ order by start_time;
 ```
 
 ### List upcoming Indian holidays in next 30 days
+Discover the upcoming holidays in India within the next month. This can be useful for planning activities, scheduling events, or understanding potential business impacts due to national holidays.
 
 ```sql
 select

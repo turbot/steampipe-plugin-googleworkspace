@@ -1,12 +1,20 @@
-# Table: googleworkspace_calendar_my_event
+---
+title: "Steampipe Table: googleworkspace_calendar_my_event - Query Google Workspace Calendar Events using SQL"
+description: "Allows users to query Google Workspace Calendar Events, specifically the events of the authenticated user, providing insights into event details and schedules."
+---
 
-List previous and upcoming events scheduled in your calendar.
+# Table: googleworkspace_calendar_my_event - Query Google Workspace Calendar Events using SQL
 
-To query events in any calendar, use the `googleworkspace_calendar_event` table.
+Google Workspace Calendar is a core service within Google Workspace that allows users to schedule events, invite people, and customize their calendars to suit their needs. It provides a centralized way to manage schedules, meetings, and appointments, helping users stay organized and informed about their upcoming events. Google Workspace Calendar helps you stay updated about your schedule and take necessary actions when needed.
+
+## Table Usage Guide
+
+The `googleworkspace_calendar_my_event` table provides insights into Google Workspace Calendar Events. As an administrator or a user, explore event-specific details through this table, including event start and end times, attendees, and event status. Utilize it to uncover information about your events, such as those with conflicting schedules, attendees' responses to event invitations, and details about recurring events.
 
 ## Examples
 
 ### Basic info
+Gain insights into upcoming events from your Google Workspace Calendar. This query allows you to plan and prioritize by providing a snapshot of the next 10 events, including their summaries and associated hangout links.
 
 ```sql
 select
@@ -21,6 +29,7 @@ limit 10;
 ```
 
 ### List events scheduled for tomorrow
+Gain insights into your upcoming events by pinpointing the specific ones scheduled for tomorrow, allowing for effective planning and time management.
 
 ```sql
 select
@@ -37,6 +46,7 @@ order by start_time;
 ```
 
 ### List events scheduled in next 4 days
+Discover the segments that have events scheduled in the coming four days. This is useful for planning and managing your schedule effectively.
 
 ```sql
 select
@@ -53,6 +63,7 @@ order by start_time;
 ```
 
 ### List events scheduled in current month
+Explore which events are scheduled for the current month to manage your time and plan accordingly. This allows you to gain insights into your schedule, helping to avoid clashes and ensure efficient time management.
 
 ```sql
 select
@@ -69,6 +80,7 @@ order by start_time;
 ```
 
 ### List events scheduled in current week
+Explore the schedule for the current week to understand your upcoming commitments and plan accordingly. This helps in efficiently managing your time by gaining insights into the events lined up for the week.
 
 ```sql
 select
@@ -85,6 +97,7 @@ order by start_time;
 ```
 
 ### List upcoming events scheduled on every Tuesday and Thursday
+Discover the segments that have upcoming events scheduled on Tuesdays and Thursdays. This is useful for planning and organizing your week ahead with a focus on those specific days.
 
 ```sql
 select

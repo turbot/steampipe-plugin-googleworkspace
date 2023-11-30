@@ -1,10 +1,20 @@
-# Table: googleworkspace_people_contact_group
+---
+title: "Steampipe Table: googleworkspace_people_contact_group - Query Google Workspace People Contact Groups using SQL"
+description: "Allows users to query People Contact Groups in Google Workspace, providing insights into contact group details and metadata."
+---
 
-List contact groups owned by the authenticated user.
+# Table: googleworkspace_people_contact_group - Query Google Workspace People Contact Groups using SQL
+
+Google Workspace People Contact Groups is a feature within Google Workspace that allows users to create and manage groups of contacts. It offers a centralized way to organize and manage contacts for various Google Workspace applications, including Gmail, Google Meet, and more. People Contact Groups help users efficiently manage communications and collaborations with groups of people.
+
+## Table Usage Guide
+
+The `googleworkspace_people_contact_group` table provides insights into People Contact Groups within Google Workspace. As an IT administrator or a Google Workspace user, you can explore group-specific details through this table, including group metadata, member count, and member resource names. Use it to manage and organize your Google Workspace contacts more efficiently, such as identifying large groups, finding groups without members, and understanding the structure of your contact groups.
 
 ## Examples
 
 ### Basic info
+Explore the various contact groups in your Google Workspace, including their names and types, to better manage your organization's communication and collaboration. This can be particularly useful in large organizations where understanding group structures is key to efficient operations.
 
 ```sql
 select
@@ -17,6 +27,7 @@ from
 ```
 
 ### List deleted contact groups
+Discover the segments that have been removed from your Google Workspace contact groups. This can be useful to track changes and manage your contacts more effectively.
 
 ```sql
 select
@@ -31,6 +42,7 @@ where
 ```
 
 ### List members in each contact group
+Explore which members belong to each contact group in your Google Workspace, allowing you to better manage communication and collaboration within your organization. This query is particularly useful for gaining insights into group composition and identifying any necessary changes to group membership.
 
 ```sql
 select
@@ -46,6 +58,7 @@ where
 ```
 
 ### Get member count for each contact group
+Discover the segments that have varying membership within your contact groups. This query allows you to analyze the size of each group, helping you to better manage your resources and communications.
 
 ```sql
 select
