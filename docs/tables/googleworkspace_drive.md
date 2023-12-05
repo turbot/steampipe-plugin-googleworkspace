@@ -11,6 +11,9 @@ Google Workspace Drive is a cloud-based storage solution provided by Google. It 
 
 The `googleworkspace_drive` table provides insights into Drives within Google Workspace. As a system administrator or a DevOps engineer, explore specific details about each drive through this table, including the drive's type, name, theme, and other metadata. Utilize it to understand the distribution and organization of files, monitor the usage of storage space, and manage access control for sensitive files.
 
+**Important Notes**
+- To filter the resource using `name`, or `created_time` you must set `use_domain_admin_access` setting as true** in the where clause, and for that you must have admin access in the domain. See [Shared drive-specific query terms](https://developers.google.com/drive/api/v3/ref-search-terms#drive_properties) for information on `use_domain_admin_access` setting.
+
 ## Examples
 
 ### Basic info

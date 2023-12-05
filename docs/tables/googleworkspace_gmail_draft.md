@@ -11,6 +11,9 @@ Google Workspace's Gmail service offers a Drafts feature, where users can create
 
 The `googleworkspace_gmail_draft` table provides insights into draft emails within Google Workspace's Gmail service. As an IT administrator or security analyst, explore draft-specific details through this table, including metadata, message content, and associated user information. Utilize it to uncover information about unsent communications, such as those containing sensitive information, drafts saved by specific users, and the content of these saved but unsent messages.
 
+**Important Notes**
+- You must specify the `user_id` in the `where` or join clause (`where user_id=`, `join googleworkspace_gmail_draft g on g.user_id=`) to query this table.
+
 ## Examples
 
 ### Basic info

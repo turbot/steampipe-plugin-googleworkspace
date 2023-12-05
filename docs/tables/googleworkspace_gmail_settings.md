@@ -11,6 +11,10 @@ Google Workspace's Gmail service is a powerful email platform used by organizati
 
 The `googleworkspace_gmail_settings` table provides insights into individual user settings within Google Workspace's Gmail service. As a system administrator or IT professional, you can use this table to explore and manage user-specific settings and preferences in Gmail. This includes information on display language, email forwarding rules, keyboard shortcuts, and more, enabling efficient management and troubleshooting of user issues.
 
+**Important Notes**
+- You must specify the `user_email` in the `where` or join clause (`where user_email=`, `join googleworkspace_gmail_settings g on g.user_email=`) to query this table.
+- To list delegated accounts, you must authenticate using a service account client that has been delegated domain-wide authority.
+
 ## Examples
 
 ### Basic info

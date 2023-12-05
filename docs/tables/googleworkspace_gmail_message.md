@@ -11,6 +11,9 @@ A Gmail Message is a communication between two or more parties, typically in the
 
 The `googleworkspace_gmail_message` table provides insights into Gmail Messages within Google Workspace. As a system administrator, explore message-specific details through this table, including metadata, labels, and thread information. Utilize it to uncover information about messages, such as those with specific labels, the relationships between messages and threads, and the verification of sender and recipient details.
 
+**Important Notes**
+- You must specify the `user_id` in the `where` or join clause (`where user_id=`, `join googleworkspace_gmail_my_message g on g.user_id=`) to query this table.
+
 ## Examples
 
 ### Basic info

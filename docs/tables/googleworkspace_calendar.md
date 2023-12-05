@@ -11,6 +11,9 @@ Google Workspace Calendar is a time-management and scheduling service developed 
 
 The `googleworkspace_calendar` table provides insights into calendars within Google Workspace. As a system administrator or IT professional, explore calendar-specific details through this table, including the summary, description, location, and timezone. Utilize it to manage and monitor the usage of calendars, such as those shared with many users, the timezone settings of each calendar, and the description and summary details.
 
+**Important Notes**
+- You must specify the `id` in the `where` or join clause (`where id=`, `join googleworkspace_calendar c on c.id=`) to query this table.
+
 ## Examples
 
 ### Basic info

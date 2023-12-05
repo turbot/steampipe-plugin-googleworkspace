@@ -11,6 +11,9 @@ Gmail Settings in Google Workspace is a feature that allows users to customize t
 
 The `googleworkspace_gmail_my_settings` table provides insights into the Gmail Settings in Google Workspace. As a system administrator or a user, explore your email settings through this table, including filters, forwarding rules, IMAP and POP settings, and send-as aliases. Utilize it to uncover information about your Gmail settings, such as those related to email forwarding, the filters applied to incoming emails, and the configuration of IMAP and POP settings.
 
+**Important Notes**
+- To list delegated accounts, you must authenticate using a service account client that has been delegated domain-wide authority.
+
 ## Examples
 
 ### Basic info

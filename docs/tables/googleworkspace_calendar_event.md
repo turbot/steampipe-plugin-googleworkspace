@@ -11,6 +11,9 @@ Google Workspace Calendar Events is a feature within Google Workspace that allow
 
 The `googleworkspace_calendar_event` table provides insights into Calendar Events within Google Workspace. As an IT administrator, explore event-specific details through this table, including event schedules, attendees, and associated metadata. Utilize it to uncover information about events, such as those with multiple attendees, the status of the attendees, and the verification of event details.
 
+**Important Notes**
+- You must specify the `calendar_id` in the `where` or join clause (`where calendar_id=`, `join googleworkspace_calendar_event e on e.calendar_id=`) to query this table.
+
 ## Examples
 
 ### Basic info
