@@ -16,7 +16,7 @@ The `googleworkspace_people_directory_people` table provides insights into user 
 ### Basic info
 This query is useful for obtaining key information about individuals in a Google Workspace directory, such as their display name, primary email address, job title, and primary contact number. It's a practical tool for HR teams or managers who need to quickly access or compile this information for communication or organizational purposes.
 
-```sql
+```sql+postgres
 select
   display_name,
   primary_email_address,
@@ -30,4 +30,20 @@ from
   googleworkspace_people_directory_people
   left join jsonb_array_elements(organizations) as org on true
   left join jsonb_array_elements(phone_numbers) as ph on true;
+```
+
+```sql+sqlite
+select
+  display_name,
+  primary_email_address,
+  case
+    when json_extract(org.value, '$.metadata.primary') = 'true' then json_extract(org.value, '$.title')
+  end as job_title,
+  case
+    when json_extract(ph.value, '$.metadata.primary') = 'true' then json_extract(ph.value, '$.value')
+  end as primary_contact
+from
+  googleworkspace_people_directory_people,
+  json_each(organizations) as org,
+  json_each(phone_numbers) as ph;
 ```

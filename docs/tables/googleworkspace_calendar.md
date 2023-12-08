@@ -19,7 +19,18 @@ The `googleworkspace_calendar` table provides insights into calendars within Goo
 ### Basic info
 Explore the basic details of a specific user's Google Workspace Calendar. This can help in understanding the user's time zone and other relevant information to enhance scheduling and coordination.
 
-```sql
+```sql+postgres
+select
+  summary,
+  id,
+  timezone
+from
+  googleworkspace_calendar
+where
+  id = 'user@domain.com';
+```
+
+```sql+sqlite
 select
   summary,
   id,

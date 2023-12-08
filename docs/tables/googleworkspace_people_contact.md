@@ -16,7 +16,7 @@ The `googleworkspace_people_contact` table provides insights into contact detail
 ### Basic info
 Explore the basic information of your Google Workspace contacts, such as their names and primary email addresses. This can help you assess and understand your contact organization structure better.
 
-```sql
+```sql+postgres
 select
   resource_name,
   display_name,
@@ -27,10 +27,21 @@ from
   googleworkspace_people_contact;
 ```
 
+```sql+sqlite
+select
+  resource_name,
+  display_name,
+  given_name,
+  primary_email_address,
+  organizations
+from
+  googleworkspace_people_contact;
+```
+
 ### List contacts by contact group
 Explore which contacts belong to specific groups in your Google Workspace. This can be useful for managing communication within teams or identifying groups for targeted outreach.
 
-```sql
+```sql+postgres
 select
   cg.name as contact_group_name,
   c.given_name as member_name,
@@ -42,10 +53,14 @@ where
   cg.member_resource_names ?| array[c.resource_name];
 ```
 
+```sql+sqlite
+Error: SQLite does not support array operations and the '?' operator used in PostgreSQL.
+```
+
 ### List contacts belogning to the same organization
 Explore which contacts in your Google Workspace belong to the same organization, allowing you to better categorize and manage your professional networks. This is particularly useful for identifying all contacts associated with a specific business entity, such as 'Turbot'.
 
-```sql
+```sql+postgres
 select
   display_name,
   primary_email_address,
@@ -58,4 +73,19 @@ from
 where
   org -> 'metadata' ->> 'primary' = 'true'
   and org ->> 'name' = 'Turbot';
+```
+
+```sql+sqlite
+select
+  display_name,
+  primary_email_address,
+  json_extract(org.value, '$.name') as organization_name,
+  json_extract(org.value, '$.department') as department,
+  json_extract(org.value, '$.title') as job_title
+from
+  googleworkspace_people_contact,
+  json_each(organizations) as org
+where
+  json_extract(org.value, '$.metadata.primary') = 'true'
+  and json_extract(org.value, '$.name') = 'Turbot';
 ```

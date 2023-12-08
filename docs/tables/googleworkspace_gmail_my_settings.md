@@ -19,7 +19,16 @@ The `googleworkspace_gmail_my_settings` table provides insights into the Gmail S
 ### Basic info
 Explore the language settings and delegation details associated with your Google Workspace Gmail account. This can be useful for understanding user preferences and managing access rights.
 
-```sql
+```sql+postgres
+select
+  user_email,
+  display_language,
+  delegates
+from
+  googleworkspace_gmail_my_settings;
+```
+
+```sql+sqlite
 select
   user_email,
   display_language,
@@ -31,7 +40,18 @@ from
 ### List users with delegated access to their mailbox
 Explore which users have delegated access to their mailbox in Google Workspace. This can be useful for assessing security and access control within your organization.
 
-```sql
+```sql+postgres
+select
+  user_email,
+  display_language,
+  delegates
+from
+  googleworkspace_gmail_my_settings
+where
+  delegates is not null;
+```
+
+```sql+sqlite
 select
   user_email,
   display_language,
@@ -45,7 +65,7 @@ where
 ### List users with IMAP access enabled
 Explore which users have IMAP access enabled in their Gmail settings. This could be useful for administrators looking to manage or restrict certain types of email access.
 
-```sql
+```sql+postgres
 select
   user_email,
   display_language,
@@ -56,10 +76,21 @@ where
   (imap ->> 'enabled')::boolean;
 ```
 
+```sql+sqlite
+select
+  user_email,
+  display_language,
+  json_extract(imap, '$.enabled') as imap_enabled
+from
+  googleworkspace_gmail_my_settings
+where
+  json_extract(imap, '$.enabled');
+```
+
 ### List users with POP access enabled
 Identify instances where users have enabled POP access in their Gmail settings. This is useful in understanding the email access preferences within your organization.
 
-```sql
+```sql+postgres
 select
   user_email,
   display_language,
@@ -70,10 +101,21 @@ where
   pop ->> 'accessWindow' = 'enabled';
 ```
 
+```sql+sqlite
+select
+  user_email,
+  display_language,
+  json_extract(pop, '$.accessWindow') as pop_access_window
+from
+  googleworkspace_gmail_my_settings
+where
+  json_extract(pop, '$.accessWindow') = 'enabled';
+```
+
 ### List users with automatic forwarding enabled
 Determine the areas in which users have enabled automatic forwarding in their email settings. This is useful for understanding the flow of information within your organization and ensuring compliance with communication policies.
 
-```sql
+```sql+postgres
 select
   user_email,
   display_language,
@@ -82,4 +124,15 @@ from
   googleworkspace_gmail_my_settings
 where
   (auto_forwarding ->> 'enabled')::boolean;
+```
+
+```sql+sqlite
+select
+  user_email,
+  display_language,
+  json_extract(auto_forwarding, '$.enabled') as auto_forwarding_enabled
+from
+  googleworkspace_gmail_my_settings
+where
+  json_extract(auto_forwarding, '$.enabled');
 ```

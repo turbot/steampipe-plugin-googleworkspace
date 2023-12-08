@@ -19,7 +19,21 @@ The `googleworkspace_gmail_draft` table provides insights into draft emails with
 ### Basic info
 Explore which drafts in your Google Workspace Gmail account have a specific user ID. This can help you manage your drafts more effectively by identifying which drafts belong to a specific user, especially useful in large organizations where multiple users may be using the same account.
 
-```sql
+```sql+postgres
+select
+  draft_id,
+  message_id,
+  message_thread_id,
+  message_internal_date,
+  message_size_estimate,
+  message_snippet
+from
+  googleworkspace_gmail_draft
+where
+  user_id = 'user@domain.com';
+```
+
+```sql+sqlite
 select
   draft_id,
   message_id,
@@ -36,7 +50,22 @@ where
 ### List unread draft messages
 Discover the segments that contain unread draft messages in your Gmail account. This can be especially useful for managing your email workflow and ensuring important drafts don't get overlooked.
 
-```sql
+```sql+postgres
+select
+  draft_id,
+  message_id,
+  message_thread_id,
+  message_internal_date,
+  message_size_estimate,
+  message_snippet
+from
+  googleworkspace_gmail_draft
+where
+  user_id = 'user@domain.com'
+  and query = 'is:unread';
+```
+
+```sql+sqlite
 select
   draft_id,
   message_id,
@@ -54,7 +83,7 @@ where
 ### List draft messages older than 30 days
 Explore which draft messages have been left untouched for over 30 days. This could be useful for clearing out old drafts or identifying potential forgotten tasks.
 
-```sql
+```sql+postgres
 select
   draft_id,
   message_id,
@@ -69,10 +98,40 @@ where
   and message_internal_date <= (current_date - interval '30' day);
 ```
 
+```sql+sqlite
+select
+  draft_id,
+  message_id,
+  message_thread_id,
+  message_internal_date,
+  message_size_estimate,
+  message_snippet
+from
+  googleworkspace_gmail_draft
+where
+  user_id = 'user@domain.com'
+  and message_internal_date <= date('now','-30 day');
+```
+
 ### List draft messages without a body
 Discover the segments that consist of draft messages without any content. This can be useful for identifying and cleaning up unnecessary drafts, freeing up storage space and keeping your draft folder organized.
 
-```sql
+```sql+postgres
+select
+  draft_id,
+  message_id,
+  message_thread_id,
+  message_internal_date,
+  message_size_estimate,
+  message_snippet
+from
+  googleworkspace_gmail_draft
+where
+  user_id = 'user@domain.com'
+  and message_snippet is null;
+```
+
+```sql+sqlite
 select
   draft_id,
   message_id,

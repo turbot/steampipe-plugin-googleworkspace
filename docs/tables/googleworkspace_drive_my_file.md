@@ -16,7 +16,17 @@ The `googleworkspace_drive_my_file` table provides insights into files within Go
 ### Basic info
 Discover the segments that have recently been created within your Google Workspace Drive. This can help you keep track of new additions and manage your files more efficiently.
 
-```sql
+```sql+postgres
+select
+  name,
+  id,
+  mime_type,
+  created_time
+from
+  googleworkspace_drive_my_file;
+```
+
+```sql+sqlite
 select
   name,
   id,
@@ -29,7 +39,7 @@ from
 ### List files shared by other users
 Gain insights into files shared with you by other users in Google Workspace. This is particularly useful for understanding the scope of shared resources and identifying who has shared files with you.
 
-```sql
+```sql+postgres
 select
   name,
   id,
@@ -45,10 +55,26 @@ where
   and sharing_user is not null;
 ```
 
+```sql+sqlite
+select
+  name,
+  id,
+  mime_type,
+  created_time,
+  owned_by_me,
+  shared,
+  json_extract(sharing_user, '$.displayName') as sharing_user_name
+from
+  googleworkspace_drive_my_file
+where
+  not owned_by_me
+  and sharing_user is not null;
+```
+
 ### List image or video files modified after a specific date
 Analyze your Google Workspace Drive to pinpoint specific image or video files that have been modified after a certain date. This can be useful to track recent changes or updates to media files in your drive.
 
-```sql
+```sql+postgres
 select
   name,
   id,
@@ -61,10 +87,36 @@ where
   query = 'modifiedTime > "2021-08-15T00:00:00" and (mimeType contains "image/" or mimeType contains "video/")';
 ```
 
+```sql+sqlite
+select
+  name,
+  id,
+  mime_type,
+  created_time,
+  web_view_link
+from
+  googleworkspace_drive_my_file
+where
+  strftime('%Y-%m-%dT%H:%M:%S', created_time) > "2021-08-15T00:00:00" and (mime_type like '%image/%' or mime_type like '%video/%');
+```
+
 ### List files using the [query filter](https://developers.google.com/drive/api/v3/search-files)
 Explore which files in your Google Workspace Drive contain the term "Steampipe". This can be particularly useful for quickly locating specific documents or resources related to Steampipe within your workspace.
 
-```sql
+```sql+postgres
+select
+  name,
+  id,
+  mime_type,
+  created_time,
+  web_view_link
+from
+  googleworkspace_drive_my_file
+where
+  query = 'name contains "steampipe"';
+```
+
+```sql+sqlite
 select
   name,
   id,

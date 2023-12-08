@@ -16,7 +16,17 @@ The `googleworkspace_people_contact_group` table provides insights into People C
 ### Basic info
 Explore the various contact groups in your Google Workspace, including their names and types, to better manage your organization's communication and collaboration. This can be particularly useful in large organizations where understanding group structures is key to efficient operations.
 
-```sql
+```sql+postgres
+select
+  resource_name,
+  name,
+  formatted_name,
+  group_type
+from
+  googleworkspace_people_contact_group;
+```
+
+```sql+sqlite
 select
   resource_name,
   name,
@@ -29,7 +39,7 @@ from
 ### List deleted contact groups
 Discover the segments that have been removed from your Google Workspace contact groups. This can be useful to track changes and manage your contacts more effectively.
 
-```sql
+```sql+postgres
 select
   resource_name,
   name,
@@ -41,10 +51,22 @@ where
   deleted;
 ```
 
+```sql+sqlite
+select
+  resource_name,
+  name,
+  formatted_name,
+  deleted
+from
+  googleworkspace_people_contact_group
+where
+  deleted = 1;
+```
+
 ### List members in each contact group
 Explore which members belong to each contact group in your Google Workspace, allowing you to better manage communication and collaboration within your organization. This query is particularly useful for gaining insights into group composition and identifying any necessary changes to group membership.
 
-```sql
+```sql+postgres
 select
   cg.name as contact_group_name,
   c.given_name as member_name,
@@ -57,10 +79,33 @@ where
   c.resource_name = m_name;
 ```
 
+```sql+sqlite
+select
+  cg.name as contact_group_name,
+  c.given_name as member_name,
+  c.primary_email_address as member_primary_email
+from
+  googleworkspace_people_contact_group as cg,
+  json_each(cg.member_resource_names) as m_name,
+  googleworkspace_people_contact as c
+where
+  c.resource_name = m_name.value;
+```
+
 ### Get member count for each contact group
 Discover the segments that have varying membership within your contact groups. This query allows you to analyze the size of each group, helping you to better manage your resources and communications.
 
-```sql
+```sql+postgres
+select
+  resource_name,
+  name,
+  formatted_name,
+  member_count
+from
+  googleworkspace_people_contact_group;
+```
+
+```sql+sqlite
 select
   resource_name,
   name,
