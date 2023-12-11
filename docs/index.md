@@ -8,6 +8,7 @@ short_name: "googleworkspace"
 description: "Steampipe plugin for querying users, groups, org units and more from your Google Workspace."
 og_description: "Query Google Workspace with SQL! Open source CLI. No DB required."
 og_image: "/images/plugins/turbot/googleworkspace-social-graphic.png"
+engines: ["steampipe", "sqlite", "postgres", "export"]
 ---
 
 # Google Workspace + Steampipe
