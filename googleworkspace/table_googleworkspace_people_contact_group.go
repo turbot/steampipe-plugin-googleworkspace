@@ -139,7 +139,7 @@ func listPeopleContactGroups(ctx context.Context, d *plugin.QueryData, _ *plugin
 		if err != nil {
 			return nil, err
 		}
-		if data.Responses != nil && len(data.Responses) > 0 {
+		if len(data.Responses) > 0 {
 			for _, i := range data.Responses {
 				d.StreamListItem(ctx, i.ContactGroup)
 			}
