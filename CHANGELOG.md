@@ -1,3 +1,12 @@
+## v1.0.0 [2024-10-22]
+
+There are no significant changes in this plugin version; it has been released to align with [Steampipe's v1.0.0](https://steampipe.io/changelog/steampipe-cli-v1-0-0) release. This plugin adheres to [semantic versioning](https://semver.org/#semantic-versioning-specification-semver), ensuring backward compatibility within each major version.
+
+_Dependencies_
+
+- Recompiled plugin with Go version `1.22`. ([#82](https://github.com/turbot/steampipe-plugin-googleworkspace/pull/82))
+- Recompiled plugin with [steampipe-plugin-sdk v5.10.4](https://github.com/turbot/steampipe-plugin-sdk/blob/develop/CHANGELOG.md#v5104-2024-08-29) that fixes logging in the plugin export tool. ([#82](https://github.com/turbot/steampipe-plugin-googleworkspace/pull/82))
+
 ## v0.8.0 [2023-12-12]
 
 _What's new?_
