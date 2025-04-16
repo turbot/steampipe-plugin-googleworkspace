@@ -3,11 +3,11 @@ package googleworkspace
 import (
 	"context"
 	"fmt"
+	"slices"
 	"strings"
 	"time"
 
 	"github.com/iancoleman/strcase"
-	"github.com/turbot/go-kit/helpers"
 	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
@@ -481,7 +481,7 @@ func buildDriveFileRequestFields(ctx context.Context, queryColumns []string) []g
 	var requestedFields []googleapi.Field
 
 	// Since ID is unique, always add in the requested field
-	if !helpers.StringSliceContains(queryColumns, "id") {
+	if !slices.Contains(queryColumns, "id") {
 		queryColumns = append(queryColumns, "id")
 	}
 
