@@ -1,7 +1,8 @@
 package googleworkspace
 
 import (
-	"github.com/turbot/go-kit/helpers"
+	"slices"
+
 	"github.com/turbot/go-kit/types"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
 	"google.golang.org/api/googleapi"
@@ -11,7 +12,7 @@ import (
 func isNotFoundError(notFoundErrors []string) plugin.ErrorPredicate {
 	return func(err error) bool {
 		if gerr, ok := err.(*googleapi.Error); ok {
-			return helpers.StringSliceContains(notFoundErrors, types.ToString(gerr.Code))
+			return slices.Contains(notFoundErrors, types.ToString(gerr.Code))
 		}
 		return false
 	}
