@@ -116,7 +116,6 @@ func GmailService(ctx context.Context, d *plugin.QueryData) (*gmail.Service, err
 	return svc, nil
 }
 
-// ReportsService returns a cached Admin Reports client, creating it via getSessionConfig if needed.
 func ReportsService(ctx context.Context, d *plugin.QueryData) (*admin.Service, error) {
 	// have we already created and cached the service?
     serviceCacheKey := "googleworkspace.reports"
