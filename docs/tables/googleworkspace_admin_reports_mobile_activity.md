@@ -1,7 +1,6 @@
 ---
 title: "Steampipe Table: googleworkspace_admin_reports_mobile_activity - Query Google Workspace Admin Reports Mobile Activity Events using SQL"
 description: "Allows users to query mobile activity events from the Google Workspace Admin Reports API, providing insights into device usage and mobile access patterns."
-folder: "Cloud Admin Reports"
 ---
 
 # Table: googleworkspace_admin_reports_mobile_activity - Query Google Workspace Admin Reports Mobile Activity Events using SQL

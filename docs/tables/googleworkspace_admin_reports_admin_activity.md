@@ -1,7 +1,6 @@
 ---
 title: "Steampipe Table: googleworkspace_admin_reports_admin_activity - Query Google Workspace Admin Reports Admin Activity Events using SQL"
 description: "Allows users to query admin activity events from the Google Workspace Admin Reports API, providing insights into administrative actions and login events."
-folder: "Cloud Admin Reports"
 ---
 
 # Table: googleworkspace_admin_reports_admin_activity - Query Google Workspace Admin Reports Admin Activity Events using SQL

@@ -1,7 +1,6 @@
 ---
 title: "Steampipe Table: googleworkspace_admin_reports_token_activity - Query Google Workspace Admin Reports Token Activity Events using SQL"
 description: "Allows users to query token activity events from the Google Workspace Admin Reports API, providing insights into OAuth and API token usage and revocation events."
-folder: "Cloud Admin Reports"
 ---
 
 # Table: googleworkspace_admin_reports_token_activity - Query Google Workspace Admin Reports Token Activity Events using SQL

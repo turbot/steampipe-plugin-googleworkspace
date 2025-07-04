@@ -1,7 +1,6 @@
 ---
 title: "Steampipe Table: googleworkspace_admin_reports_drive_activity - Query Google Workspace Admin Reports Drive Activity Events using SQL"
 description: "Allows users to query Drive activity events from the Google Workspace Admin Reports API, providing insights into file operations and user interactions on Google Drive."
-folder: "Cloud Admin Reports"
 ---
 
 # Table: googleworkspace_admin_reports_drive_activity - Query Google Workspace Admin Reports Drive Activity Events using SQL
