@@ -7,7 +7,6 @@ import (
     "github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
     "github.com/turbot/steampipe-plugin-sdk/v5/plugin"
     "github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
-    "google.golang.org/api/admin/reports/v1"
 )
 
 //// TABLE DEFINITION
@@ -61,13 +60,13 @@ func tableGoogleworkspaceAdminReportsMobileActivity(ctx context.Context) *plugin
                 Name:        "device_id",
                 Description: "ID of the device",
                 Type:        proto.ColumnType_STRING,
-                Transform:   transform.From(extractDeviceId),
+                Transform:   transform.From(extractEventParameter("DEVICE_ID")),
             },
             {
                 Name:        "device_model",
                 Description: "Model of the device",
                 Type:        proto.ColumnType_STRING,
-                Transform:   transform.From(extractDeviceModel),
+                Transform:   transform.From(extractEventParameter("DEVICE_MODEL")),
             },
             {
                 Name:        "events",
@@ -158,41 +157,5 @@ func listGoogleworkspaceAdminReportsMobileActivities(ctx context.Context, d *plu
         }
     }
 
-    return nil, nil
-}
-
-//// TRANSFORM FUNCTIONS
-
-func extractDeviceId(_ context.Context, d *transform.TransformData) (interface{}, error) {
-    activity, ok := d.HydrateItem.(*admin.Activity)
-    if !ok {
-        return nil, nil
-    }
-    for _, event := range activity.Events {
-        if event.Parameters != nil {
-            for _, p := range event.Parameters {
-                if p.Name == "DEVICE_ID" {
-                    return p.Value, nil
-                }
-            }
-        }
-    }
-    return nil, nil
-}
-
-func extractDeviceModel(_ context.Context, d *transform.TransformData) (interface{}, error) {
-    activity, ok := d.HydrateItem.(*admin.Activity)
-    if !ok {
-        return nil, nil
-    }
-    for _, event := range activity.Events {
-        if event.Parameters != nil {
-            for _, p := range event.Parameters {
-                if p.Name == "DEVICE_MODEL" {
-                    return p.Value, nil
-                }
-            }
-        }
-    }
     return nil, nil
 }

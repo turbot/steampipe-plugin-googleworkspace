@@ -7,7 +7,6 @@ import (
     "github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
     "github.com/turbot/steampipe-plugin-sdk/v5/plugin"
     "github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
-    "google.golang.org/api/admin/reports/v1"
 )
 
 //// TABLE DEFINITION
@@ -50,7 +49,7 @@ func tableGoogleworkspaceAdminReportsTokenActivity(ctx context.Context) *plugin.
                 Name:        "app_name",
                 Description: "Name of the application",
                 Type:        proto.ColumnType_STRING,
-                Transform:   transform.FromField("Events").Transform(extractAppName),
+                Transform:   transform.FromField("Events").Transform(extractEventParameter("app_name")),
             },
             {
                 Name:        "unique_qualifier",
@@ -169,24 +168,5 @@ func listGoogleworkspaceAdminReportsTokenActivities(ctx context.Context, d *plug
         }
     }
 
-    return nil, nil
-}
-
-//// TRANSFORM FUNCTIONS
-
-func extractAppName(_ context.Context, d *transform.TransformData) (interface{}, error) {
-    activity, ok := d.HydrateItem.(*admin.Activity)
-    if !ok {
-        return nil, nil
-    }
-    for _, event := range activity.Events {
-        if event.Parameters != nil {
-            for _, p := range event.Parameters {
-                if p.Name == "app_name" {
-                    return p.Value, nil
-                }
-            }
-        }
-    }
     return nil, nil
 }

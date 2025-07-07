@@ -62,7 +62,7 @@ func tableGoogleworkspaceAdminReportsAdminActivity(ctx context.Context) *plugin.
                 Name:        "user_email",
                 Description: "Name of the user over which the operation is done (if it exists)",
                 Type:        proto.ColumnType_STRING,
-                Transform:   transform.From(extractUserEmail),
+                Transform:   transform.From(extractEventParameter("USER_EMAIL")),
             },
             {
                 Name:        "actor_caller_type",
@@ -190,19 +190,22 @@ func extractEventNames(_ context.Context, d *transform.TransformData) (interface
 	return names, nil
 }
 
-func extractUserEmail(_ context.Context, d *transform.TransformData) (interface{}, error) {
-    activity, ok := d.HydrateItem.(*admin.Activity)
-    if !ok {
-        return nil, nil
-    }
-    for _, event := range activity.Events {
-        if event.Parameters != nil {
-            for _, p := range event.Parameters {
-                if p.Name == "USER_EMAIL" {
-                    return p.Value, nil
+func extractEventParameter(paramName string) transform.TransformFunc {
+    return func(ctx context.Context, d *transform.TransformData) (interface{}, error) {
+        activity, ok := d.HydrateItem.(*admin.Activity)
+        if !ok {
+            return nil, nil
+        }
+        
+        for _, event := range activity.Events {
+            if event.Parameters != nil {
+                for _, p := range event.Parameters {
+                    if p.Name == paramName {
+                        return p.Value, nil
+                    }
                 }
             }
         }
+        return nil, nil
     }
-    return nil, nil
 }
