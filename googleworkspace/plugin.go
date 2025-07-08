@@ -27,11 +27,7 @@ func Plugin(ctx context.Context) *plugin.Plugin {
 			NewInstance: ConfigInstance,
 		},
 		TableMap: map[string]*plugin.Table{
-			"googleworkspace_admin_reports_admin_activity":  tableGoogleworkspaceAdminReportsAdminActivity(ctx),
-			"googleworkspace_admin_reports_drive_activity":  tableGoogleworkspaceAdminReportsDriveActivity(ctx),
-			"googleworkspace_admin_reports_login_activity":  tableGoogleworkspaceAdminReportsLoginActivity(ctx),
-			"googleworkspace_admin_reports_mobile_activity": tableGoogleworkspaceAdminReportsMobileActivity(ctx),
-			"googleworkspace_admin_reports_token_activity":  tableGoogleworkspaceAdminReportsTokenActivity(ctx),
+			"googleworkspace_admin_reports_activity":        tableGoogleworkspaceAdminReportsActivity(ctx),
 			"googleworkspace_calendar":                      tableGoogleWorkspaceCalendar(ctx),
 			"googleworkspace_calendar_event":                tableGoogleWorkspaceCalendarEvent(ctx),
 			"googleworkspace_calendar_my_event":             tableGoogleWorkspaceCalendarMyEvent(ctx),
