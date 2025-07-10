@@ -6,11 +6,11 @@ description: "Allows users to query the Google Workspace Admin Reports API to re
 
 # Table: googleworkspace_admin_reports_activity - Query Google Workspace Admin Reports Activity using SQL
 
-The `googleworkspace_admin_reports_activity` table in Steampipe provides a unified interface to query the Google Workspace Admin Reports API. It surfaces detailed audit logs across all Workspace applications (Drive, Calendar, Keep, Admin console, and more). You can use this table to investigate user actions, system events, and security-related activities within your Workspace environment.
+The Reports API is a RESTful API you can use to access information about the Google Workspace activities of your users.
 
 ## Table Usage Guide
 
-To use this table, you **must** specify the `application_name` qualifier corresponding to one of the supported Google Workspace apps (the list of all applications is available [here](https://developers.google.com/workspace/admin/reports/reference/rest/v1/activities/list?hl=fr#applicationname)). This qualifier scopes the API request to a single application’s audit logs.
+The `googleworkspace_admin_reports_activity` table in Steampipe provides a unified interface to query the Google Workspace Admin Reports API. It surfaces detailed audit logs across all Workspace applications (Drive, Calendar, Keep, Admin console, and more). You can use this table to investigate user actions, system events, and security-related activities within your Workspace environment.
 
 **Important Notes**
 
