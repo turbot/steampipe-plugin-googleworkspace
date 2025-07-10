@@ -21,11 +21,11 @@ func tableGoogleworkspaceAdminReportsActivity(ctx context.Context) *plugin.Table
         List: &plugin.ListConfig{
             Hydrate: listGoogleworkspaceAdminReportsActivities,
             KeyColumns: plugin.KeyColumnSlice{
-                {Name: "application_name", Require: plugin.Required, Operators: []string{"="}},
+                {Name: "application_name", Require: plugin.Required},
                 {Name: "time", Require: plugin.Optional, Operators: []string{">", ">=", "<", "<=", "="}},
                 {Name: "actor_email", Require: plugin.Optional},
                 {Name: "ip_address", Require: plugin.Optional},
-                {Name: "event_names", Require: plugin.Optional},
+                {Name: "event_name", Require: plugin.Optional},
             },
             Tags: map[string]string{"service": "admin", "product": "reports", "action": "activities.list"},
         },
@@ -41,6 +41,13 @@ func tableGoogleworkspaceAdminReportsActivity(ctx context.Context) *plugin.Table
                 Description: "Email address of the actor (Actor.Email)",
                 Type:        proto.ColumnType_STRING,
                 Transform:   transform.FromField("Actor.Email"),
+            },
+            {
+                Name:        "event_name",
+                Description: "Event name (if queried)",
+                Type:        proto.ColumnType_STRING,
+                Hydrate:     getEventName,
+                Transform:   transform.FromValue(),
             },
             {
                 Name:        "event_names",
@@ -64,7 +71,6 @@ func tableGoogleworkspaceAdminReportsActivity(ctx context.Context) *plugin.Table
                 Name:        "ip_address",
                 Description: "IP address associated with the activity (IpAddress)",
                 Type:        proto.ColumnType_STRING,
-                Transform:   transform.FromField("IpAddress"),
             },
             {
                  Name:        "actor_profile_id",
@@ -75,7 +81,6 @@ func tableGoogleworkspaceAdminReportsActivity(ctx context.Context) *plugin.Table
                 Name:        "events",
                 Description: "Full JSON array of detailed events (Events)",
                 Type:        proto.ColumnType_JSON,
-                Transform:   transform.FromField("Events"),
             },
         },
     }
@@ -120,12 +125,28 @@ func listGoogleworkspaceAdminReportsActivities(ctx context.Context, d *plugin.Qu
         "gemini_in_workspace_apps":     true,
 }
 
-if !valid[appName] {
-    return nil, fmt.Errorf("unsupported application_name: %q", appName)
-}
+    if !valid[appName] {
+        return nil, fmt.Errorf("unsupported application_name: %q", appName)
+    }
+
+    // Setting the maximum number of activities, API can return in a single page
+    maxResults := int64(1000)
+
+    limit := d.QueryContext.Limit
+    if d.QueryContext.Limit != nil {
+        if *limit < maxResults {
+            maxResults = *limit
+        }
+    }
+
+    // Determine userKey: default to "all", or use the actor_email if provided
+    userKey := "all"
+    if ae := d.EqualsQualString("actor_email"); ae != "" {
+    userKey = ae
+    }
 
     // Build API call with the chosen category
-    call := service.Activities.List("all", appName)
+    resp := service.Activities.List(userKey, appName).MaxResults(maxResults)
 
     if quals := d.Quals["time"]; quals != nil {
         var startTime, endTime time.Time
@@ -147,50 +168,37 @@ if !valid[appName] {
             }
         }
         if !startTime.IsZero() {
-            call.StartTime(startTime.Format(time.RFC3339))
+            resp.StartTime(startTime.Format(time.RFC3339))
         }
         if !endTime.IsZero() {
-            call.EndTime(endTime.Format(time.RFC3339))
+            resp.EndTime(endTime.Format(time.RFC3339))
         }
     }
 
-    pageToken := ""
-    const apiMaxPageSize = 1000
-    var initialPageSize int64 = apiMaxPageSize
-    if limit := d.QueryContext.Limit; limit != nil && *limit < initialPageSize {
-        initialPageSize = *limit
+    if qual := d.EqualsQualString("ip_address"); qual != "" {
+        resp = resp.ActorIpAddress(qual)
     }
-    call.MaxResults(initialPageSize)
 
-    for {
-        if pageToken != "" {
-            call.PageToken(pageToken)
-        }
-        resp, err := call.Do()
-        if err != nil {
-            plugin.Logger(ctx).Error("googleworkspace_admin_reports_activity.list", "api_error", err)
-            return nil, err
-        }
-        for _, activity := range resp.Items {
+    if qual := d.EqualsQualString("event_name"); qual != "" {
+        resp = resp.EventName(qual)
+    }
+
+    err = resp.Pages(ctx, func(page *admin.Activities) error {
+        // rate limit
+        d.WaitForListRateLimit(ctx)
+
+        for _, activity := range page.Items {
             d.StreamListItem(ctx, activity)
             if d.RowsRemaining(ctx) == 0 {
-                return nil, nil
+                page.NextPageToken = ""
+                break
             }
         }
-        if resp.NextPageToken == "" {
-            break
-        }
-        pageToken = resp.NextPageToken
-        if limit := d.QueryContext.Limit; limit != nil {
-            remaining := d.RowsRemaining(ctx)
-            if remaining > 0 && remaining < apiMaxPageSize {
-                call.MaxResults(int64(remaining))
-            } else {
-                call.MaxResults(apiMaxPageSize)
-            }
-        } else {
-            call.MaxResults(apiMaxPageSize)
-        }
+        return nil
+    })
+    if err != nil {
+        plugin.Logger(ctx).Error("googleworkspace_admin_reports_activity.list", "api_error", err)
+        return nil, err
     }
 
     return nil, nil
@@ -210,6 +218,29 @@ func extractEventNames(_ context.Context, d *transform.TransformData) (interface
     for _, e := range activity.Events {
         if e.Name != "" {
             names = append(names, e.Name)
+        }
+    }
+    return names, nil
+}
+
+func getEventName(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+    // Did the user filter on event_name?
+    if qual := d.EqualsQualString("event_name"); qual != "" {
+        return qual, nil
+    }
+
+    // API response
+    activity, ok := h.Item.(*admin.Activity)
+    if !ok {
+        return nil, nil
+    }
+    if activity.Events == nil {
+        return nil, nil
+    }
+    names := []string{}
+    for _, e := range activity.Events {
+        if e.Name != "" {
+            return e.Name, nil
         }
     }
     return names, nil

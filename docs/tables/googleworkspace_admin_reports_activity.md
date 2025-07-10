@@ -10,19 +10,16 @@ The `googleworkspace_admin_reports_activity` table in Steampipe provides a unifi
 
 ## Table Usage Guide
 
-To use this table, you **must** specify the `application_name` qualifier corresponding to one of the supported Google Workspace apps (the list of all applications is available [here](https://developers.google.com/workspace/admin/reports/reference/rest/v1/activities/list?hl=fr#applicationname). This qualifier scopes the API request to a single application’s audit logs.
-
-You can optionally filter by:
-
-* `time` — filter events before/after a specific timestamp (RFC3339 format).
-* `actor_email` — the email of the user or service account performing the action.
-* `ip_address` — the source IP of the event.
-* `event_names` — names of the audit events (e.g., `create_file`, `deleted`, `created_note`).
+To use this table, you **must** specify the `application_name` qualifier corresponding to one of the supported Google Workspace apps (the list of all applications is available [here](https://developers.google.com/workspace/admin/reports/reference/rest/v1/activities/list?hl=fr#applicationname)). This qualifier scopes the API request to a single application’s audit logs.
 
 **Important Notes**
 
-* **Required Qualifier**: You must include `where application_name = '<app>'` in every query (no default).
-* **Time Filter**: For performance, use the optional `time` qualifier to limit the result set to a specific period.
+- You must `application_name` in a `where` clause in order to use this table ([List of all applications](https://developers.google.com/workspace/admin/reports/reference/rest/v1/activities/list?hl=fr#applicationname)).
+- For improved performance, it is advised that you use the optional qual `time` to limit the result set to a specific time period.
+- This table supports optional quals. Queries with optional quals are optimised to use Activity filters. Optional quals are supported for the following columns:
+  - `actor_email`
+  - `ip_address`
+  - `event_name`
 
 ## Examples
 
@@ -84,7 +81,7 @@ from
   cross join lateral jsonb_array_elements(evt->'parameters') as param
 where
   application_name = 'admin'
-  and event_names ? 'CHANGE_PASSWORD'
+  and event_name = 'CHANGE_PASSWORD'
   and param->>'name' = 'USER_EMAIL'
   and time > now() - interval '1 month';
 ```
@@ -103,7 +100,7 @@ from
   cross join lateral jsonb_array_elements(evt->'parameters') as param
 where
   application_name = 'admin'
-  and event_names ? 'CHANGE_PASSWORD'
+  and event_name = 'CHANGE_PASSWORD'
   and param->>'name' = 'USER_EMAIL'
   and time > datetime('now', '-1 month');
 ```
@@ -122,7 +119,7 @@ from
 where
   application_name = 'login'
   and actor_email = 'xxx@xxx.xxx'
-  and event_names = '["login_failure"]'
+  and event_name = 'login_failure'
   and time > now() - '1 week'::interval;
 ```
 
@@ -136,7 +133,7 @@ from
 where
   application_name = 'login'
   and actor_email = 'xxx@xxx.xxx'
-  and event_names = '["login_failure"]'
+  and event_name = 'login_failure'
   and time > datetime('now', '-1 week');
 ```
 
@@ -159,7 +156,7 @@ from
   cross join lateral jsonb_array_elements(evt->'parameters') as param2
 where
   application_name = 'mobile'
-  and event_names = '["DEVICE_REGISTER_UNREGISTER_EVENT"]'
+  and event_name = 'DEVICE_REGISTER_UNREGISTER_EVENT'
   and param1->>'name' = 'DEVICE_ID'
   and param2->>'name' = 'DEVICE_MODEL'
   and time > now() - interval '1 day';
@@ -180,7 +177,7 @@ from
   cross join lateral jsonb_array_elements(evt->'parameters') as param2
 where
   application_name = 'mobile'
-  and event_names = '["DEVICE_REGISTER_UNREGISTER_EVENT"]'
+  and event_names = 'DEVICE_REGISTER_UNREGISTER_EVENT'
   and param1->>'name' = 'DEVICE_ID'
   and param2->>'name' = 'DEVICE_MODEL'
   and time > datetime('now', '-1 day');
