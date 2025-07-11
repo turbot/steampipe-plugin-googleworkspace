@@ -8,6 +8,7 @@ import (
     "github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
     "github.com/turbot/steampipe-plugin-sdk/v5/plugin"
     "github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
+    "github.com/turbot/steampipe-plugin-sdk/v5/query_cache"
     "google.golang.org/api/admin/reports/v1"
 )
 
@@ -25,61 +26,67 @@ func tableGoogleworkspaceAdminReportsActivity(ctx context.Context) *plugin.Table
                 {Name: "time", Require: plugin.Optional, Operators: []string{">", ">=", "<", "<=", "="}},
                 {Name: "actor_email", Require: plugin.Optional},
                 {Name: "ip_address", Require: plugin.Optional},
-                {Name: "event_name", Require: plugin.Optional},
+                {Name: "event_name", Require: plugin.Optional, CacheMatch: query_cache.CacheMatchExact},
             },
             Tags: map[string]string{"service": "admin", "product": "reports", "action": "activities.list"},
         },
         Columns: []*plugin.Column{
             {
                 Name:        "time",
-                Description: "Timestamp of the activity (Id.Time) in RFC3339 format",
+                Description: "Time of occurrence of the activity.",
                 Type:        proto.ColumnType_TIMESTAMP,
                 Transform:   transform.FromField("Id.Time"),
             },
             {
                 Name:        "actor_email",
-                Description: "Email address of the actor (Actor.Email)",
+                Description: "Email address of the actor.",
                 Type:        proto.ColumnType_STRING,
                 Transform:   transform.FromField("Actor.Email"),
             },
             {
                 Name:        "event_name",
-                Description: "Event name (if queried)",
+                Description: "The name of the event (if queried).",
                 Type:        proto.ColumnType_STRING,
-                Hydrate:     getEventName,
-                Transform:   transform.FromValue(),
+                Transform:   transform.FromQual("event_name"),
             },
             {
                 Name:        "event_names",
-                Description: "List of event names for this activity",
+                Description: "List of event names for this activity.",
                 Type:        proto.ColumnType_JSON,
                 Transform:   transform.FromField("Events").Transform(extractEventNames),
             },
             {
                 Name:        "unique_qualifier",
-                Description: "Unique qualifier ID for this activity",
+                Description: "Unique qualifier ID for this activity.",
                 Type:        proto.ColumnType_STRING,
                 Transform:   transform.FromField("Id.UniqueQualifier"),
             },
             {
                 Name:        "application_name",
-                Description: "Name of the report application (Id.ApplicationName)",
+                Description: "Application name to which the event belongs.",
                 Type:        proto.ColumnType_STRING,
                 Transform:   transform.FromField("Id.ApplicationName"),
             },
             {
                 Name:        "ip_address",
-                Description: "IP address associated with the activity (IpAddress)",
+                Description: "IP address associated with the activity.",
                 Type:        proto.ColumnType_STRING,
             },
             {
                  Name:        "actor_profile_id",
+                 Description: "The unique Google Workspace profile ID of the actor.",
                  Type:        proto.ColumnType_STRING,
                  Transform:   transform.FromField("Actor.ProfileId"),
             },
             {
+                 Name:        "customer_id",
+                 Description: "The unique ID of the customer to retrieve data for.",
+                 Type:        proto.ColumnType_STRING,
+                 Transform:   transform.FromField("Id.CustomerId"),
+            },
+            {
                 Name:        "events",
-                Description: "Full JSON array of detailed events (Events)",
+                Description: "Activity events in the report.",
                 Type:        proto.ColumnType_JSON,
             },
         },
@@ -123,7 +130,7 @@ func listGoogleworkspaceAdminReportsActivities(ctx context.Context, d *plugin.Qu
         "keep":                         true,
         "vault":                        true,
         "gemini_in_workspace_apps":     true,
-}
+    }
 
     if !valid[appName] {
         return nil, fmt.Errorf("unsupported application_name: %q", appName)
@@ -183,6 +190,10 @@ func listGoogleworkspaceAdminReportsActivities(ctx context.Context, d *plugin.Qu
         resp = resp.EventName(qual)
     }
 
+    if qual := d.EqualsQualString("actor_customer_id"); qual != "" {
+        resp = resp.CustomerId(qual)
+    }
+
     err = resp.Pages(ctx, func(page *admin.Activities) error {
         // rate limit
         d.WaitForListRateLimit(ctx)
@@ -218,29 +229,6 @@ func extractEventNames(_ context.Context, d *transform.TransformData) (interface
     for _, e := range activity.Events {
         if e.Name != "" {
             names = append(names, e.Name)
-        }
-    }
-    return names, nil
-}
-
-func getEventName(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-    // Did the user filter on event_name?
-    if qual := d.EqualsQualString("event_name"); qual != "" {
-        return qual, nil
-    }
-
-    // API response
-    activity, ok := h.Item.(*admin.Activity)
-    if !ok {
-        return nil, nil
-    }
-    if activity.Events == nil {
-        return nil, nil
-    }
-    names := []string{}
-    for _, e := range activity.Events {
-        if e.Name != "" {
-            return e.Name, nil
         }
     }
     return names, nil
