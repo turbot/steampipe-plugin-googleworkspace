@@ -13,6 +13,7 @@ The `googleworkspace_admin_reports_activity` table in Steampipe provides a unifi
 
 **Important Notes**
 - You must `application_name` in a `where` clause in order to use this table ([List of all applications](https://developers.google.com/workspace/admin/reports/reference/rest/v1/activities/list?hl=fr#applicationname)).
+- You must have the `Super Admin` role to use this table.
 - For improved performance, it is advised that you use the optional qual `time` to limit the result set to a specific time period.
 - This table supports optional quals. Queries with optional quals are optimised to use Activity filters. Optional quals are supported for the following columns:
   - `actor_email`
