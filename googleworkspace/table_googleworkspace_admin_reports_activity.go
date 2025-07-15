@@ -98,7 +98,7 @@ func tableGoogleworkspaceAdminReportsActivity(ctx context.Context) *plugin.Table
 func listGoogleworkspaceAdminReportsActivities(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
     service, err := ReportsService(ctx, d)
     if err != nil {
-        plugin.Logger(ctx).Error("googleworkspace_admin_reports_activity.list", "service_error", err)
+        plugin.Logger(ctx).Error("googleworkspace_admin_reports_activity.listGoogleworkspaceAdminReportsActivities", "service_error", err)
         return nil, err
     }
 
@@ -190,16 +190,14 @@ func listGoogleworkspaceAdminReportsActivities(ctx context.Context, d *plugin.Qu
         resp = resp.EventName(qual)
     }
 
-    if qual := d.EqualsQualString("actor_customer_id"); qual != "" {
-        resp = resp.CustomerId(qual)
-    }
-
     err = resp.Pages(ctx, func(page *admin.Activities) error {
         // rate limit
         d.WaitForListRateLimit(ctx)
 
         for _, activity := range page.Items {
             d.StreamListItem(ctx, activity)
+
+            // Context can be cancelled due to manual cancellation or the limit has been hit
             if d.RowsRemaining(ctx) == 0 {
                 page.NextPageToken = ""
                 break
@@ -208,7 +206,7 @@ func listGoogleworkspaceAdminReportsActivities(ctx context.Context, d *plugin.Qu
         return nil
     })
     if err != nil {
-        plugin.Logger(ctx).Error("googleworkspace_admin_reports_activity.list", "api_error", err)
+        plugin.Logger(ctx).Error("googleworkspace_admin_reports_activity.listGoogleworkspaceAdminReportsActivities", "api_error", err)
         return nil, err
     }
 

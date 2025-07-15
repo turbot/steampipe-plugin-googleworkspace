@@ -1,5 +1,4 @@
 ---
-
 title: "Steampipe Table: googleworkspace_admin_reports_activity - Query Google Workspace Admin Reports Activity using SQL"
 description: "Allows users to query the Google Workspace Admin Reports API to retrieve detailed audit activity logs across various Google Workspace applications."
 ---
@@ -13,7 +12,6 @@ The Reports API is a RESTful API you can use to access information about the Goo
 The `googleworkspace_admin_reports_activity` table in Steampipe provides a unified interface to query the Google Workspace Admin Reports API. It surfaces detailed audit logs across all Workspace applications (Drive, Calendar, Keep, Admin console, and more). You can use this table to investigate user actions, system events, and security-related activities within your Workspace environment.
 
 **Important Notes**
-
 - You must `application_name` in a `where` clause in order to use this table ([List of all applications](https://developers.google.com/workspace/admin/reports/reference/rest/v1/activities/list?hl=fr#applicationname)).
 - For improved performance, it is advised that you use the optional qual `time` to limit the result set to a specific time period.
 - This table supports optional quals. Queries with optional quals are optimised to use Activity filters. Optional quals are supported for the following columns:
@@ -24,7 +22,6 @@ The `googleworkspace_admin_reports_activity` table in Steampipe provides a unifi
 ## Examples
 
 ### List all Drive events in the last hour
-
 Retrieve audit events for Google Drive that occurred in the past hour.
 
 ```sql+postgres
@@ -64,7 +61,6 @@ where
 ```
 
 ### List all password changes performed by administrators on users
-
 Show all changes of password performed by administrators on users in the last month.
 
 ```sql+postgres
@@ -106,7 +102,6 @@ where
 ```
 
 ### Show login failures by specific user 
-
 Show all failed login attempts by a specific user in the last week.
 
 ```sql+postgres
@@ -138,7 +133,6 @@ where
 ```
 
 ### Show all connections from a new device
-
 Identify all connections from a new device in the last week.
 
 ```sql+postgres

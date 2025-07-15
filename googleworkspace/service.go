@@ -140,7 +140,6 @@ func ReportsService(ctx context.Context, d *plugin.QueryData) (*admin.Service, e
     return svc, nil
 }
 
-
 func getSessionConfig(ctx context.Context, d *plugin.QueryData) ([]option.ClientOption, error) {
 	opts := []option.ClientOption{}
 
