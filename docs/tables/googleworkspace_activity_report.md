@@ -1,15 +1,15 @@
 ---
-title: "Steampipe Table: googleworkspace_admin_reports_activity - Query Google Workspace Admin Reports Activity using SQL"
+title: "Steampipe Table: googleworkspace_activity_report - Query Google Workspace Admin Reports Activity using SQL"
 description: "Allows users to query the Google Workspace Admin Reports API to retrieve detailed audit activity logs across various Google Workspace applications."
 ---
 
-# Table: googleworkspace_admin_reports_activity - Query Google Workspace Admin Reports Activity using SQL
+# Table: googleworkspace_activity_report - Query Google Workspace Admin Reports Activity using SQL
 
-The Reports API is a RESTful API you can use to access information about the Google Workspace activities of your users.
+Google Workspace Activity Report provides visibility into user and administrator activity across your Google Workspace environment. You can query activity data from various Workspace applications—such as Drive, Gmail, and Login—to monitor usage patterns, security events, and administrative actions.
 
 ## Table Usage Guide
 
-The `googleworkspace_admin_reports_activity` table in Steampipe provides a unified interface to query the Google Workspace Admin Reports API. It surfaces detailed audit logs across all Workspace applications (Drive, Calendar, Keep, Admin console, and more). You can use this table to investigate user actions, system events, and security-related activities within your Workspace environment.
+The `googleworkspace_activity_report` table in Steampipe provides a unified interface to query the Google Workspace Admin Reports API. It surfaces detailed audit logs across all Workspace applications (Drive, Calendar, Keep, Admin console, and more). You can use this table to investigate user actions, system events, and security-related activities within your Workspace environment.
 
 **Important Notes**
 - You must `application_name` in a `where` clause in order to use this table ([List of all applications](https://developers.google.com/workspace/admin/reports/reference/rest/v1/activities/list?hl=fr#applicationname)).
@@ -34,12 +34,12 @@ select
   ip_address,
   events
 from
-  googleworkspace_admin_reports_activity as a 
-  cross join lateral jsonb_array_elements(a.events) as evt 
-  cross join lateral jsonb_array_elements(evt->'parameters') as param 
+  googleworkspace_activity_report as a
+  cross join lateral jsonb_array_elements(a.events) as evt
+  cross join lateral jsonb_array_elements(evt->'parameters') as param
 where
-  application_name = 'drive' 
-  and param->>'name' = 'doc_title' 
+  application_name = 'drive'
+  and param->>'name' = 'doc_title'
   and time > now() - interval '1 hour';
 ```
 
@@ -52,12 +52,12 @@ select
   ip_address,
   events
 from
-  googleworkspace_admin_reports_activity as a 
-  cross join lateral jsonb_array_elements(a.events) as evt 
-  cross join lateral jsonb_array_elements(evt->'parameters') as param 
+  googleworkspace_activity_report as a
+  cross join lateral jsonb_array_elements(a.events) as evt
+  cross join lateral jsonb_array_elements(evt->'parameters') as param
 where
-  application_name = 'drive' 
-  and param->>'name' = 'doc_title' 
+  application_name = 'drive'
+  and param->>'name' = 'doc_title'
   and time > datetime('now', '-1 hour');
 ```
 
@@ -73,7 +73,7 @@ select
   ip_address,
   events
 from
-  googleworkspace_admin_reports_activity as a
+  googleworkspace_activity_report as a
   cross join lateral jsonb_array_elements(a.events) as evt
   cross join lateral jsonb_array_elements(evt->'parameters') as param
 where
@@ -92,7 +92,7 @@ select
   ip_address,
   events
 from
-  googleworkspace_admin_reports_activity as a
+  googleworkspace_activity_report as a
   cross join lateral jsonb_array_elements(a.events) as evt
   cross join lateral jsonb_array_elements(evt->'parameters') as param
 where
@@ -102,7 +102,7 @@ where
   and time > datetime('now', '-1 month');
 ```
 
-### Show login failures by specific user 
+### Show login failures by specific user
 Show all failed login attempts by a specific user in the last week.
 
 ```sql+postgres
@@ -111,7 +111,7 @@ select
   event_names,
   ip_address
 from
-  googleworkspace_admin_reports_activity
+  googleworkspace_activity_report
 where
   application_name = 'login'
   and actor_email = 'xxx@xxx.xxx'
@@ -125,7 +125,7 @@ select
   event_names,
   ip_address
 from
-  googleworkspace_admin_reports_activity
+  googleworkspace_activity_report
 where
   application_name = 'login'
   and actor_email = 'xxx@xxx.xxx'
@@ -145,7 +145,7 @@ select
   param2->>'value' as device_model,
   events
 from
-  googleworkspace_admin_reports_activity as a
+  googleworkspace_activity_report as a
   cross join lateral jsonb_array_elements(a.events) as evt
   cross join lateral jsonb_array_elements(evt->'parameters') as param1
   cross join lateral jsonb_array_elements(evt->'parameters') as param2
@@ -166,7 +166,7 @@ select
   param2->>'value' as device_model,
   events
 from
-  googleworkspace_admin_reports_activity as a
+  googleworkspace_activity_report as a
   cross join lateral jsonb_array_elements(a.events) as evt
   cross join lateral jsonb_array_elements(evt->'parameters') as param1
   cross join lateral jsonb_array_elements(evt->'parameters') as param2
