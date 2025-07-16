@@ -70,7 +70,7 @@ func tableGoogleworkspaceAdminReportsActivity(ctx context.Context) *plugin.Table
             {
                 Name:        "ip_address",
                 Description: "IP address associated with the activity.",
-                Type:        proto.ColumnType_STRING,
+                Type:        proto.ColumnType_IPADDR,
             },
             {
                  Name:        "actor_profile_id",
@@ -163,13 +163,9 @@ func listGoogleworkspaceAdminReportsActivities(ctx context.Context, d *plugin.Qu
                 switch q.Operator {
                 case "=":
                     startTime, endTime = t, t
-                case ">":
+                case ">", ">=":
                     startTime = t.Add(time.Nanosecond)
-                case ">=":
-                    startTime = t
-                case "<":
-                    endTime = t
-                case "<=":
+                case "<", "<=":
                     endTime = t
                 }
             }
@@ -182,8 +178,9 @@ func listGoogleworkspaceAdminReportsActivities(ctx context.Context, d *plugin.Qu
         }
     }
 
-    if qual := d.EqualsQualString("ip_address"); qual != "" {
-        resp = resp.ActorIpAddress(qual)
+    if qual := d.EqualsQuals["ip_address"]; qual != nil {
+        address := qual.GetInetValue().GetAddr()
+        resp = resp.ActorIpAddress(address)
     }
 
     if qual := d.EqualsQualString("event_name"); qual != "" {
