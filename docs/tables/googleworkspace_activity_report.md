@@ -13,7 +13,7 @@ The `googleworkspace_activity_report` table in Steampipe provides a unified inte
 
 **Important Notes**
 - You must `application_name` in a `where` clause in order to use this table ([List of all applications](https://developers.google.com/workspace/admin/reports/reference/rest/v1/activities/list?hl=fr#applicationname)).
-- You must have the `Super Admin` role to use this table.
+- You must have the [Admin Reports API scopes access](https://developers.google.com/workspace/admin/reports/auth#scopes) to use this table.
 - For improved performance, it is advised that you use the optional qual `time` to limit the result set to a specific time period.
 - This table supports optional quals. Queries with optional quals are optimised to use Activity filters. Optional quals are supported for the following columns:
   - `actor_email`
@@ -22,7 +22,7 @@ The `googleworkspace_activity_report` table in Steampipe provides a unified inte
 
 ## Examples
 
-### List all Drive events in the last hour
+### List all Google drive events in the last hour
 Retrieve audit events for Google Drive that occurred in the past hour.
 
 ```sql+postgres
@@ -114,7 +114,7 @@ from
   googleworkspace_activity_report
 where
   application_name = 'login'
-  and actor_email = 'xxx@xxx.xxx'
+  and actor_email = 'john@gmail.com'
   and event_name = 'login_failure'
   and time > now() - '1 week'::interval;
 ```
@@ -128,7 +128,7 @@ from
   googleworkspace_activity_report
 where
   application_name = 'login'
-  and actor_email = 'xxx@xxx.xxx'
+  and actor_email = 'john@gmail.com'
   and event_name = 'login_failure'
   and time > datetime('now', '-1 week');
 ```
