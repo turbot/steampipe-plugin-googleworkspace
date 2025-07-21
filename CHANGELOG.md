@@ -1,3 +1,14 @@
+## v1.2.0 [2025-07-21]
+
+_What's new?_
+
+- New tables added
+  - [googleworkspace_activity_report](https://hub.steampipe.io/plugins/turbot/googleworkspace/tables/googleworkspace_activity_report) ([#88](https://github.com/turbot/steampipe-plugin-googleworkspace/pull/88)) (Thanks [@assakafpix](https://github.com/assakafpix) for the contribution!!)
+
+_Dependencies_
+
+- Recompiled plugin with [steampipe-plugin-sdk v5.11.7](https://github.com/turbot/steampipe-plugin-sdk/blob/develop/CHANGELOG.md#v5117-2025-06-04) which resolves an issue where rate limiters were not being applied to hydrate functions correctly. ([#87](https://github.com/turbot/steampipe-plugin-googleworkspace/pull/87))
+
 ## v1.1.1 [2025-04-18]
 
 _Bug fixes_
