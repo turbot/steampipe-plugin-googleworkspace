@@ -11,6 +11,7 @@ import (
 	"google.golang.org/api/gmail/v1"
 	"google.golang.org/api/option"
 	"google.golang.org/api/people/v1"
+	"google.golang.org/api/admin/reports/v1"
 
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
 )
@@ -115,6 +116,30 @@ func GmailService(ctx context.Context, d *plugin.QueryData) (*gmail.Service, err
 	return svc, nil
 }
 
+func ReportsService(ctx context.Context, d *plugin.QueryData) (*admin.Service, error) {
+	// have we already created and cached the service?
+    serviceCacheKey := "googleworkspace.reports"
+    if cached, ok := d.ConnectionManager.Cache.Get(serviceCacheKey); ok {
+        return cached.(*admin.Service), nil
+    }
+
+    // so it was not in cache - create service
+    opts, err := getSessionConfig(ctx, d)
+    if err != nil {
+        return nil, err
+    }
+
+    // Create service
+    svc, err := admin.NewService(ctx, opts...)
+    if err != nil {
+        return nil, err
+    }
+
+    // cache the service
+    d.ConnectionManager.Cache.Set(serviceCacheKey, svc)
+    return svc, nil
+}
+
 func getSessionConfig(ctx context.Context, d *plugin.QueryData) ([]option.ClientOption, error) {
 	opts := []option.ClientOption{}
 
@@ -199,6 +224,7 @@ func getTokenSource(ctx context.Context, d *plugin.QueryData) (oauth2.TokenSourc
 	// Authorize the request
 	config, err := google.JWTConfigFromJSON(
 		[]byte(credentialContent),
+		admin.AdminReportsAuditReadonlyScope,
 		calendar.CalendarReadonlyScope,
 		drive.DriveReadonlyScope,
 		gmail.GmailReadonlyScope,
