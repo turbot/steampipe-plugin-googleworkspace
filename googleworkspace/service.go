@@ -176,7 +176,7 @@ func getSessionConfig(ctx context.Context, d *plugin.QueryData, scopes ...string
 		if err != nil {
 			return nil, err
 		}
-		opts = append(opts, option.WithCredentialsFile(path))
+		opts = append(opts, option.WithCredentialsFile(path), option.WithScopes(scopes...))
 		return opts, nil
 	}
 
@@ -190,13 +190,10 @@ func getTokenSource(ctx context.Context, d *plugin.QueryData, scopes ...string) 
 	// Create cache key based on scopes
 	cacheKey := "googleworkspace.token_source." + strings.Join(scopes, "-")
 
-	plugin.Logger(ctx).Error("Cache Key Before cache --->>>>", cacheKey)
 	// have we already created and cached the token?
 	if ts, ok := d.ConnectionManager.Cache.Get(cacheKey); ok {
 		return ts.(oauth2.TokenSource), nil
 	}
-
-	plugin.Logger(ctx).Error("Cache Key Cache did not hit--->>>>", cacheKey)
 
 	// Get credential file path, and user to impersonate from config (if mentioned)
 	var impersonateUser string
