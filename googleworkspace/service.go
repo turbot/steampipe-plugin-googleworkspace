@@ -3,15 +3,16 @@ package googleworkspace
 import (
 	"context"
 	"errors"
+	"strings"
 
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
+	admin "google.golang.org/api/admin/reports/v1"
 	"google.golang.org/api/calendar/v3"
 	"google.golang.org/api/drive/v3"
 	"google.golang.org/api/gmail/v1"
 	"google.golang.org/api/option"
 	"google.golang.org/api/people/v1"
-	"google.golang.org/api/admin/reports/v1"
 
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
 )
@@ -24,7 +25,7 @@ func CalendarService(ctx context.Context, d *plugin.QueryData) (*calendar.Servic
 	}
 
 	// so it was not in cache - create service
-	opts, err := getSessionConfig(ctx, d)
+	opts, err := getSessionConfig(ctx, d, calendar.CalendarReadonlyScope)
 	if err != nil {
 		return nil, err
 	}
@@ -49,7 +50,7 @@ func PeopleService(ctx context.Context, d *plugin.QueryData) (*people.Service, e
 	}
 
 	// so it was not in cache - create service
-	opts, err := getSessionConfig(ctx, d)
+	opts, err := getSessionConfig(ctx, d, people.ContactsOtherReadonlyScope, people.ContactsReadonlyScope, people.DirectoryReadonlyScope)
 	if err != nil {
 		return nil, err
 	}
@@ -74,7 +75,7 @@ func DriveService(ctx context.Context, d *plugin.QueryData) (*drive.Service, err
 	}
 
 	// so it was not in cache - create service
-	opts, err := getSessionConfig(ctx, d)
+	opts, err := getSessionConfig(ctx, d, drive.DriveReadonlyScope)
 	if err != nil {
 		return nil, err
 	}
@@ -99,7 +100,7 @@ func GmailService(ctx context.Context, d *plugin.QueryData) (*gmail.Service, err
 	}
 
 	// so it was not in cache - create service
-	opts, err := getSessionConfig(ctx, d)
+	opts, err := getSessionConfig(ctx, d, gmail.GmailReadonlyScope)
 	if err != nil {
 		return nil, err
 	}
@@ -118,29 +119,29 @@ func GmailService(ctx context.Context, d *plugin.QueryData) (*gmail.Service, err
 
 func ReportsService(ctx context.Context, d *plugin.QueryData) (*admin.Service, error) {
 	// have we already created and cached the service?
-    serviceCacheKey := "googleworkspace.reports"
-    if cached, ok := d.ConnectionManager.Cache.Get(serviceCacheKey); ok {
-        return cached.(*admin.Service), nil
-    }
+	serviceCacheKey := "googleworkspace.reports"
+	if cached, ok := d.ConnectionManager.Cache.Get(serviceCacheKey); ok {
+		return cached.(*admin.Service), nil
+	}
 
-    // so it was not in cache - create service
-    opts, err := getSessionConfig(ctx, d)
-    if err != nil {
-        return nil, err
-    }
+	// so it was not in cache - create service
+	opts, err := getSessionConfig(ctx, d, admin.AdminReportsAuditReadonlyScope)
+	if err != nil {
+		return nil, err
+	}
 
-    // Create service
-    svc, err := admin.NewService(ctx, opts...)
-    if err != nil {
-        return nil, err
-    }
+	// Create service
+	svc, err := admin.NewService(ctx, opts...)
+	if err != nil {
+		return nil, err
+	}
 
-    // cache the service
-    d.ConnectionManager.Cache.Set(serviceCacheKey, svc)
-    return svc, nil
+	// cache the service
+	d.ConnectionManager.Cache.Set(serviceCacheKey, svc)
+	return svc, nil
 }
 
-func getSessionConfig(ctx context.Context, d *plugin.QueryData) ([]option.ClientOption, error) {
+func getSessionConfig(ctx context.Context, d *plugin.QueryData, scopes ...string) ([]option.ClientOption, error) {
 	opts := []option.ClientOption{}
 
 	// Get credential file path, and user to impersonate from config (if mentioned)
@@ -161,7 +162,7 @@ func getSessionConfig(ctx context.Context, d *plugin.QueryData) ([]option.Client
 
 	// If credential path provided, use domain-wide delegation
 	if credentialContent != "" {
-		ts, err := getTokenSource(ctx, d)
+		ts, err := getTokenSource(ctx, d, scopes...)
 		if err != nil {
 			return nil, err
 		}
@@ -183,14 +184,19 @@ func getSessionConfig(ctx context.Context, d *plugin.QueryData) ([]option.Client
 }
 
 // Returns a JWT TokenSource using the configuration and the HTTP client from the provided context.
-func getTokenSource(ctx context.Context, d *plugin.QueryData) (oauth2.TokenSource, error) {
+func getTokenSource(ctx context.Context, d *plugin.QueryData, scopes ...string) (oauth2.TokenSource, error) {
 	// Note: based on https://developers.google.com/admin-sdk/directory/v1/guides/delegation#go
 
+	// Create cache key based on scopes
+	cacheKey := "googleworkspace.token_source." + strings.Join(scopes, "-")
+
+	plugin.Logger(ctx).Error("Cache Key Before cache --->>>>", cacheKey)
 	// have we already created and cached the token?
-	cacheKey := "googleworkspace.token_source"
 	if ts, ok := d.ConnectionManager.Cache.Get(cacheKey); ok {
 		return ts.(oauth2.TokenSource), nil
 	}
+
+	plugin.Logger(ctx).Error("Cache Key Cache did not hit--->>>>", cacheKey)
 
 	// Get credential file path, and user to impersonate from config (if mentioned)
 	var impersonateUser string
@@ -224,13 +230,7 @@ func getTokenSource(ctx context.Context, d *plugin.QueryData) (oauth2.TokenSourc
 	// Authorize the request
 	config, err := google.JWTConfigFromJSON(
 		[]byte(credentialContent),
-		admin.AdminReportsAuditReadonlyScope,
-		calendar.CalendarReadonlyScope,
-		drive.DriveReadonlyScope,
-		gmail.GmailReadonlyScope,
-		people.ContactsOtherReadonlyScope,
-		people.ContactsReadonlyScope,
-		people.DirectoryReadonlyScope,
+		scopes...,
 	)
 	if err != nil {
 		return nil, err
