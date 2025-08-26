@@ -38,7 +38,8 @@ func tableGoogleWorkspaceCalendarMyEvent(_ context.Context) *plugin.Table {
 
 func listCalendarMyEvents(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
 	// Create service
-	service, err := CalendarService(ctx, d)
+	// https://developers.google.com/workspace/calendar/api/reference/rest/v3/events/list#authorization-scopes
+	service, err := CalendarServiceWithScope(ctx, d, calendar.CalendarReadonlyScope)
 	if err != nil {
 		return nil, err
 	}

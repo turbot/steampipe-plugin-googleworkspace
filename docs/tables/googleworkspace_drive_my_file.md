@@ -11,6 +11,9 @@ Google Workspace Drive is a cloud storage service within Google Workspace that a
 
 The `googleworkspace_drive_my_file` table provides insights into files within Google Workspace Drive. As a Google Workspace administrator, explore file-specific details through this table, including ownership, sharing settings, and associated metadata. Utilize it to uncover information about files, such as those shared externally, the permissions associated with each file, and the verification of sharing policies.
 
+**Important Notes**
+- **Required OAuth Scope**: `https://www.googleapis.com/auth/drive.readonly`, for more details see required [Authorization scope](https://developers.google.com/workspace/drive/api/reference/rest/v3/files/list#authorization-scopes)
+
 ## Examples
 
 ### Basic info

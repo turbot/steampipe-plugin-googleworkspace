@@ -13,6 +13,7 @@ The `googleworkspace_calendar` table provides insights into calendars within Goo
 
 **Important Notes**
 - You must specify the `id` in the `where` or join clause (`where id=`, `join googleworkspace_calendar c on c.id=`) to query this table.
+- **Required OAuth Scope**: `https://www.googleapis.com/auth/calendar.readonly`, for more details see required [Authorization scope](https://developers.google.com/workspace/calendar/api/v3/reference/calendars/get#auth)
 
 ## Examples
 

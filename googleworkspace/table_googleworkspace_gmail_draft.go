@@ -124,7 +124,8 @@ func tableGoogleWorkspaceGmailDraft(_ context.Context) *plugin.Table {
 
 func listGmailDrafts(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
 	// Create service
-	service, err := GmailService(ctx, d)
+	// https://developers.google.com/workspace/gmail/api/reference/rest/v1/users.drafts/list#authorization-scopes
+	service, err := GmailServiceWithScope(ctx, d, gmail.GmailReadonlyScope)
 	if err != nil {
 		return nil, err
 	}
@@ -200,7 +201,8 @@ func listGmailDrafts(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydrate
 
 func getGmailDraft(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	// Create service
-	service, err := GmailService(ctx, d)
+	// https://developers.google.com/workspace/gmail/api/reference/rest/v1/users.drafts/get#authorization-scopes
+	service, err := GmailServiceWithScope(ctx, d, gmail.GmailReadonlyScope)
 	if err != nil {
 		return nil, err
 	}

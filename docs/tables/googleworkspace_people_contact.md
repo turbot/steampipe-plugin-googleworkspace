@@ -11,6 +11,9 @@ Google Workspace Contacts is a resource within Google Workspace that allows user
 
 The `googleworkspace_people_contact` table provides insights into contact details within Google Workspace. As a system administrator, explore contact-specific details through this table, including names, email addresses, phone numbers, and associated metadata. Utilize it to uncover information about contacts, such as their professional affiliations, communication details, and the verification of associated metadata.
 
+**Important Notes**
+- **Required OAuth Scope**: `https://www.googleapis.com/auth/contacts.readonly`, for more details see required [Authorization scope](https://developers.google.com/people/api/rest/v1/people.connections/list#authorization-scopes)
+
 ## Examples
 
 ### Basic info

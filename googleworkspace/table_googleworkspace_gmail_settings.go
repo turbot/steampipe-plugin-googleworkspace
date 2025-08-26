@@ -77,7 +77,8 @@ func tableGoogleWorkspaceGmailSettings(_ context.Context) *plugin.Table {
 
 func listGmailUsers(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
 	// Create service
-	service, err := GmailService(ctx, d)
+	// https://developers.google.com/workspace/gmail/api/reference/rest/v1/users/getProfile#authorization-scopes
+	service, err := GmailServiceWithScope(ctx, d, gmail.GmailReadonlyScope)
 	if err != nil {
 		return nil, err
 	}
@@ -102,7 +103,8 @@ func listGmailUsers(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateD
 // Note: This method is only available to service account clients that have been delegated domain-wide authority.
 func listGmailDelegateSettings(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	// Create service
-	service, err := GmailService(ctx, d)
+	// https://developers.google.com/workspace/gmail/api/reference/rest/v1/users.settings.delegates/list#authorization-scopes
+	service, err := GmailServiceWithScope(ctx, d, gmail.GmailReadonlyScope)
 	if err != nil {
 		return nil, err
 	}
@@ -126,7 +128,8 @@ func listGmailDelegateSettings(ctx context.Context, d *plugin.QueryData, h *plug
 // Gets the auto-forwarding setting for the specified account.
 func getGmailSettingAutoForwarding(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	// Create service
-	service, err := GmailService(ctx, d)
+	// https://developers.google.com/workspace/gmail/api/reference/rest/v1/users.settings/getAutoForwarding#response-body
+	service, err := GmailServiceWithScope(ctx, d, gmail.GmailReadonlyScope)
 	if err != nil {
 		return nil, err
 	}
@@ -153,7 +156,8 @@ func getGmailSettingAutoForwarding(ctx context.Context, d *plugin.QueryData, h *
 // Gets IMAP settings.
 func getGmailSettingImap(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	// Create service
-	service, err := GmailService(ctx, d)
+	// https://developers.google.com/workspace/gmail/api/reference/rest/v1/users.settings/getImap#authorization-scopes
+	service, err := GmailServiceWithScope(ctx, d, gmail.GmailReadonlyScope)
 	if err != nil {
 		return nil, err
 	}
@@ -181,7 +185,8 @@ func getGmailSettingImap(ctx context.Context, d *plugin.QueryData, h *plugin.Hyd
 // Gets language settings.
 func getGmailLanguage(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	// Create service
-	service, err := GmailService(ctx, d)
+	// https://developers.google.com/workspace/gmail/api/reference/rest/v1/users.settings/getLanguage#authorization-scopes
+	service, err := GmailServiceWithScope(ctx, d, gmail.GmailReadonlyScope)
 	if err != nil {
 		return nil, err
 	}
@@ -198,7 +203,8 @@ func getGmailLanguage(ctx context.Context, d *plugin.QueryData, h *plugin.Hydrat
 // Gets POP settings.
 func getGmailPopSetting(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	// Create service
-	service, err := GmailService(ctx, d)
+	// https://developers.google.com/workspace/gmail/api/reference/rest/v1/users.settings/getPop#authorization-scopes
+	service, err := GmailServiceWithScope(ctx, d, gmail.GmailReadonlyScope)
 	if err != nil {
 		return nil, err
 	}
@@ -215,7 +221,8 @@ func getGmailPopSetting(ctx context.Context, d *plugin.QueryData, h *plugin.Hydr
 // Gets vacation responder settings.
 func getGmailVacationSetting(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	// Create service
-	service, err := GmailService(ctx, d)
+	// https://developers.google.com/workspace/gmail/api/reference/rest/v1/users.settings/getVacation#authorization-scopes
+	service, err := GmailServiceWithScope(ctx, d, gmail.GmailReadonlyScope)
 	if err != nil {
 		return nil, err
 	}

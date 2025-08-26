@@ -14,6 +14,7 @@ The `googleworkspace_gmail_settings` table provides insights into individual use
 **Important Notes**
 - You must specify the `user_email` in the `where` or join clause (`where user_email=`, `join googleworkspace_gmail_settings g on g.user_email=`) to query this table.
 - To list delegated accounts, you must authenticate using a service account client that has been delegated domain-wide authority.
+- **Required OAuth Scope**: `https://www.googleapis.com/auth/gmail.readonly`, for more details see required [Authorization scope](https://developers.google.com/workspace/gmail/api/auth/scopes)
 
 ## Examples
 

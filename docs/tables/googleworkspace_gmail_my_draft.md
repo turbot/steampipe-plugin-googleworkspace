@@ -11,6 +11,9 @@ Gmail Drafts in Google Workspace is a feature that allows users to save and mana
 
 The `googleworkspace_gmail_my_draft` table provides insights into draft messages within Google Workspace's Gmail. As an IT administrator, explore draft-specific details through this table, including content, status, and associated metadata. Utilize it to uncover information about drafts, such as those that have been left unsent or abandoned, and the details of these drafts, to better manage email communications within your organization.
 
+**Important Notes**
+- **Required OAuth Scope**: `https://www.googleapis.com/auth/gmail.readonly`, for more details see required [Authorization scope](https://developers.google.com/workspace/gmail/api/auth/scopes)
+
 ## Examples
 
 ### Basic info

@@ -96,7 +96,8 @@ func tableGoogleworkspaceActivityReport(ctx context.Context) *plugin.Table {
 //// LIST FUNCTION
 
 func listGoogleworkspaceAdminReportsActivities(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
-	service, err := ReportsService(ctx, d)
+	// https://developers.google.com/admin-sdk/reports/v1/reference/activities/list#authorization-scopes
+	service, err := ReportsServiceWithScope(ctx, d, admin.AdminReportsAuditReadonlyScope)
 	if err != nil {
 		plugin.Logger(ctx).Error("googleworkspace_activity_report.listGoogleworkspaceAdminReportsActivities", "service_error", err)
 		return nil, err

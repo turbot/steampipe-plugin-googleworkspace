@@ -43,8 +43,8 @@ func tableGoogleWorkspaceGmailMessage(_ context.Context) *plugin.Table {
 			},
 		},
 		Get: &plugin.GetConfig{
-			KeyColumns: 	plugin.AllColumns([]string{"id", "user_id"}),
-			Hydrate:    	getGmailMessage,
+			KeyColumns:     plugin.AllColumns([]string{"id", "user_id"}),
+			Hydrate:        getGmailMessage,
 			MaxConcurrency: 50,
 		},
 		Columns: []*plugin.Column{
@@ -128,7 +128,8 @@ func tableGoogleWorkspaceGmailMessage(_ context.Context) *plugin.Table {
 
 func listGmailMessages(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
 	// Create service
-	service, err := GmailService(ctx, d)
+	// https://developers.google.com/workspace/gmail/api/reference/rest/v1/users.messages/list#authorization-scopes
+	service, err := GmailServiceWithScope(ctx, d, gmail.GmailReadonlyScope)
 	if err != nil {
 		return nil, err
 	}
@@ -209,7 +210,8 @@ func listGmailMessages(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydra
 
 func getGmailMessage(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	// Create service
-	service, err := GmailService(ctx, d)
+	// https://developers.google.com/workspace/gmail/api/reference/rest/v1/users.messages/get#authorization-scopes
+	service, err := GmailServiceWithScope(ctx, d, gmail.GmailReadonlyScope)
 	if err != nil {
 		return nil, err
 	}
