@@ -1,3 +1,9 @@
+## v1.3.1 [2025-10-27]
+
+_Bug fixes_
+
+- Fixed `OAuth2` scope handling by shifting to table-specific scope requests instead of global scopes, and documented required scopes per table. ([#94](https://github.com/turbot/steampipe-plugin-googleworkspace/pull/94))
+
 ## v1.3.0 [2025-10-13]
 
 _Dependencies_
