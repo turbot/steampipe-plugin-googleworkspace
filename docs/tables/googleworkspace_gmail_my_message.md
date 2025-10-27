@@ -11,6 +11,9 @@ Gmail is a service within Google Workspace that provides a robust and secure pla
 
 The `googleworkspace_gmail_my_message` table provides insights into Gmail Messages within Google Workspace. As a system administrator, explore message-specific details through this table, including the sender, recipient, subject, and timestamp. Utilize it to uncover information about messages, such as those marked as spam, the communication patterns, and the verification of message headers.
 
+**Important Notes**
+- **Required OAuth Scope**: `https://www.googleapis.com/auth/gmail.readonly`, for more details see required [Authorization scope](https://developers.google.com/workspace/gmail/api/auth/scopes)
+
 ## Examples
 
 ### Basic info

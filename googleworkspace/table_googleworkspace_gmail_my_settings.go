@@ -6,6 +6,7 @@ import (
 	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
+	"google.golang.org/api/gmail/v1"
 	"google.golang.org/api/googleapi"
 )
 
@@ -74,7 +75,8 @@ func tableGoogleWorkspaceGmailMySettings(_ context.Context) *plugin.Table {
 
 func listGmailMyUser(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
 	// Create service
-	service, err := GmailService(ctx, d)
+	// https://developers.google.com/workspace/gmail/api/reference/rest/v1/users/getProfile#authorization-scopes
+	service, err := GmailServiceWithScope(ctx, d, gmail.GmailReadonlyScope)
 	if err != nil {
 		return nil, err
 	}
@@ -94,7 +96,8 @@ func listGmailMyUser(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydrate
 // Note: This method is only available to service account clients that have been delegated domain-wide authority.
 func listGmailMyDelegateSettings(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
 	// Create service
-	service, err := GmailService(ctx, d)
+	// https://developers.google.com/workspace/gmail/api/reference/rest/v1/users.settings.delegates/list#authorization-scopes
+	service, err := GmailServiceWithScope(ctx, d, gmail.GmailReadonlyScope)
 	if err != nil {
 		return nil, err
 	}
@@ -117,7 +120,8 @@ func listGmailMyDelegateSettings(ctx context.Context, d *plugin.QueryData, _ *pl
 // Gets the auto-forwarding setting for the current authenticated user's account.
 func getGmailMyAutoForwardingSetting(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
 	// Create service
-	service, err := GmailService(ctx, d)
+	// https://developers.google.com/workspace/gmail/api/reference/rest/v1/users.settings/getAutoForwarding#authorization-scopes
+	service, err := GmailServiceWithScope(ctx, d, gmail.GmailReadonlyScope)
 	if err != nil {
 		return nil, err
 	}
@@ -143,7 +147,8 @@ func getGmailMyAutoForwardingSetting(ctx context.Context, d *plugin.QueryData, _
 // Gets IMAP settings.
 func getGmailMyImapSetting(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
 	// Create service
-	service, err := GmailService(ctx, d)
+	// https://developers.google.com/workspace/gmail/api/reference/rest/v1/users.settings/getImap#authorization-scopes
+	service, err := GmailServiceWithScope(ctx, d, gmail.GmailReadonlyScope)
 	if err != nil {
 		return nil, err
 	}
@@ -170,7 +175,8 @@ func getGmailMyImapSetting(ctx context.Context, d *plugin.QueryData, _ *plugin.H
 // Gets language settings.
 func getGmailMyLanguage(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
 	// Create service
-	service, err := GmailService(ctx, d)
+	// https://developers.google.com/workspace/gmail/api/reference/rest/v1/users.settings/getLanguage#authorization-scopes
+	service, err := GmailServiceWithScope(ctx, d, gmail.GmailReadonlyScope)
 	if err != nil {
 		return nil, err
 	}
@@ -186,7 +192,8 @@ func getGmailMyLanguage(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydr
 // Gets POP settings.
 func getGmailMyPopSetting(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
 	// Create service
-	service, err := GmailService(ctx, d)
+	// https://developers.google.com/workspace/gmail/api/reference/rest/v1/users.settings/getPop#authorization-scopes
+	service, err := GmailServiceWithScope(ctx, d, gmail.GmailReadonlyScope)
 	if err != nil {
 		return nil, err
 	}
@@ -202,7 +209,8 @@ func getGmailMyPopSetting(ctx context.Context, d *plugin.QueryData, _ *plugin.Hy
 // Gets vacation responder settings.
 func getGmailMyVacationSetting(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
 	// Create service
-	service, err := GmailService(ctx, d)
+	// https://developers.google.com/workspace/gmail/api/reference/rest/v1/users.settings/getVacation#authorization-scopes
+	service, err := GmailServiceWithScope(ctx, d, gmail.GmailReadonlyScope)
 	if err != nil {
 		return nil, err
 	}

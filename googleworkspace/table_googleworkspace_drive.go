@@ -138,7 +138,8 @@ func tableGoogleWorkspaceDrive(_ context.Context) *plugin.Table {
 
 func listDrives(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
 	// Create service
-	service, err := DriveService(ctx, d)
+	// https://developers.google.com/workspace/drive/api/reference/rest/v3/drives/list#authorization-scopes
+	service, err := DriveServiceWithScope(ctx, d, drive.DriveReadonlyScope)
 	if err != nil {
 		return nil, err
 	}
@@ -232,7 +233,8 @@ func getDrive(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (
 	plugin.Logger(ctx).Trace("getDrive")
 
 	// Create service
-	service, err := DriveService(ctx, d)
+	// https://developers.google.com/workspace/drive/api/reference/rest/v3/drives/get#authorization-scopes
+	service, err := DriveServiceWithScope(ctx, d, drive.DriveReadonlyScope)
 	if err != nil {
 		return nil, err
 	}

@@ -11,6 +11,9 @@ Google Workspace Calendar is a core service within Google Workspace that allows 
 
 The `googleworkspace_calendar_my_event` table provides insights into Google Workspace Calendar Events. As an administrator or a user, explore event-specific details through this table, including event start and end times, attendees, and event status. Utilize it to uncover information about your events, such as those with conflicting schedules, attendees' responses to event invitations, and details about recurring events.
 
+**Important Notes**
+- **Required OAuth Scope**: `https://www.googleapis.com/auth/calendar.readonly`, for more details see required [Authorization scope](https://developers.google.com/workspace/calendar/api/v3/reference/events/list#auth)
+
 ## Examples
 
 ### Basic info

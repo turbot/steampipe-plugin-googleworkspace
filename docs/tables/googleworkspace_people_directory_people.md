@@ -11,6 +11,9 @@ Google Workspace Directory People is a resource within Google Workspace that all
 
 The `googleworkspace_people_directory_people` table provides insights into user profiles within Google Workspace Directory People. As an IT administrator, explore user-specific details through this table, including email addresses, phone numbers, and other profile details. Utilize it to uncover information about users, such as their roles, the groups they belong to, and their profile's metadata.
 
+**Important Notes**
+- **Required OAuth Scope**: `https://www.googleapis.com/auth/directory.readonly`, for more details see required [Authorization scope](https://developers.google.com/people/api/rest/v1/people/listDirectoryPeople#authorization-scopes)
+
 ## Examples
 
 ### Basic info

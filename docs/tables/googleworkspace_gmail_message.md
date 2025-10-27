@@ -13,6 +13,7 @@ The `googleworkspace_gmail_message` table provides insights into Gmail Messages 
 
 **Important Notes**
 - You must specify the `user_id` in the `where` or join clause (`where user_id=`, `join googleworkspace_gmail_my_message g on g.user_id=`) to query this table.
+- **Required OAuth Scope**: `https://www.googleapis.com/auth/gmail.readonly`, for more details see required [Authorization scope](https://developers.google.com/workspace/gmail/api/auth/scopes)
 
 ## Examples
 

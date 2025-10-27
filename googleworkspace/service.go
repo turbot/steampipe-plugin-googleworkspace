@@ -3,28 +3,31 @@ package googleworkspace
 import (
 	"context"
 	"errors"
+	"strings"
 
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
+	admin "google.golang.org/api/admin/reports/v1"
 	"google.golang.org/api/calendar/v3"
 	"google.golang.org/api/drive/v3"
 	"google.golang.org/api/gmail/v1"
 	"google.golang.org/api/option"
 	"google.golang.org/api/people/v1"
-	"google.golang.org/api/admin/reports/v1"
 
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
 )
 
-func CalendarService(ctx context.Context, d *plugin.QueryData) (*calendar.Service, error) {
+func CalendarServiceWithScope(ctx context.Context, d *plugin.QueryData, scopes ...string) (*calendar.Service, error) {
+	// Create cache key based on scopes
+	cacheKey := "googleworkspace.calendar - " + strings.Join(scopes, "|")
+
 	// have we already created and cached the service?
-	serviceCacheKey := "googleworkspace.calendar"
-	if cachedData, ok := d.ConnectionManager.Cache.Get(serviceCacheKey); ok {
+	if cachedData, ok := d.ConnectionManager.Cache.Get(cacheKey); ok {
 		return cachedData.(*calendar.Service), nil
 	}
 
 	// so it was not in cache - create service
-	opts, err := getSessionConfig(ctx, d)
+	opts, err := getSessionConfig(ctx, d, scopes...)
 	if err != nil {
 		return nil, err
 	}
@@ -36,20 +39,22 @@ func CalendarService(ctx context.Context, d *plugin.QueryData) (*calendar.Servic
 	}
 
 	// cache the service
-	d.ConnectionManager.Cache.Set(serviceCacheKey, svc)
+	d.ConnectionManager.Cache.Set(cacheKey, svc)
 
 	return svc, nil
 }
 
-func PeopleService(ctx context.Context, d *plugin.QueryData) (*people.Service, error) {
+func PeopleServiceWithScope(ctx context.Context, d *plugin.QueryData, scopes ...string) (*people.Service, error) {
+	// Create cache key based on scopes
+	cacheKey := "googleworkspace.people - " + strings.Join(scopes, "|")
+
 	// have we already created and cached the service?
-	serviceCacheKey := "googleworkspace.people"
-	if cachedData, ok := d.ConnectionManager.Cache.Get(serviceCacheKey); ok {
+	if cachedData, ok := d.ConnectionManager.Cache.Get(cacheKey); ok {
 		return cachedData.(*people.Service), nil
 	}
 
 	// so it was not in cache - create service
-	opts, err := getSessionConfig(ctx, d)
+	opts, err := getSessionConfig(ctx, d, scopes...)
 	if err != nil {
 		return nil, err
 	}
@@ -61,20 +66,22 @@ func PeopleService(ctx context.Context, d *plugin.QueryData) (*people.Service, e
 	}
 
 	// cache the service
-	d.ConnectionManager.Cache.Set(serviceCacheKey, svc)
+	d.ConnectionManager.Cache.Set(cacheKey, svc)
 
 	return svc, nil
 }
 
-func DriveService(ctx context.Context, d *plugin.QueryData) (*drive.Service, error) {
+func DriveServiceWithScope(ctx context.Context, d *plugin.QueryData, scopes ...string) (*drive.Service, error) {
+	// Create cache key based on scopes
+	cacheKey := "googleworkspace.drive - " + strings.Join(scopes, "|")
+
 	// have we already created and cached the service?
-	serviceCacheKey := "googleworkspace.drive"
-	if cachedData, ok := d.ConnectionManager.Cache.Get(serviceCacheKey); ok {
+	if cachedData, ok := d.ConnectionManager.Cache.Get(cacheKey); ok {
 		return cachedData.(*drive.Service), nil
 	}
 
 	// so it was not in cache - create service
-	opts, err := getSessionConfig(ctx, d)
+	opts, err := getSessionConfig(ctx, d, scopes...)
 	if err != nil {
 		return nil, err
 	}
@@ -86,20 +93,22 @@ func DriveService(ctx context.Context, d *plugin.QueryData) (*drive.Service, err
 	}
 
 	// cache the service
-	d.ConnectionManager.Cache.Set(serviceCacheKey, svc)
+	d.ConnectionManager.Cache.Set(cacheKey, svc)
 
 	return svc, nil
 }
 
-func GmailService(ctx context.Context, d *plugin.QueryData) (*gmail.Service, error) {
+func GmailServiceWithScope(ctx context.Context, d *plugin.QueryData, scopes ...string) (*gmail.Service, error) {
+	// Create cache key based on scopes
+	cacheKey := "googleworkspace.gmail - " + strings.Join(scopes, "|")
+
 	// have we already created and cached the service?
-	serviceCacheKey := "googleworkspace.gmail"
-	if cachedData, ok := d.ConnectionManager.Cache.Get(serviceCacheKey); ok {
+	if cachedData, ok := d.ConnectionManager.Cache.Get(cacheKey); ok {
 		return cachedData.(*gmail.Service), nil
 	}
 
 	// so it was not in cache - create service
-	opts, err := getSessionConfig(ctx, d)
+	opts, err := getSessionConfig(ctx, d, scopes...)
 	if err != nil {
 		return nil, err
 	}
@@ -111,36 +120,38 @@ func GmailService(ctx context.Context, d *plugin.QueryData) (*gmail.Service, err
 	}
 
 	// cache the service
-	d.ConnectionManager.Cache.Set(serviceCacheKey, svc)
+	d.ConnectionManager.Cache.Set(cacheKey, svc)
 
 	return svc, nil
 }
 
-func ReportsService(ctx context.Context, d *plugin.QueryData) (*admin.Service, error) {
+func ReportsServiceWithScope(ctx context.Context, d *plugin.QueryData, scopes ...string) (*admin.Service, error) {
+	// Create cache key based on scopes
+	cacheKey := "googleworkspace.reports - " + strings.Join(scopes, "|")
+
 	// have we already created and cached the service?
-    serviceCacheKey := "googleworkspace.reports"
-    if cached, ok := d.ConnectionManager.Cache.Get(serviceCacheKey); ok {
-        return cached.(*admin.Service), nil
-    }
+	if cached, ok := d.ConnectionManager.Cache.Get(cacheKey); ok {
+		return cached.(*admin.Service), nil
+	}
 
-    // so it was not in cache - create service
-    opts, err := getSessionConfig(ctx, d)
-    if err != nil {
-        return nil, err
-    }
+	// so it was not in cache - create service
+	opts, err := getSessionConfig(ctx, d, scopes...)
+	if err != nil {
+		return nil, err
+	}
 
-    // Create service
-    svc, err := admin.NewService(ctx, opts...)
-    if err != nil {
-        return nil, err
-    }
+	// Create service
+	svc, err := admin.NewService(ctx, opts...)
+	if err != nil {
+		return nil, err
+	}
 
-    // cache the service
-    d.ConnectionManager.Cache.Set(serviceCacheKey, svc)
-    return svc, nil
+	// cache the service
+	d.ConnectionManager.Cache.Set(cacheKey, svc)
+	return svc, nil
 }
 
-func getSessionConfig(ctx context.Context, d *plugin.QueryData) ([]option.ClientOption, error) {
+func getSessionConfig(ctx context.Context, d *plugin.QueryData, scopes ...string) ([]option.ClientOption, error) {
 	opts := []option.ClientOption{}
 
 	// Get credential file path, and user to impersonate from config (if mentioned)
@@ -161,7 +172,7 @@ func getSessionConfig(ctx context.Context, d *plugin.QueryData) ([]option.Client
 
 	// If credential path provided, use domain-wide delegation
 	if credentialContent != "" {
-		ts, err := getTokenSource(ctx, d)
+		ts, err := getTokenSource(ctx, d, scopes...)
 		if err != nil {
 			return nil, err
 		}
@@ -175,7 +186,7 @@ func getSessionConfig(ctx context.Context, d *plugin.QueryData) ([]option.Client
 		if err != nil {
 			return nil, err
 		}
-		opts = append(opts, option.WithCredentialsFile(path))
+		opts = append(opts, option.WithCredentialsFile(path), option.WithScopes(scopes...))
 		return opts, nil
 	}
 
@@ -183,11 +194,13 @@ func getSessionConfig(ctx context.Context, d *plugin.QueryData) ([]option.Client
 }
 
 // Returns a JWT TokenSource using the configuration and the HTTP client from the provided context.
-func getTokenSource(ctx context.Context, d *plugin.QueryData) (oauth2.TokenSource, error) {
+func getTokenSource(ctx context.Context, d *plugin.QueryData, scopes ...string) (oauth2.TokenSource, error) {
 	// Note: based on https://developers.google.com/admin-sdk/directory/v1/guides/delegation#go
 
+	// Create cache key based on scopes
+	cacheKey := "googleworkspace.token_source." + strings.Join(scopes, "-")
+
 	// have we already created and cached the token?
-	cacheKey := "googleworkspace.token_source"
 	if ts, ok := d.ConnectionManager.Cache.Get(cacheKey); ok {
 		return ts.(oauth2.TokenSource), nil
 	}
@@ -224,13 +237,7 @@ func getTokenSource(ctx context.Context, d *plugin.QueryData) (oauth2.TokenSourc
 	// Authorize the request
 	config, err := google.JWTConfigFromJSON(
 		[]byte(credentialContent),
-		admin.AdminReportsAuditReadonlyScope,
-		calendar.CalendarReadonlyScope,
-		drive.DriveReadonlyScope,
-		gmail.GmailReadonlyScope,
-		people.ContactsOtherReadonlyScope,
-		people.ContactsReadonlyScope,
-		people.DirectoryReadonlyScope,
+		scopes...,
 	)
 	if err != nil {
 		return nil, err

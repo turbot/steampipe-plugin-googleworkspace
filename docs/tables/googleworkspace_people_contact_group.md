@@ -11,6 +11,9 @@ Google Workspace People Contact Groups is a feature within Google Workspace that
 
 The `googleworkspace_people_contact_group` table provides insights into People Contact Groups within Google Workspace. As an IT administrator or a Google Workspace user, you can explore group-specific details through this table, including group metadata, member count, and member resource names. Use it to manage and organize your Google Workspace contacts more efficiently, such as identifying large groups, finding groups without members, and understanding the structure of your contact groups.
 
+**Important Notes**
+- **Required OAuth Scope**: `https://www.googleapis.com/auth/contacts.readonly`, for more details see required [Authorization scope](https://developers.google.com/people/api/rest/v1/contactGroups/list#authorization-scopes)
+
 ## Examples
 
 ### Basic info

@@ -270,7 +270,8 @@ func tableGoogleWorkspaceCalendarEvent(_ context.Context) *plugin.Table {
 
 func listCalendarEvents(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
 	// Create service
-	service, err := CalendarService(ctx, d)
+	// https://developers.google.com/workspace/calendar/api/v3/reference/events/list#auth
+	service, err := CalendarServiceWithScope(ctx, d, calendar.CalendarReadonlyScope)
 	if err != nil {
 		return nil, err
 	}
@@ -335,7 +336,8 @@ func listCalendarEvents(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydr
 
 func getCalendarEvent(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
 	// Create service
-	service, err := CalendarService(ctx, d)
+	// https://developers.google.com/workspace/calendar/api/v3/reference/events/get#auth
+	service, err := CalendarServiceWithScope(ctx, d, calendar.CalendarReadonlyScope)
 	if err != nil {
 		return nil, err
 	}

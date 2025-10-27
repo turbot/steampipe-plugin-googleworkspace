@@ -26,7 +26,8 @@ func tableGoogleWorkspacePeopleDirectoryPeople(_ context.Context) *plugin.Table 
 
 func listPeopleDirecoryPeople(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
 	// Create service
-	service, err := PeopleService(ctx, d)
+	// API: https://developers.google.com/people/api/rest/v1/people/listDirectoryPeople#authorization-scopes
+	service, err := PeopleServiceWithScope(ctx, d, people.DirectoryReadonlyScope)
 	if err != nil {
 		return nil, err
 	}

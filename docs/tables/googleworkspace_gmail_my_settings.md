@@ -13,6 +13,7 @@ The `googleworkspace_gmail_my_settings` table provides insights into the Gmail S
 
 **Important Notes**
 - To list delegated accounts, you must authenticate using a service account client that has been delegated domain-wide authority.
+- **Required OAuth Scope**: `https://www.googleapis.com/auth/gmail.readonly`, for more details see required [Authorization scope](https://developers.google.com/workspace/gmail/api/auth/scopes)
 
 ## Examples
 

@@ -89,7 +89,8 @@ func tableGoogleWorkspacePeopleContactGroup(_ context.Context) *plugin.Table {
 
 func listPeopleContactGroups(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
 	// Create service
-	service, err := PeopleService(ctx, d)
+	// API: https://developers.google.com/people/api/rest/v1/contactGroups/list#authorization-scopes
+	service, err := PeopleServiceWithScope(ctx, d, people.ContactsReadonlyScope)
 	if err != nil {
 		return nil, err
 	}

@@ -6,6 +6,7 @@ import (
 	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
+	"google.golang.org/api/calendar/v3"
 )
 
 //// TABLE DEFINITION
@@ -64,7 +65,8 @@ func tableGoogleWorkspaceCalendar(_ context.Context) *plugin.Table {
 
 func listCalendars(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
 	// Create service
-	service, err := CalendarService(ctx, d)
+	// https://developers.google.com/workspace/calendar/api/v3/reference/calendars/get#auth
+	service, err := CalendarServiceWithScope(ctx, d, calendar.CalendarReadonlyScope)
 	if err != nil {
 		return nil, err
 	}

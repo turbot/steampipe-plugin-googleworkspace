@@ -13,6 +13,7 @@ The `googleworkspace_calendar_event` table provides insights into Calendar Event
 
 **Important Notes**
 - You must specify the `calendar_id` in the `where` or join clause (`where calendar_id=`, `join googleworkspace_calendar_event e on e.calendar_id=`) to query this table.
+- **Required OAuth Scope**: `https://www.googleapis.com/auth/calendar.readonly`, for more details see required [Authorization scope](https://developers.google.com/workspace/calendar/api/v3/reference/events/list#auth)
 
 ## Examples
 
