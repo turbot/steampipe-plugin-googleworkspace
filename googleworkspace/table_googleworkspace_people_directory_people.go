@@ -3,7 +3,7 @@ package googleworkspace
 import (
 	"context"
 
-	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v6/plugin"
 
 	"google.golang.org/api/people/v1"
 )
@@ -15,8 +15,8 @@ func tableGoogleWorkspacePeopleDirectoryPeople(_ context.Context) *plugin.Table 
 		Name:        "googleworkspace_people_directory_people",
 		Description: "Domain contacts in the authenticated user's domain directory.",
 		List: &plugin.ListConfig{
-			Hydrate:           listPeopleDirecoryPeople,
-			ShouldIgnoreError: isNotFoundError([]string{"404"}),
+			Hydrate:      listPeopleDirecoryPeople,
+			IgnoreConfig: &plugin.IgnoreConfig{ShouldIgnoreErrorFunc: isNotFoundError([]string{"404"})},
 		},
 		Columns: peopleContacts(),
 	}

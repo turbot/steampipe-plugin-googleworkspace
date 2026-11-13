@@ -14,7 +14,7 @@ import (
 	"google.golang.org/api/option"
 	"google.golang.org/api/people/v1"
 
-	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v6/plugin"
 )
 
 func CalendarServiceWithScope(ctx context.Context, d *plugin.QueryData, scopes ...string) (*calendar.Service, error) {
@@ -22,7 +22,7 @@ func CalendarServiceWithScope(ctx context.Context, d *plugin.QueryData, scopes .
 	cacheKey := "googleworkspace.calendar - " + strings.Join(scopes, "|")
 
 	// have we already created and cached the service?
-	if cachedData, ok := d.ConnectionManager.Cache.Get(cacheKey); ok {
+	if cachedData, ok := d.ConnectionCache.Get(ctx, cacheKey); ok {
 		return cachedData.(*calendar.Service), nil
 	}
 
@@ -39,7 +39,7 @@ func CalendarServiceWithScope(ctx context.Context, d *plugin.QueryData, scopes .
 	}
 
 	// cache the service
-	d.ConnectionManager.Cache.Set(cacheKey, svc)
+	_ = d.ConnectionCache.Set(ctx, cacheKey, svc)
 
 	return svc, nil
 }
@@ -49,7 +49,7 @@ func PeopleServiceWithScope(ctx context.Context, d *plugin.QueryData, scopes ...
 	cacheKey := "googleworkspace.people - " + strings.Join(scopes, "|")
 
 	// have we already created and cached the service?
-	if cachedData, ok := d.ConnectionManager.Cache.Get(cacheKey); ok {
+	if cachedData, ok := d.ConnectionCache.Get(ctx, cacheKey); ok {
 		return cachedData.(*people.Service), nil
 	}
 
@@ -66,7 +66,7 @@ func PeopleServiceWithScope(ctx context.Context, d *plugin.QueryData, scopes ...
 	}
 
 	// cache the service
-	d.ConnectionManager.Cache.Set(cacheKey, svc)
+	_ = d.ConnectionCache.Set(ctx, cacheKey, svc)
 
 	return svc, nil
 }
@@ -76,7 +76,7 @@ func DriveServiceWithScope(ctx context.Context, d *plugin.QueryData, scopes ...s
 	cacheKey := "googleworkspace.drive - " + strings.Join(scopes, "|")
 
 	// have we already created and cached the service?
-	if cachedData, ok := d.ConnectionManager.Cache.Get(cacheKey); ok {
+	if cachedData, ok := d.ConnectionCache.Get(ctx, cacheKey); ok {
 		return cachedData.(*drive.Service), nil
 	}
 
@@ -93,7 +93,7 @@ func DriveServiceWithScope(ctx context.Context, d *plugin.QueryData, scopes ...s
 	}
 
 	// cache the service
-	d.ConnectionManager.Cache.Set(cacheKey, svc)
+	_ = d.ConnectionCache.Set(ctx, cacheKey, svc)
 
 	return svc, nil
 }
@@ -103,7 +103,7 @@ func GmailServiceWithScope(ctx context.Context, d *plugin.QueryData, scopes ...s
 	cacheKey := "googleworkspace.gmail - " + strings.Join(scopes, "|")
 
 	// have we already created and cached the service?
-	if cachedData, ok := d.ConnectionManager.Cache.Get(cacheKey); ok {
+	if cachedData, ok := d.ConnectionCache.Get(ctx, cacheKey); ok {
 		return cachedData.(*gmail.Service), nil
 	}
 
@@ -120,7 +120,7 @@ func GmailServiceWithScope(ctx context.Context, d *plugin.QueryData, scopes ...s
 	}
 
 	// cache the service
-	d.ConnectionManager.Cache.Set(cacheKey, svc)
+	_ = d.ConnectionCache.Set(ctx, cacheKey, svc)
 
 	return svc, nil
 }
@@ -130,7 +130,7 @@ func ReportsServiceWithScope(ctx context.Context, d *plugin.QueryData, scopes ..
 	cacheKey := "googleworkspace.reports - " + strings.Join(scopes, "|")
 
 	// have we already created and cached the service?
-	if cached, ok := d.ConnectionManager.Cache.Get(cacheKey); ok {
+	if cached, ok := d.ConnectionCache.Get(ctx, cacheKey); ok {
 		return cached.(*admin.Service), nil
 	}
 
@@ -147,7 +147,7 @@ func ReportsServiceWithScope(ctx context.Context, d *plugin.QueryData, scopes ..
 	}
 
 	// cache the service
-	d.ConnectionManager.Cache.Set(cacheKey, svc)
+	_ = d.ConnectionCache.Set(ctx, cacheKey, svc)
 	return svc, nil
 }
 
@@ -186,7 +186,8 @@ func getSessionConfig(ctx context.Context, d *plugin.QueryData, scopes ...string
 		if err != nil {
 			return nil, err
 		}
-		opts = append(opts, option.WithCredentialsFile(path), option.WithScopes(scopes...))
+		// token_path is operator-supplied config and may hold any credential type, so the type must stay auto-detected
+		opts = append(opts, option.WithCredentialsFile(path), option.WithScopes(scopes...)) //nolint:staticcheck
 		return opts, nil
 	}
 
@@ -201,7 +202,7 @@ func getTokenSource(ctx context.Context, d *plugin.QueryData, scopes ...string) 
 	cacheKey := "googleworkspace.token_source." + strings.Join(scopes, "-")
 
 	// have we already created and cached the token?
-	if ts, ok := d.ConnectionManager.Cache.Get(cacheKey); ok {
+	if ts, ok := d.ConnectionCache.Get(ctx, cacheKey); ok {
 		return ts.(oauth2.TokenSource), nil
 	}
 
@@ -247,7 +248,7 @@ func getTokenSource(ctx context.Context, d *plugin.QueryData, scopes ...string) 
 	ts := config.TokenSource(ctx)
 
 	// cache the token source
-	d.ConnectionManager.Cache.Set(cacheKey, ts)
+	_ = d.ConnectionCache.Set(ctx, cacheKey, ts)
 
 	return ts, nil
 }
