@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v6/plugin"
 
 	"google.golang.org/api/calendar/v3"
 )
@@ -16,8 +16,8 @@ func tableGoogleWorkspaceCalendarMyEvent(_ context.Context) *plugin.Table {
 		Name:        "googleworkspace_calendar_my_event",
 		Description: "Events scheduled on the specified calendar.",
 		List: &plugin.ListConfig{
-			Hydrate:           listCalendarMyEvents,
-			ShouldIgnoreError: isNotFoundError([]string{"404"}),
+			Hydrate:      listCalendarMyEvents,
+			IgnoreConfig: &plugin.IgnoreConfig{ShouldIgnoreErrorFunc: isNotFoundError([]string{"404"})},
 			KeyColumns: []*plugin.KeyColumn{
 				{
 					Name:    "query",

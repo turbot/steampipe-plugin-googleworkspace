@@ -1,7 +1,7 @@
 package googleworkspace
 
 import (
-	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v6/plugin"
 )
 
 type googleworkspaceConfig struct {
@@ -17,9 +17,9 @@ func ConfigInstance() interface{} {
 
 // GetConfig :: retrieve and cast connection config from query data
 func GetConfig(connection *plugin.Connection) googleworkspaceConfig {
-	if connection == nil || connection.Config == nil {
+	if connection == nil || connection.GetConfig() == nil {
 		return googleworkspaceConfig{}
 	}
-	config, _ := connection.Config.(googleworkspaceConfig)
+	config, _ := connection.GetConfig().(googleworkspaceConfig)
 	return config
 }

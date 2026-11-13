@@ -3,9 +3,9 @@ package googleworkspace
 import (
 	"context"
 
-	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
-	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
-	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
+	"github.com/turbot/steampipe-plugin-sdk/v6/grpc/proto"
+	"github.com/turbot/steampipe-plugin-sdk/v6/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v6/plugin/transform"
 
 	"google.golang.org/api/people/v1"
 )
@@ -142,8 +142,8 @@ func tableGoogleWorkspacePeopleContact(_ context.Context) *plugin.Table {
 		Name:        "googleworkspace_people_contact",
 		Description: "Contacts owned by the authenticated user.",
 		List: &plugin.ListConfig{
-			Hydrate:           listPeopleContacts,
-			ShouldIgnoreError: isNotFoundError([]string{"404"}),
+			Hydrate:      listPeopleContacts,
+			IgnoreConfig: &plugin.IgnoreConfig{ShouldIgnoreErrorFunc: isNotFoundError([]string{"404"})},
 		},
 		Columns: peopleContacts(),
 	}
